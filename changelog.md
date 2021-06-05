@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+*2021-06-05*
+- Changed file classification to use the default heuristic value if applicable.
+
 ## 1.1.1
 *2021-06-05*
 - Changed file analysis to filter out vendored files first before analysing languages, increasing performance.
