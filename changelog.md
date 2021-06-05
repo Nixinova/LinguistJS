@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+*2021-06-05*
+- Changed file analysis to filter out vendored files first before analysing languages, increasing performance.
+
 ## 1.1.0
 *2021-06-05*
 - Added options argument to analyser function.

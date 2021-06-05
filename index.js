@@ -15,15 +15,16 @@ export default async function analyse(root = '.', opts = {}) {
 
 	// Load all files and parse langugaes
 	const results = {}, languages = { programming: {}, markup: {}, data: {}, prose: {} };
-	const files = glob.sync(root + '/**/*', {});
+	let files = glob.sync(root + '/**/*', {});
+	if (!opts.keepVendored) {
+		// Filter out any files that match a vendor file path
+		let matcher = match => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
+		files = files.filter(file => !vendorData.some(match => file.match(matcher(match))));
+	}
 	files.forEach(file => {
 		// Search each language
 		for (const lang in langData) {
 			// Check if filename is a match
-			if (!opts.keepVendored) {
-				const matchesVendor = vendorData.some(match => file.match(new RegExp(match)));
-				if (matchesVendor) continue;
-			}
 			const matchesName = langData[lang].filenames?.some(presetName => file === presetName);
 			const matchesExt = langData[lang].extensions?.some(ext => file.endsWith(ext));
 			if (matchesName || matchesExt) {

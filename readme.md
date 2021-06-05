@@ -49,6 +49,10 @@ Running Linguist on this folder will return the following JSON:
 		"programming": {
 			"JavaScript": 1000,
 			"TypeScript": 2000,
+		},
+		"markup": {},
+		"data": {},
+		"prose": {
 			"Markdown": 5000
 		}
 	}
@@ -65,6 +69,11 @@ let folder = './src';
 let options = { keepVendored: false };
 let { count, results, languages } = linguist(folder, options);
 ```
+
+- `linguist(folder?, opts?)` (default export): Analyse the language of all files found in a folder.
+  - `folder` (optional; string): The folder to analyse (defaults to `./`).
+  - `opts` (optional; object): An object containing analyser options.
+    - `keepVendored` (boolean): Whether to keep vendored files (dependencies, etc) (defaults to `false`).
 
 ### Command-line
 
