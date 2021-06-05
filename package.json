@@ -1,11 +1,18 @@
 {
-	"name": "linguist",
-	"version": "0.0.0",
-	"description": "Language analysis from file extensions",
+	"name": "linguist-js",
+	"version": "1.0.0",
+	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "index.js",
+	"type": "module",
 	"scripts": {
-		"test": ""
+		"test": "node test"
 	},
+	"bin": {
+		"linguist": "cli.js"
+	},
+	"files": [
+		"*.js"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/Nixinova/Linguist.git"
@@ -21,5 +28,11 @@
 	"bugs": {
 		"url": "https://github.com/Nixinova/Linguist/issues"
 	},
-	"homepage": "https://github.com/Nixinova/Linguist#readme"
+	"homepage": "https://github.com/Nixinova/Linguist#readme",
+	"dependencies": {
+		"glob": "^7.1.7",
+		"js-yaml": "^4.1.0",
+		"node-fetch": "^2.6.1"
+	},
+	"devDependencies": {}
 }
