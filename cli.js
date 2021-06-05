@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import linguist from './index.js';
 
 const arg = (n) => process.argv[n + 1] || '';

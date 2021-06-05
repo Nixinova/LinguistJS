@@ -5,17 +5,17 @@ Powered by [github-linguist](https://github.com/github/linguist), although it do
 
 ## Install
 
-Linguist is available [on npm](https://npmjs.com/package/linguist-js).
+Linguist is available [on npm](https://npmjs.com/package/linguist-js) as `linguist-js`.
 
-Install locally using `npm install linguist` and import it into your code like so:
+Install locally using `npm install linguist-js` and import it into your code like so:
 
 ```js
-const linguist = require('linguist'); // old import syntax
+const linguist = require('linguist-js'); // old import syntax
 /*or*/
-import linguist from 'linguist'; // modern import syntax
+import linguist from 'linguist-js'; // modern import syntax
 ```
 
-Or install globally using `npm install -g linguist` and run using the CLI command `linguist`.
+Or install globally using `npm install -g linguist-js` and run using the CLI command `linguist`.
 
 ```cmd
 linguist --help
@@ -60,7 +60,7 @@ Running Linguist on this folder will return the following JSON:
 Node:
 
 ```js
-const linguist = require('linguist');
+const linguist = require('linguist-js');
 let folder = './src';
 let { count, results, languages } = linguist(folder);
 ```
