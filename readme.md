@@ -68,5 +68,5 @@ let { count, results, languages } = linguist(folder);
 Command-line:
 
 ```cmd
-linguist --analyze [<folder>]
+linguist --analyze [<folder>] [--full]
 ```
