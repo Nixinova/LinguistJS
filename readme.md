@@ -57,16 +57,24 @@ Running Linguist on this folder will return the following JSON:
 
 ## API
 
-Node:
+### Node
 
 ```js
 const linguist = require('linguist-js');
 let folder = './src';
-let { count, results, languages } = linguist(folder);
+let options = { keepVendored: false };
+let { count, results, languages } = linguist(folder, options);
 ```
 
-Command-line:
+### Command-line
 
 ```cmd
-linguist --analyze [<folder>] [--full]
+linguist --analyze [<folder>] [--full] [--vendored]
+linguist --help
 ```
+
+- `--analyze`: Analyse the language of all files found in a folder.
+  - `<folder>` (optional): The folder to analyse (defaults to `./`).
+  - `--full` (optional): Whether to print a full list of all files analysed.
+  - `--vendored` (optional): Whether to include vendored files (dependencies, etc).
+- `--help`: Display a help message.
