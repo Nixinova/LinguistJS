@@ -1,0 +1,25 @@
+{
+	"name": "linguist",
+	"version": "0.0.0",
+	"description": "Language analysis from file extensions",
+	"main": "index.js",
+	"scripts": {
+		"test": ""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Nixinova/Linguist.git"
+	},
+	"keywords": [
+		"linguist",
+		"languages",
+		"language-analysis",
+		"language-analyzer"
+	],
+	"author": "Nixinova (https://nixinova.com)",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Nixinova/Linguist/issues"
+	},
+	"homepage": "https://github.com/Nixinova/Linguist#readme"
+}
