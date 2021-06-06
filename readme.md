@@ -30,9 +30,9 @@ As an example, take the following file structure:
 ```tree
 .
 | src
-| | index.ts 2kB
 | | cli.js 1kB
-| readme.md 5kB
+| | index.ts 2kB
+| readme.md 3kB
 ```
 
 Running Linguist on this folder will return the following JSON:
@@ -46,15 +46,10 @@ Running Linguist on this folder will return the following JSON:
 		"readme.md": "Markdown"
 	},
 	"languages": {
-		"programming": {
-			"JavaScript": 1000,
-			"TypeScript": 2000,
-		},
+		"programming": { "JavaScript": 1000, "TypeScript": 2000 },
 		"markup": {},
 		"data": {},
-		"prose": {
-			"Markdown": 5000
-		}
+		"prose": { "Markdown": 3000 }
 	}
 }
 ```
@@ -66,7 +61,7 @@ Running Linguist on this folder will return the following JSON:
 ```js
 const linguist = require('linguist-js');
 let folder = './src';
-let options = { keepVendored: false };
+let options = { keepVendored: false, checkAttributes: false };
 let { count, results, languages } = linguist(folder, options);
 ```
 
@@ -74,11 +69,12 @@ let { count, results, languages } = linguist(folder, options);
   - `folder` (optional; string): The folder to analyse (defaults to `./`).
   - `opts` (optional; object): An object containing analyser options.
     - `keepVendored` (boolean): Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+    - `checkAttributes` (boolean): Whether to check `.gitattributes` for manual language classifications (defaults to `false`).
 
 ### Command-line
 
 ```cmd
-linguist --analyze [<folder>] [--full] [--vendored]
+linguist --analyze [<folder>] [--full] [--vendored] [--gitattributes]
 linguist --help
 ```
 
@@ -86,4 +82,5 @@ linguist --help
   - `<folder>` (optional): The folder to analyse (defaults to `./`).
   - `--full` (optional): Whether to print a full list of all files analysed.
   - `--vendored` (optional): Whether to include vendored files (dependencies, etc).
+  - `--gitattributes` (optional): Whether to check `.gitattributes` files for custom file associations (overrides).
 - `--help`: Display a help message.

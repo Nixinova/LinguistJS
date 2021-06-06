@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+*2021-06-06*
+- Added gitattributes checking using option `checkAttributes` (Node) or `--gitattributes` (CLI).
+- Added unique language count and total bytes size to output as `languages.total`.
+
 ## 1.1.2
 *2021-06-05*
 - Changed file classification to use the default heuristic value if applicable.

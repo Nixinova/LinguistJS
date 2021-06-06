@@ -2,6 +2,7 @@ import fs from 'fs';
 import fetch from 'node-fetch';
 import yaml from 'js-yaml';
 import glob from 'glob';
+import glob2regex from 'glob-to-regexp';
 
 async function loadFile(file) {
 	const DATA_URL = `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}.yml`;
@@ -14,27 +15,78 @@ export default async function analyse(root = '.', opts = {}) {
 	const vendorData = await loadFile('vendor');
 	const heuristicsData = await loadFile('heuristics');
 
-	const results = {}, extensions = {}, languages = { programming: {}, markup: {}, data: {}, prose: {} };
+	const results = {};
+	const extensions = {};
+	const overrides = {};
+	const languages = { programming: {}, markup: {}, data: {}, prose: {}, total: { unique: 0, bytes: 0 } };
+
 	let files = glob.sync(root + '/**/*', {});
+	let folders = new Set();
+	// Load gitattributes
+	if (opts.checkAttributes) {
+		const getFileRegex = line => glob2regex('**/' + line.split(' ')[0], { globstar: true });
+		files.forEach(file => folders.add(file.replace(/[^\\/]+$/, '')));
+		folders.forEach(folder => {
+			let data;
+			try { data = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); } catch { }
+			if (!data) return;
+			// Custom vendor options
+			{
+				const match = data.match(/^\S+ .*linguist-(vendored|generated|documentation)(?!=false)/gm) || [];
+				match.forEach(line => {
+					let filePattern = getFileRegex(line).source;
+					vendorData.push(folder + filePattern.substr(1));
+				});
+			}
+			// Custom file associations
+			{
+				const match = data.match(/^\S+ .*linguist-language=\S+/gm) || [];
+				match.forEach(line => {
+					let filePattern = getFileRegex(line).source;
+					let forcedLang = line.match(/linguist-language=(\S+)/)[1];
+					// If specified language is an alias, associate it with its full name
+					if (!langData[forcedLang]) {
+						for (const [lang, data] of Object.entries(langData)) {
+							if (!data.aliases?.includes(forcedLang.toLowerCase())) continue;
+							forcedLang = lang;
+							break;
+						}
+					}
+					overrides[folder + filePattern.substr(1)] = forcedLang;
+				});
+			}
+		});
+	}
+	// Check vendored files
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
 		let matcher = match => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !vendorData.some(match => file.match(matcher(match))));
 	}
 	// Load all files and parse languages
+	const addResult = (file, data) => {
+		if (!results[file]) {
+			results[file] = [];
+			extensions[file] = [];
+		}
+		results[file].push(data);
+		extensions[file].push('.' + file.split('.').slice(-1)[0]);
+	}
 	files.forEach(file => {
+		// Check override for manual language classification
+		if (opts.checkAttributes) {
+			let matchIndex = Object.keys(overrides).findIndex(p => file.match(new RegExp(p)));
+			if (matchIndex > -1) {
+				addResult(file, Object.values(overrides)[matchIndex]);
+			}
+		}
 		// Search each language
 		for (const lang in langData) {
 			// Check if filename is a match
 			const matchesName = langData[lang].filenames?.some(presetName => file === presetName);
 			const matchesExt = langData[lang].extensions?.some(ext => file.endsWith(ext));
 			if (matchesName || matchesExt) {
-				if (!results[file]) {
-					results[file] = [];
-					extensions[file] = [];
-				}
-				results[file].push(lang);
-				extensions[file].push('.' + file.split('.').slice(-1)[0]);
+				addResult(file, lang);
 			}
 		}
 	});
@@ -65,8 +117,12 @@ export default async function analyse(root = '.', opts = {}) {
 	for (const [file, lang] of Object.entries(results)) {
 		const type = langData[lang].type;
 		if (!languages[type][lang]) languages[type][lang] = 0;
-		languages[type][lang] += fs.statSync(file).size;
+		const fileSize = fs.statSync(file).size;
+		languages.total.bytes += fileSize;
+		languages[type][lang] += fileSize;
 	}
+	// Load unique language count
+	languages.total.unique = [...Object.keys(languages.programming), ...Object.keys(languages.markup), ...Object.keys(languages.data), ...Object.keys(languages.prose)].length;
 	// Return
 	return { count: Object.values(results).length, results, languages };
 }
