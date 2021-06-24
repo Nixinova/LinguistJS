@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const VERSION = '1.2.1';
 
 import linguist from './index.js';
 import yargs from 'yargs-parser';
@@ -8,25 +9,31 @@ const usage = (cmd, desc) => console.log('\n' + indent(2) + cmd + '\n' + indent(
 
 const argOpts = {
 	alias: {
-		full: ['f'],
+		files: ['f', 'full'],
 		help: ['h'],
+		version: ['v'],
 		analyse: ['a', 'analyze'],
 		vendored: ['v', 'vendor'],
 		gitattributes: ['g'],
 	},
-	boolean: ['full', 'help', 'analyze', 'vendored'],
+	boolean: ['full', 'help', 'version', 'analyze', 'vendored'],
 }
 const args = yargs(process.argv.slice(2), argOpts);
 
 if (args.help) {
 	console.log(`\n${indent(1)}linguist usage:`);
-	usage(`linguist --analyse [<folder>] [--full] [--vendored] [--gitattributes]`, [
+	usage(`linguist --analyse [<folder>] [--files] [--vendored] [--gitattributes]`, [
 		`Analyse the language of all files found in a folder.`,
-		`<folder>   		The folder to analyse (optional; default './')`,
-		`--full     		List every file parsed (optional)`,
-		`--vendored 		Prevent skipping over vendored files (optional)`,
-		`--gitattributes 	Check .gitattributes files for custom file associations (optional)`,
+		`<folder>           The folder to analyse (optional; default './')`,
+		`--files            List every file parsed (optional)`,
+		`--vendored         Prevent skipping over vendored files (optional)`,
+		`--gitattributes    Check .gitattributes files for custom file associations (optional)`,
 	].join('\n'));
+	usage(`linguist --version`, 'Display the installed version of linguist-js');
+	usage(`linguist --help`, 'Display this help message');
+}
+else if (args.version) {
+	console.log(`The latest version of linguist-js is ${VERSION}.`);
 }
 else if (args.analyse) {
 	(async () => {

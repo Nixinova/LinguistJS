@@ -25,43 +25,47 @@ export default async function analyse(root = '.', opts = {}) {
 	// Load gitattributes
 	if (opts.checkAttributes) {
 		const getFileRegex = line => glob2regex('**/' + line.split(' ')[0], { globstar: true });
-		files.forEach(file => folders.add(file.replace(/[^\\/]+$/, '')));
-		folders.forEach(folder => {
+		for (const file in files) {
+			folders.add(file.replace(/[^\\/]+$/, ''));
+		}
+		for (const folder in folders) {
 			let data;
-			try { data = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); } catch { }
-			if (!data) return;
+			try { data = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); }
+			catch { return; }
 			// Custom vendor options
 			{
-				const match = data.match(/^\S+ .*linguist-(vendored|generated|documentation)(?!=false)/gm) || [];
-				match.forEach(line => {
-					let filePattern = getFileRegex(line).source;
+				const matches = data.match(/^\S+ .*linguist-(vendored|generated|documentation)(?!=false)/gm) || [];
+				for (const line in matches) {
+					const filePattern = getFileRegex(line).source;
 					vendorData.push(folder + filePattern.substr(1));
-				});
+				}
 			}
 			// Custom file associations
 			{
-				const match = data.match(/^\S+ .*linguist-language=\S+/gm) || [];
-				match.forEach(line => {
+				const matches = data.match(/^\S+ .*linguist-language=\S+/gm) || [];
+				const langDataArray = Object.entries(langData);
+				for (const line in matches) {
 					let filePattern = getFileRegex(line).source;
 					let forcedLang = line.match(/linguist-language=(\S+)/)[1];
 					// If specified language is an alias, associate it with its full name
 					if (!langData[forcedLang]) {
-						for (const [lang, data] of Object.entries(langData)) {
+						for (const [lang, data] of langDataArray) {
 							if (!data.aliases?.includes(forcedLang.toLowerCase())) continue;
 							forcedLang = lang;
 							break;
 						}
 					}
-					overrides[folder + filePattern.substr(1)] = forcedLang;
-				});
+					const fullPath = folder + filePattern.substr(1);
+					overrides[fullPath] = forcedLang;
+				}
 			}
-		});
+		}
 	}
 	// Check vendored files
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		let matcher = match => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
-		files = files.filter(file => !vendorData.some(match => file.match(matcher(match))));
+		const matcher = match => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
+		files = files.filter(file => !vendorData.some(match => matcher(match).test(file)));
 	}
 	// Load all files and parse languages
 	const addResult = (file, data) => {
@@ -72,13 +76,12 @@ export default async function analyse(root = '.', opts = {}) {
 		results[file].push(data);
 		extensions[file].push('.' + file.split('.').slice(-1)[0]);
 	}
+	const overridesArray = Object.entries(overrides);
 	files.forEach(file => {
 		// Check override for manual language classification
 		if (opts.checkAttributes) {
-			let matchIndex = Object.keys(overrides).findIndex(p => file.match(new RegExp(p)));
-			if (matchIndex > -1) {
-				addResult(file, Object.values(overrides)[matchIndex]);
-			}
+			const match = overridesArray.find(item => file.match(new RegExp(item[0])));
+			if (match) addResult(file, match[1]);
 		}
 		// Search each language
 		for (const lang in langData) {
@@ -104,7 +107,7 @@ export default async function analyse(root = '.', opts = {}) {
 				// Make sure the results includes this language
 				if (!results[file].includes(language)) continue;
 				// If the default (final) heuristic is this language, set it
-				results[file] = heuristics.rules[[heuristics.rules.length - 1]].language;
+				results[file] = heuristics.rules[heuristics.rules.length - 1].language;
 			}
 		}
 	}
@@ -115,6 +118,7 @@ export default async function analyse(root = '.', opts = {}) {
 	}
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(results)) {
+		if (!langData[lang]) continue;
 		const type = langData[lang].type;
 		if (!languages[type][lang]) languages[type][lang] = 0;
 		const fileSize = fs.statSync(file).size;
@@ -122,7 +126,7 @@ export default async function analyse(root = '.', opts = {}) {
 		languages[type][lang] += fileSize;
 	}
 	// Load unique language count
-	languages.total.unique = [...Object.keys(languages.programming), ...Object.keys(languages.markup), ...Object.keys(languages.data), ...Object.keys(languages.prose)].length;
+	languages.total.unique = [languages.programming, languages.markup, languages.data, languages.prose].flat().length;
 	// Return
-	return { count: Object.values(results).length, results, languages };
+	return { count: Object.keys(results).length, results, languages };
 }

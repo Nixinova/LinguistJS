@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.1
+*2021-06-24*
+- Added alias `--files` for `--full`.
+- Added CLI command `--version`.
+- Fixed the analyser crashing when it comes across a heuristic that cannot be matched to a language.
+- Improved performance.
+
 ## 1.2.0
 *2021-06-06*
 - Added gitattributes checking using option `checkAttributes` (Node) or `--gitattributes` (CLI).

@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "index.js",
 	"type": "module",
@@ -11,7 +11,8 @@
 		"linguist": "cli.js"
 	},
 	"files": [
-		"*.js"
+		"index.js",
+		"cli.js"
 	],
 	"repository": {
 		"type": "git",
@@ -34,7 +35,7 @@
 		"glob-to-regexp": "^0.4.1",
 		"js-yaml": "^4.1.0",
 		"node-fetch": "^2.6.1",
-		"yargs-parser": "^20.2.7"
+		"yargs-parser": "^20.2.9"
 	},
 	"devDependencies": {}
 }

@@ -65,22 +65,37 @@ let options = { keepVendored: false, checkAttributes: false };
 let { count, results, languages } = linguist(folder, options);
 ```
 
-- `linguist(folder?, opts?)` (default export): Analyse the language of all files found in a folder.
-  - `folder` (optional; string): The folder to analyse (defaults to `./`).
-  - `opts` (optional; object): An object containing analyser options.
-    - `keepVendored` (boolean): Whether to keep vendored files (dependencies, etc) (defaults to `false`).
-    - `checkAttributes` (boolean): Whether to check `.gitattributes` for manual language classifications (defaults to `false`).
+- `linguist(folder?, opts?)` (default export):
+  Analyse the language of all files found in a folder.
+  - `folder` (optional; string):
+    The folder(s) to analyse (defaults to `./`).
+    Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
+  - `opts` (optional; object):
+    An object containing analyser options.
+    - `keepVendored` (boolean):
+      Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+    - `checkAttributes` (boolean):
+      Whether to check `.gitattributes` for manual language classifications (defaults to `false`).
 
 ### Command-line
 
 ```cmd
-linguist --analyze [<folder>] [--full] [--vendored] [--gitattributes]
+linguist --analyze [<folder>] [--files] [--vendored] [--gitattributes]
 linguist --help
 ```
 
-- `--analyze`: Analyse the language of all files found in a folder.
-  - `<folder>` (optional): The folder to analyse (defaults to `./`).
-  - `--full` (optional): Whether to print a full list of all files analysed.
-  - `--vendored` (optional): Whether to include vendored files (dependencies, etc).
-  - `--gitattributes` (optional): Whether to check `.gitattributes` files for custom file associations (overrides).
-- `--help`: Display a help message.
+- `--analyze`:
+  Analyse the language of all files found in a folder.
+  - `<folder>` (optional):
+    The folder to analyse (defaults to `./`).
+    Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
+  - `--files` (optional):
+    Whether to print a full list of all files analysed.
+  - `--vendored` (optional):
+    Whether to include vendored files (dependencies, etc).
+  - `--gitattributes` (optional):
+    Whether to check `.gitattributes` files for custom file associations (overrides).
+- `--help`:
+  Display a help message.
+- `--version`:
+  Display the current version of linguist-js.
