@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.3
+*2021-07-21*
+- Added CLI argument `--quick`/`-q` for skipping the checking of gitattributes files.
+- Changed the checking of gitattributes files to be default behaviour.
+- Removed CLI argument `--gitattributes`/`-g` as it is now the default behaviour.
+
 ## 1.2.2
 *2021-07-21*
 - Added CLI argument alias `-V` for `--vendored`.

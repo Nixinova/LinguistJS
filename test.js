@@ -6,6 +6,6 @@ async function test() {
 	console.log('<Test 1> No arguments:');
 	await linguist().then(results);
 	console.log('<Test 2> Node modules bin with vendored kept and gitattributes checked:');
-	await linguist('./node_modules/.bin', { keepVendored: true, checkAttributes: true }).then(results);
+	await linguist('./node_modules/.bin', { keepVendored: true, quick: false }).then(results);
 }
 test();

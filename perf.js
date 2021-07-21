@@ -16,6 +16,5 @@ async function perfTest() {
 	console.log('\n<Performance test results>');
 	console.log('Total:', total / 1e3, 'sec', `(n=${amount})`);
 	console.log('Average:', total / times.length / 1e3, 'sec');
-	console.log('Expected:', '~', 0.12, 'sec/run'); // v1.2.1
 }
 perfTest();

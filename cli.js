@@ -14,9 +14,9 @@ const argOpts = {
 		version: ['v'],
 		analyse: ['a', 'analyze'],
 		vendored: ['V', 'vendor'],
-		gitattributes: ['g'],
+		quick: ['q'],
 	},
-	boolean: ['full', 'help', 'version', 'analyze', 'vendored'],
+	boolean: ['full', 'help', 'version', 'analyze', 'vendored', 'quick'],
 }
 const args = yargs(process.argv.slice(2), argOpts);
 
@@ -27,7 +27,7 @@ if (args.help) {
 		`<folder>`, `\tThe folder to analyse (optional; default './')`,
 		`-f|--files`, `\tList every file parsed (optional)`,
 		`-V|--vendored`, `\tPrevent skipping over vendored/generated files (optional)`,
-		`-g|--gitattributes`, `\tCheck .gitattributes files for custom file associations (optional)`,
+		`-q|--quick`, `\tSkip checking of gitattributes files (optional)`,
 	].join('\n'));
 	usage(`linguist --version`, 'Display the installed version of linguist-js');
 	usage(`linguist --help`, 'Display this help message');
@@ -37,7 +37,8 @@ else if (args.version) {
 }
 else if (args.analyse) {
 	(async () => {
-		const data = await linguist(args._[0], { keepVendored: args.vendored, checkAttributes: args.gitattributes });
+		const opts = { keepVendored: !!args.vendored, quick: !!args.quick };
+		const data = await linguist(args._[0], opts);
 		let loggedData = data;
 		if (!args.full) delete loggedData.results;
 		console.log(loggedData);

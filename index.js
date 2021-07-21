@@ -23,7 +23,7 @@ export default async function analyse(root = '.', opts = {}) {
 	let files = glob.sync(root + '/**/*', {});
 	let folders = new Set();
 	// Load gitattributes
-	if (opts.checkAttributes) {
+	if (!opts.quick) {
 		const convertToRegex = path => glob2regex('**/' + path, { globstar: true });
 		for (const file of files) {
 			folders.add(file.replace(/[^\\/]+$/, ''));
@@ -39,21 +39,18 @@ export default async function analyse(root = '.', opts = {}) {
 				vendorData.push(folder + convertToRegex(path).source.substr(1));
 			}
 			// Custom file associations
-			{
-				const customLangMatches = data.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
-				const langDataArray = Object.entries(langData);
-				for (let [line, path, forcedLang] of customLangMatches) {
-					// If specified language is an alias, associate it with its full name
-					if (!langData[forcedLang]) {
-						for (const [lang, data] of langDataArray) {
-							if (!data.aliases?.includes(forcedLang.toLowerCase())) continue;
-							forcedLang = lang;
-							break;
-						}
+			const customLangMatches = data.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
+			for (let [line, path, forcedLang] of customLangMatches) {
+				// If specified language is an alias, associate it with its full name
+				if (!langData[forcedLang]) {
+					for (const lang in langData) {
+						if (!langData[lang].aliases?.includes(forcedLang.toLowerCase())) continue;
+						forcedLang = lang;
+						break;
 					}
-					const fullPath = folder + convertToRegex(path).source.substr(1);
-					overrides[fullPath] = forcedLang;
 				}
+				const fullPath = folder + convertToRegex(path).source.substr(1);
+				overrides[fullPath] = forcedLang;
 			}
 		}
 	}
@@ -76,7 +73,7 @@ export default async function analyse(root = '.', opts = {}) {
 	files.forEach(file => {
 		if (fs.lstatSync(file).isDirectory()) return;
 		// Check override for manual language classification
-		if (opts.checkAttributes) {
+		if (!opts.quick) {
 			const match = overridesArray.find(item => file.match(new RegExp(item[0])));
 			if (match) {
 				const forcedLang = match[1];
