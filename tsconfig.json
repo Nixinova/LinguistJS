@@ -1,0 +1,62 @@
+{
+  "compilerOptions": {
+    /* More info: https://aka.ms/tsconfig.json */
+    /* Examples: https://github.com/tsconfig/bases */
+
+    /* Basic Options */
+    "target": "es2019", // Node 12
+    "module": "commonjs",
+    "lib": ["es2020"],
+    //"allowJs": true,
+    //"checkJs": true,
+    //"jsx": "preserve",
+    "declaration": true,
+    //"declarationMap": true,
+    //"sourceMap": true,
+    //"outFile": "./",
+    //"outDir": "./",
+    //"rootDir": "./",
+    //"composite": true,
+    //"tsBuildInfoFile": "./",
+    //"removeComments": true,
+    //"noEmit": true,
+    //"importHelpers": true,
+    //"downlevelIteration": true,
+    //"isolatedModules": true,
+
+    /* Strict Type-Checking Options */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    //"strictFunctionTypes": true,
+    //"strictBindCallApply": true,
+    //"strictPropertyInitialization": true,
+    //"noImplicitThis": true,
+    "alwaysStrict": true,
+
+    /* Additional Checks */
+    //"noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    //"noFallthroughCasesInSwitch": true,
+    //"noUncheckedIndexedAccess": true,
+    //"noPropertyAccessFromIndexSignature": true,
+
+    /* Module Resolution Options */
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    //"baseUrl": "./",
+    //"paths": {},
+    //"rootDirs": [],
+    //"typeRoots": [],
+    //"types": [],
+    //"allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    //"preserveSymlinks": true,
+    //"allowUmdGlobalAccess": true,
+
+    /* Advanced Options */
+    "skipLibCheck": true,
+    //"forceConsistentCasingInFileNames": true
+  }
+}

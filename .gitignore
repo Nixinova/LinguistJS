@@ -1,2 +1,9 @@
+# Dependencies
 node_modules/
+
+# Compiled files
+src/**/*.d.ts
+src/**/*.js
+
+# Testing
 debug/

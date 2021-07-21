@@ -1,4 +1,4 @@
-import linguist from './index.js';
+const linguist = require('../src/index.js');
 
 async function perfTest() {
 	let times = [];

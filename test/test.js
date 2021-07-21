@@ -1,5 +1,5 @@
-import linguist from './index.js';
-import './perf.js';
+const linguist = require('../src/index.js');
+require('./perf.js');
 
 async function test() {
 	const results = ({ count, languages }) => console.log({ count, languages });

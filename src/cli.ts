@@ -1,11 +1,12 @@
-#!/usr/bin/env node
-const VERSION = '1.2.1';
+const VERSION = require('../package.json').version;
 
 import linguist from './index.js';
 import yargs from 'yargs-parser';
 
-const indent = (n) => ' '.repeat(n * 4);
-const usage = (cmd, desc) => console.log('\n' + indent(2) + cmd + '\n' + indent(3) + desc.replace(/\n/g, '\n' + indent(4)));
+import * as T from './types';
+
+const indent = (n: number) => ' '.repeat(n * 4);
+const usage = (cmd: string, desc: string) => console.log('\n' + indent(2) + cmd + '\n' + indent(3) + desc.replace(/\n/g, '\n' + indent(4)));
 
 const argOpts = {
 	alias: {
@@ -39,9 +40,8 @@ else if (args.analyse) {
 	(async () => {
 		const opts = { keepVendored: !!args.vendored, quick: !!args.quick };
 		const data = await linguist(args._[0], opts);
-		let loggedData = data;
-		if (!args.full) delete loggedData.results;
-		console.log(loggedData);
+		const { count, languages, results } = data;
+		console.log(args.full ? { results, count, languages } : { count, languages });
 	})();
 }
 else {

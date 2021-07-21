@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.4
+*2021-07-22*
+- Added type definitions due to TypeScript rewrite.
+
 ## 1.2.3
 *2021-07-21*
 - Added CLI argument `--quick`/`-q` for skipping the checking of gitattributes files.
