@@ -13,7 +13,7 @@ const argOpts = {
 		help: ['h'],
 		version: ['v'],
 		analyse: ['a', 'analyze'],
-		vendored: ['v', 'vendor'],
+		vendored: ['V', 'vendor'],
 		gitattributes: ['g'],
 	},
 	boolean: ['full', 'help', 'version', 'analyze', 'vendored'],
@@ -24,10 +24,10 @@ if (args.help) {
 	console.log(`\n${indent(1)}linguist usage:`);
 	usage(`linguist --analyse [<folder>] [--files] [--vendored] [--gitattributes]`, [
 		`Analyse the language of all files found in a folder.`,
-		`<folder>           The folder to analyse (optional; default './')`,
-		`--files            List every file parsed (optional)`,
-		`--vendored         Prevent skipping over vendored files (optional)`,
-		`--gitattributes    Check .gitattributes files for custom file associations (optional)`,
+		`<folder>`, `\tThe folder to analyse (optional; default './')`,
+		`-f|--files`, `\tList every file parsed (optional)`,
+		`-V|--vendored`, `\tPrevent skipping over vendored/generated files (optional)`,
+		`-g|--gitattributes`, `\tCheck .gitattributes files for custom file associations (optional)`,
 	].join('\n'));
 	usage(`linguist --version`, 'Display the installed version of linguist-js');
 	usage(`linguist --help`, 'Display this help message');

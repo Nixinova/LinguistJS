@@ -24,29 +24,25 @@ export default async function analyse(root = '.', opts = {}) {
 	let folders = new Set();
 	// Load gitattributes
 	if (opts.checkAttributes) {
-		const getFileRegex = line => glob2regex('**/' + line.split(' ')[0], { globstar: true });
-		for (const file in files) {
+		const convertToRegex = path => glob2regex('**/' + path, { globstar: true });
+		for (const file of files) {
 			folders.add(file.replace(/[^\\/]+$/, ''));
 		}
-		for (const folder in folders) {
-			let data;
+		for (const folder of folders) {
+			// Attempt to read gitattributes
+			let data = '';
 			try { data = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); }
-			catch { return; }
+			catch { continue; }
 			// Custom vendor options
-			{
-				const matches = data.match(/^\S+ .*linguist-(vendored|generated|documentation)(?!=false)/gm) || [];
-				for (const line in matches) {
-					const filePattern = getFileRegex(line).source;
-					vendorData.push(folder + filePattern.substr(1));
-				}
+			const vendorMatches = data.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
+			for (const [line, path] of vendorMatches) {
+				vendorData.push(folder + convertToRegex(path).source.substr(1));
 			}
 			// Custom file associations
 			{
-				const matches = data.match(/^\S+ .*linguist-language=\S+/gm) || [];
+				const customLangMatches = data.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
 				const langDataArray = Object.entries(langData);
-				for (const line in matches) {
-					let filePattern = getFileRegex(line).source;
-					let forcedLang = line.match(/linguist-language=(\S+)/)[1];
+				for (let [line, path, forcedLang] of customLangMatches) {
 					// If specified language is an alias, associate it with its full name
 					if (!langData[forcedLang]) {
 						for (const [lang, data] of langDataArray) {
@@ -55,7 +51,7 @@ export default async function analyse(root = '.', opts = {}) {
 							break;
 						}
 					}
-					const fullPath = folder + filePattern.substr(1);
+					const fullPath = folder + convertToRegex(path).source.substr(1);
 					overrides[fullPath] = forcedLang;
 				}
 			}
@@ -78,10 +74,15 @@ export default async function analyse(root = '.', opts = {}) {
 	}
 	const overridesArray = Object.entries(overrides);
 	files.forEach(file => {
+		if (fs.lstatSync(file).isDirectory()) return;
 		// Check override for manual language classification
 		if (opts.checkAttributes) {
 			const match = overridesArray.find(item => file.match(new RegExp(item[0])));
-			if (match) addResult(file, match[1]);
+			if (match) {
+				const forcedLang = match[1];
+				addResult(file, forcedLang);
+				return;
+			}
 		}
 		// Search each language
 		for (const lang in langData) {
@@ -91,6 +92,10 @@ export default async function analyse(root = '.', opts = {}) {
 			if (matchesName || matchesExt) {
 				addResult(file, lang);
 			}
+		}
+		// Fallback to null if no language matches
+		if (!results[file]) {
+			addResult(file, null);
 		}
 	});
 	// Parse heuristics if applicable

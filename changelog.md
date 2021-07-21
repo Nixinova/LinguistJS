@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+*2021-07-21*
+- Added CLI argument alias `-V` for `--vendored`.
+- Changed files with no language to output a language of `null` instead of being removed from the list.
+- Fixed gitattributes statements not being checked.
+
 ## 1.2.1
 *2021-06-24*
 - Added alias `--files` for `--full`.
