@@ -1,14 +1,15 @@
 {
 	"name": "linguist-js",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "src/index.js",
+	"bin": {
+		"linguist": "bin/index.js"
+	},
 	"scripts": {
 		"prepublish": "tsc",
+		"perf": "node test/perf",
 		"test": "tsc && node test/test"
-	},
-	"bin": {
-		"linguist": "bin/linguist.js"
 	},
 	"files": [
 		"bin/*.js",
@@ -42,8 +43,8 @@
 		"@types/glob": "^7.1.4",
 		"@types/glob-to-regexp": "^0.4.1",
 		"@types/js-yaml": "^4.0.2",
-		"@types/node": "^16.4.0",
-		"@types/node-fetch": "^2.5.11",
+		"@types/node": "ts4.3",
+		"@types/node-fetch": "^2.5.12",
 		"@types/yargs": "^17.0.2",
 		"typescript": "~4.3.5"
 	}

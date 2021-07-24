@@ -88,8 +88,8 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		// Search each language
 		for (const lang in langData) {
 			// Check if filename is a match
-			const matchesName = langData[lang].filenames?.some(presetName => file === presetName);
-			const matchesExt = langData[lang].extensions?.some(ext => file.endsWith(ext));
+			const matchesName = langData[lang].filenames?.some(presetName => file.toLowerCase().endsWith(presetName.toLowerCase()));
+			const matchesExt = langData[lang].extensions?.some(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
 			if (matchesName || matchesExt) {
 				addResult(file, lang);
 			}
@@ -111,7 +111,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 			// Load heuristic rules
 			for (const { language } of heuristics.rules) {
 				// Make sure the results includes this language
-				if (!results[file]?.includes(language)) continue;
+				if (!results[file].includes(language)) continue;
 				// If the default (final) heuristic is this language, set it
 				finalResults[file] = heuristics.rules[heuristics.rules.length - 1].language;
 			}
@@ -119,7 +119,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	}
 	// If no heuristics, load the only language
 	for (const file in results) {
-		finalResults[file] ||= results[file][0];
+		finalResults[file] ??= results[file][0];
 	}
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(finalResults)) {

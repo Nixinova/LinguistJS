@@ -23,7 +23,7 @@ const args = yargs(process.argv.slice(2), argOpts);
 
 if (args.help) {
 	console.log(`\n${indent(1)}linguist usage:`);
-	usage(`linguist --analyse [<folder>] [--files] [--vendored] [--gitattributes]`, [
+	usage(`linguist --analyse [<folder>] [--files] [--vendored] [--quick]`, [
 		`Analyse the language of all files found in a folder.`,
 		`<folder>`, `\tThe folder to analyse (optional; default './')`,
 		`-f|--files`, `\tList every file parsed (optional)`,

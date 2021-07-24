@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.5
+*Upcoming*
+- Fixed file name matching not working.
+- Fixed file extensions being case sensitive.
+
 ## 1.2.4
 *2021-07-22*
 - Added type definitions due to TypeScript rewrite.
