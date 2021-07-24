@@ -1,11 +1,32 @@
 const linguist = require('../src/index.js');
-require('./perf.js');
 
 async function test() {
-	const results = ({ count, languages }) => console.log({ count, languages });
-	console.log('<Test 1> No arguments:');
-	await linguist().then(results);
-	console.log('<Test 2> Node modules bin with vendored kept and gitattributes checked:');
-	await linguist('./node_modules/.bin', { keepVendored: true, quick: false }).then(results);
+	const samplesFolder = __dirname.replace(/\\/g, '/') + '/samples';
+	const expected = {
+		results: {
+			[samplesFolder + '/folder/sub.txt']: 'Text',
+			[samplesFolder + '/file.txt']: 'JavaScript',
+			[samplesFolder + '/Pipfile']: 'TOML',
+			[samplesFolder + '/unknown']: null,
+		},
+		count: 4,
+		languages: {
+			programming: { JavaScript: 1 },
+			markup: {},
+			data: { TOML: 0 },
+			prose: { Text: 0 },
+			total: { unique: 4, bytes: 1 },
+		},
+	}
+
+	await linguist(samplesFolder).then(actual => {
+		const assert = (a, b, msg) => console.assert(a === b, msg, a, b);
+		const getResults = obj => Object.entries(obj.results).flat().join(',');
+		console.log('Results:', actual);
+		assert(getResults(expected), getResults(actual), 'Results');
+		assert(expected.count, actual.count, 'Total count');
+		assert(expected.languages.programming.JavaScript, actual.languages.programming.JavaScript, 'JavaScript count');
+		assert(expected.languages.total.unique, actual.languages.total.unique, 'Total unique');
+	});
 }
 test();
