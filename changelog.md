@@ -1,7 +1,13 @@
 # Changelog
 
+## 1.3.0
+- Added checking of `.gitignore` files.
+- Added option `ignore` for specifying explicitly-ignored file paths.
+- Added specific options `checkIgnored`, `checkAttributes`, and `checkHeuristics`, all of which can be set together using `quick`.
+- Fixed unique language count being incorrect.
+
 ## 1.2.5
-*Upcoming*
+*2021-07-25*
 - Fixed file name matching not working.
 - Fixed file extensions being case sensitive.
 

@@ -7,7 +7,9 @@ import glob2regex from 'glob-to-regexp';
 import * as T from './types';
 import * as S from './schema';
 
-async function loadFile(file: string): Promise<any> {
+const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true });
+
+const loadFile = async (file: string): Promise<any> => {
 	const DATA_URL = `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}.yml`;
 	const data = await fetch(DATA_URL).then(data => data.text()).then(yaml.load);
 	return data;
@@ -24,41 +26,60 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	const overrides: Record<T.FilePath, T.Language> = {};
 	const languages: T.LanguagesData = { programming: {}, markup: {}, data: {}, prose: {}, total: { unique: 0, bytes: 0 } };
 
-	let files = glob.sync(root + '/**/*', {});
-	let folders = new Set();
+	const sourceFiles = glob.sync(root + '/**/*', {});
+	const folders = new Set<string>();
+
+	// Apply aliases
+	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, ...opts };
+
+	// Apply explicit ignores
+	if (opts.ignore) vendorData.push(...opts.ignore);
+
 	// Load gitattributes
 	if (!opts.quick) {
-		const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true });
-		for (const file of files) {
+		for (const file of sourceFiles) {
 			folders.add(file.replace(/[^\\/]+$/, ''));
 		}
 		for (const folder of folders) {
+
+			// Skip checks if folder is already ignored
+			if (!opts.keepVendored && vendorData.some(path => RegExp(path).test(folder))) continue;
+
+			// Attempt to read gitignores
+			if (opts.checkIgnored) try {
+				let ignoresData = fs.readFileSync(folder + '.gitignore', { encoding: 'utf8' }); // may throw
+				const ignoredPaths = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
+				vendorData.push(...ignoredPaths);
+			} catch { }
+
 			// Attempt to read gitattributes
-			let data = '';
-			try { data = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); }
-			catch { continue; }
-			// Custom vendor options
-			const vendorMatches = data.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
-			for (const [line, path] of vendorMatches) {
-				vendorData.push(folder + convertToRegex(path).source.substr(1));
-			}
-			// Custom file associations
-			const customLangMatches = data.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
-			for (let [line, path, forcedLang] of customLangMatches) {
-				// If specified language is an alias, associate it with its full name
-				if (!langData[forcedLang]) {
-					for (const lang in langData) {
-						if (!langData[lang].aliases?.includes(forcedLang.toLowerCase())) continue;
-						forcedLang = lang;
-						break;
-					}
+			if (opts.checkAttributes) try {
+				let attributesData = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); // may throw
+				// Custom vendor options
+				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
+				for (const [_line, path] of vendorMatches) {
+					vendorData.push(folder + convertToRegex(path).source.substr(1));
 				}
-				const fullPath = folder + convertToRegex(path).source.substr(1);
-				overrides[fullPath] = forcedLang;
-			}
+				// Custom file associations
+				const customLangMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
+				for (let [_line, path, forcedLang] of customLangMatches) {
+					// If specified language is an alias, associate it with its full name
+					if (!langData[forcedLang]) {
+						for (const lang in langData) {
+							if (!langData[lang].aliases?.includes(forcedLang.toLowerCase())) continue;
+							forcedLang = lang;
+							break;
+						}
+					}
+					const fullPath = folder + convertToRegex(path).source.substr(1);
+					overrides[fullPath] = forcedLang;
+				}
+			} catch { }
+
 		}
 	}
 	// Check vendored files
+	let files = [...sourceFiles];
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
 		const matcher = (match: string) => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
@@ -131,7 +152,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		languages[type][lang] += fileSize;
 	}
 	// Load unique language count
-	languages.total.unique = [languages.programming, languages.markup, languages.data, languages.prose].flat().length;
+	languages.total.unique = Object.values({ ...languages.programming, ...languages.markup, ...languages.data, ...languages.prose }).length;
 	// Return
 	return { count: Object.keys(finalResults).length, results: finalResults, languages };
 }

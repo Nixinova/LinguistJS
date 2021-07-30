@@ -1,4 +1,4 @@
-const linguist = require('../src/index.js');
+const linguist = require('../dist/index.js');
 
 async function perfTest() {
 	let times = [];

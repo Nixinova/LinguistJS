@@ -6,6 +6,10 @@ export type Integer = number
 export interface Options {
 	keepVendored?: boolean
 	quick?: boolean
+	checkIgnored?: boolean
+	checkAttributes?: boolean
+	checkHeuristics?: boolean
+	ignore?: string[]
 }
 
 export interface LanguagesData {

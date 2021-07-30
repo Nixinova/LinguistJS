@@ -74,15 +74,22 @@ let { count, results, languages } = linguist(folder, options);
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
     An object containing analyser options.
+	- `ignore:` (string array):
+	  A list of file paths to explicitly ignore.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
     - `quick` (boolean):
-      Whether to skip the checking of gitattributes files for manual language classifications (defaults to `false`).
+      Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications (defaults to `false`).
+	  Alias for `checkAttributes: false, checkIgnored: false`.
+	- `checkAttributes` (boolean):
+	  Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
+	- `checkIgnored` (boolean):
+	  Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
 
 ### Command-line
 
 ```
-linguist --analyze [<folder>] [--files] [--vendored] [--quick]
+linguist --analyze [<folder>] [<...options>]
 linguist --help
 ```
 
@@ -91,12 +98,19 @@ linguist --help
   - `<folder>` (optional):
     The folder to analyse (defaults to `./`).
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
+  - `--ignore`  (optional):
+    A list of file paths (delimited with `;`) to ignore.
   - `--files` (optional):
     Whether to print a full list of all files analysed.
   - `--vendored` (optional):
     Whether to include vendored files (dependencies, etc).
   - `--quick` (optional):
-    Whether to skip the checking of gitattributes files for manual language classifications.
+    Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
+    Alias for `--checkAttributes=false` `--checkIgnored=false`.
+  - `checkAttributes` (optional):
+    Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
+  - `checkIgnored` (optional):
+    Force the checking of `.gitignore` files (use alongside `--quick` to overwrite).
 - `--help`:
   Display a help message.
 - `--version`:
