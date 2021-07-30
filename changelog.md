@@ -1,9 +1,12 @@
 # Changelog
 
+## 1.3.1
+- Changed the delimiter for ignored paths in the CLI `--ignored` argument from `;` to `:`/`;`/`|` as a semicolon is actually valid on Windows.
+
 ## 1.3.0
 - Added checking of `.gitignore` files.
 - Added option `ignore` for specifying explicitly-ignored file paths.
-- Added specific options `checkIgnored`, `checkAttributes`, and `checkHeuristics`, all of which can be set together using `quick`.
+- Added specific options `checkIgnored` and `checkAttributes`, which can be set together using the inverse of `quick`.
 - Fixed unique language count being incorrect.
 
 ## 1.2.5

@@ -27,7 +27,7 @@ if (args.help) {
 	usage(`linguist --analyse [<folder>] [<...options>]`, [
 		`Analyse the language of all files found in a folder.`,
 		`<folder>`, `\tThe folder to analyse (optional; default './')`,
-		`-i|--ignore`, `\tA list of file paths (delimited with ';') to ignore (optional).`,
+		`-i|--ignore`, `\tA list of file paths (delimited with ':', ';' or '|') to ignore (optional).`,
 		`-f|--files`, `\tList every file parsed (optional)`,
 		`-V|--keepVendored`, `\tPrevent skipping over vendored/generated files (optional)`,
 		`-q|--quick`, `\tSkip checking of gitattributes/gitignore files (optional)`, `\tAlias for -A=false -I=false`,
@@ -42,7 +42,13 @@ else if (args.version) {
 }
 else if (args.analyse) {
 	(async () => {
-		const opts = { ignore: args.ignore?.split(';'), keepVendored: !!args.V, quick: !!args.q, checkAttributes: !!args.A, checkIgnored: !!args.I };
+		const opts = {
+			ignore: args.ignore?.split(/(?<!\\)[:;|]/),
+			keepVendored: !!args.V,
+			quick: !!args.q,
+			checkAttributes: !!args.A,
+			checkIgnored: !!args.I,
+		};
 		const data = await linguist(args._[0], opts);
 		const { count, languages, results } = data;
 		console.log(args.full ? { results, count, languages } : { count, languages });

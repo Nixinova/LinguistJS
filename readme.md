@@ -99,7 +99,7 @@ linguist --help
     The folder to analyse (defaults to `./`).
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `--ignore`  (optional):
-    A list of file paths (delimited with `;`) to ignore.
+    A list of file paths (delimited with `:`, `;` or `|`) to ignore.
   - `--files` (optional):
     Whether to print a full list of all files analysed.
   - `--vendored` (optional):
