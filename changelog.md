@@ -2,6 +2,7 @@
 
 ## Next
 - Added `unknown` key to `languages` which lists file extensions that cannot be matched with a given language.
+- Change ignored files list to be globs instead of raw regexes.
 
 ## 1.3.1
 - Changed the delimiter for ignored paths in the CLI `--ignored` argument from `;` to `:`/`;`/`|` as a semicolon is actually valid on Windows.

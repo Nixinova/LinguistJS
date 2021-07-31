@@ -27,7 +27,7 @@ if (args.help) {
 	usage(`linguist --analyse [<folder>] [<...options>]`, [
 		`Analyse the language of all files found in a folder.`,
 		`<folder>`, `\tThe folder to analyse (optional; default './')`,
-		`-i|--ignore`, `\tA list of file paths (delimited with ':', ';' or '|') to ignore (optional).`,
+		`-i|--ignore`, `\tA list of file path globs (delimited with ':', ';' or '|') to ignore (optional).`,
 		`-f|--files`, `\tList every file parsed (optional)`,
 		`-V|--keepVendored`, `\tPrevent skipping over vendored/generated files (optional)`,
 		`-q|--quick`, `\tSkip checking of gitattributes/gitignore files (optional)`, `\tAlias for -A=false -I=false`,

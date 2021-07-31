@@ -74,8 +74,8 @@ let { count, results, languages } = linguist(folder, options);
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
     An object containing analyser options.
-	- `ignore:` (string array):
-	  A list of file paths to explicitly ignore.
+	- `ignore` (string array):
+	  A list of file path globs to explicitly ignore.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
     - `quick` (boolean):
@@ -99,7 +99,7 @@ linguist --help
     The folder to analyse (defaults to `./`).
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `--ignore`  (optional):
-    A list of file paths (delimited with `:`, `;` or `|`) to ignore.
+    A list of file path globs (delimited with `:`, `;` or `|`) to ignore.
   - `--files` (optional):
     Whether to print a full list of all files analysed.
   - `--vendored` (optional):

@@ -7,7 +7,7 @@ import glob2regex from 'glob-to-regexp';
 import * as T from './types';
 import * as S from './schema';
 
-const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true });
+const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
 const last = <T>(arr: T[]): T => arr[arr.length - 1];
 
 const loadFile = async (file: string): Promise<any> => {
@@ -34,7 +34,10 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, ...opts };
 
 	// Apply explicit ignores
-	if (opts.ignore) vendorData.push(...opts.ignore);
+	if (opts.ignore) {
+		const ignoredPaths = opts.ignore.map(path => glob2regex('*' + path + '*', { extended: true }).source);
+		vendorData.push(...ignoredPaths);
+	}
 
 	// Load gitattributes
 	if (!opts.quick) {
