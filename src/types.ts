@@ -21,6 +21,7 @@ export interface LanguagesData {
 	total: {
 		unique: Integer
 		bytes: Bytes
+		unknownBytes: Bytes
 	}
 }
 

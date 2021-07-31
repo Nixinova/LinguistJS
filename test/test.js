@@ -15,7 +15,7 @@ async function test() {
 			markup: {},
 			data: { TOML: 0 },
 			prose: { Text: 0 },
-			total: { unique: 3, bytes: 1 },
+			total: { unique: 3, bytes: 1, unknownBytes: 9 },
 		},
 	}
 
@@ -27,6 +27,7 @@ async function test() {
 		assert(expected.count, actual.count, 'Total count');
 		assert(expected.languages.programming.JavaScript, actual.languages.programming.JavaScript, 'JavaScript count');
 		assert(expected.languages.total.unique, actual.languages.total.unique, 'Total unique');
+		assert(expected.languages.total.unknownBytes, actual.languages.total.unknownBytes, 'Total unknown bytes');
 	});
 }
 test();

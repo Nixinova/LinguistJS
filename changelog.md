@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added `unknownBytes` key to `languages.total` which lists the bytes size of unknown languages.
+
 ## 1.3.2
 - Added `unknown` key to `languages` which lists file extensions that cannot be matched with a given language.
 - Change ignored files list to be globs instead of raw regexes.

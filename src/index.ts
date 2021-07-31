@@ -9,6 +9,7 @@ import * as S from './schema';
 
 const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
 const last = <T>(arr: T[]): T => arr[arr.length - 1];
+const find = (str: string, match: RegExp): string => str.substr(str.search(match));
 
 const loadFile = async (file: string): Promise<any> => {
 	const DATA_URL = `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}.yml`;
@@ -25,7 +26,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	const finalResults: Record<T.FilePath, T.Language> = {};
 	const extensions: Record<T.FilePath, string[]> = {};
 	const overrides: Record<T.FilePath, T.Language> = {};
-	const languages: T.LanguagesData = { programming: {}, markup: {}, data: {}, prose: {}, unknown: {}, total: { unique: 0, bytes: 0 } };
+	const languages: T.LanguagesData = { programming: {}, markup: {}, data: {}, prose: {}, unknown: {}, total: { unique: 0, bytes: 0, unknownBytes: 0 } };
 
 	const sourceFiles = glob.sync(root + '/**/*', {});
 	const folders = new Set<string>();
@@ -95,7 +96,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	let files = [...sourceFiles];
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		const matcher = (match: string) => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
+		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !vendorData.some(match => matcher(match).test(file)));
 	}
 
@@ -109,15 +110,15 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		extensions[file].push('.' + last(file.split('.')));
 	}
 	const overridesArray = Object.entries(overrides);
-	files.forEach(file => {
-		if (fs.lstatSync(file).isDirectory()) return;
+	for (const file of files) {
+		if (fs.lstatSync(file).isDirectory()) continue;
 		// Check override for manual language classification
 		if (!opts.quick) {
-			const match = overridesArray.find(item => file.match(new RegExp(item[0])));
+			const match = overridesArray.find(item => RegExp(item[0]).test(file));
 			if (match) {
 				const forcedLang = match[1];
 				addResult(file, forcedLang);
-				return;
+				continue;
 			}
 		}
 		// Search each language
@@ -133,7 +134,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		if (!results[file]) {
 			addResult(file, null);
 		}
-	});
+	}
 
 	// Parse heuristics if applicable
 	for (const file in results) {
@@ -160,18 +161,18 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(finalResults)) {
+		if (lang && !langData[lang]) continue;
 		// If no language found, add extension in other section
+		const fileSize = fs.statSync(file).size;
 		if (!lang) {
-			let ext = file.match(/(\.[^./]+)?$/)?.[0] ?? '';
-			const fileSize = fs.statSync(file).size;
+			let ext = find(file, /(\.[^./]+)?$/);
 			languages.unknown[ext] ??= 0;
 			languages.unknown[ext] += fileSize;
+			languages.total.unknownBytes += fileSize;
 			continue;
 		}
 		// Add language and bytes data to corresponding section
-		if (!langData[lang]) continue;
 		const type = langData[lang].type;
-		const fileSize = fs.statSync(file).size;
 		languages[type][lang] ??= 0;
 		languages[type][lang] += fileSize;
 		languages.total.bytes += fileSize;

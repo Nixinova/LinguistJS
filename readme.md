@@ -53,7 +53,7 @@ Running Linguist on this folder will return the following JSON:
 		"data": {},
 		"prose": { "Markdown": 3000 },
 		"unknown": {},
-		"total": { "unique": 3, "bytes": 6000 }
+		"total": { "unique": 3, "bytes": 6000, "unknownBytes": 0 }
 	}
 }
 ```
