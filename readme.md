@@ -51,7 +51,9 @@ Running Linguist on this folder will return the following JSON:
 		"programming": { "JavaScript": 1000, "TypeScript": 2000 },
 		"markup": {},
 		"data": {},
-		"prose": { "Markdown": 3000 }
+		"prose": { "Markdown": 3000 },
+		"unknown": {},
+		"total": { "unique": 3, "bytes": 6000 }
 	}
 }
 ```

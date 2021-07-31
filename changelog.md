@@ -1,6 +1,6 @@
 # Changelog
 
-## Next
+## 1.3.2
 - Added `unknown` key to `languages` which lists file extensions that cannot be matched with a given language.
 - Change ignored files list to be globs instead of raw regexes.
 - Fixed CLI usage defaulting to quick checking instead of full checking.
