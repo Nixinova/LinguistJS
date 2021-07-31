@@ -8,6 +8,7 @@ import * as T from './types';
 import * as S from './schema';
 
 const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true });
+const last = <T>(arr: T[]): T => arr[arr.length - 1];
 
 const loadFile = async (file: string): Promise<any> => {
 	const DATA_URL = `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}.yml`;
@@ -24,7 +25,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	const finalResults: Record<T.FilePath, T.Language> = {};
 	const extensions: Record<T.FilePath, string[]> = {};
 	const overrides: Record<T.FilePath, T.Language> = {};
-	const languages: T.LanguagesData = { programming: {}, markup: {}, data: {}, prose: {}, total: { unique: 0, bytes: 0 } };
+	const languages: T.LanguagesData = { programming: {}, markup: {}, data: {}, prose: {}, unknown: {}, total: { unique: 0, bytes: 0 } };
 
 	const sourceFiles = glob.sync(root + '/**/*', {});
 	const folders = new Set<string>();
@@ -85,6 +86,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		const matcher = (match: string) => new RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !vendorData.some(match => matcher(match).test(file)));
 	}
+
 	// Load all files and parse languages
 	const addResult = (file: string, data: T.Language) => {
 		if (!results[file]) {
@@ -92,7 +94,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 			extensions[file] = [];
 		}
 		results[file].push(data);
-		extensions[file].push('.' + file.split('.').slice(-1)[0]);
+		extensions[file].push('.' + last(file.split('.')));
 	}
 	const overridesArray = Object.entries(overrides);
 	files.forEach(file => {
@@ -120,6 +122,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 			addResult(file, null);
 		}
 	});
+
 	// Parse heuristics if applicable
 	for (const file in results) {
 		heuristics:
@@ -134,7 +137,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 				// Make sure the results includes this language
 				if (!results[file].includes(language)) continue;
 				// If the default (final) heuristic is this language, set it
-				finalResults[file] = heuristics.rules[heuristics.rules.length - 1].language;
+				finalResults[file] = last(heuristics.rules).language;
 			}
 		}
 	}
@@ -142,14 +145,24 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	for (const file in results) {
 		finalResults[file] ??= results[file][0];
 	}
+
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(finalResults)) {
-		if (!lang || !langData[lang]) continue;
+		// If no language found, add extension in other section
+		if (!lang) {
+			let ext = file.match(/(\.[^./]+)?$/)?.[0] ?? '';
+			const fileSize = fs.statSync(file).size;
+			languages.unknown[ext] ??= 0;
+			languages.unknown[ext] += fileSize;
+			continue;
+		}
+		// Add language and bytes data to corresponding section
+		if (!langData[lang]) continue;
 		const type = langData[lang].type;
-		if (!languages[type][lang]) languages[type][lang] = 0;
 		const fileSize = fs.statSync(file).size;
-		languages.total.bytes += fileSize;
+		languages[type][lang] ??= 0;
 		languages[type][lang] += fileSize;
+		languages.total.bytes += fileSize;
 	}
 	// Load unique language count
 	languages.total.unique = Object.values({ ...languages.programming, ...languages.markup, ...languages.data, ...languages.prose }).length;

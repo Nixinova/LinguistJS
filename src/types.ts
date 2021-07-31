@@ -17,6 +17,7 @@ export interface LanguagesData {
 	markup: Record<FilePath, Bytes>
 	programming: Record<FilePath, Bytes>
 	prose: Record<FilePath, Bytes>
+	unknown: Record<FilePath, Bytes>
 	total: {
 		unique: Integer
 		bytes: Bytes
