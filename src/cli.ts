@@ -3,6 +3,8 @@ const VERSION = require('../package.json').version;
 import linguist from './index.js';
 import yargs from 'yargs-parser';
 
+import * as T from './types';
+
 const indent = (n: number) => ' '.repeat(n * 4);
 const usage = (cmd: string, desc: string) => console.log('\n' + indent(2) + cmd + '\n' + indent(3) + desc.replace(/\n/g, '\n' + indent(4)));
 
@@ -42,13 +44,12 @@ else if (args.version) {
 }
 else if (args.analyse) {
 	(async () => {
-		const opts = {
-			ignore: args.ignore?.split(/(?<!\\)[:;|]/),
-			keepVendored: !!args.V,
-			quick: !!args.q,
-			checkAttributes: !!args.A,
-			checkIgnored: !!args.I,
-		};
+		const opts: T.Options = {};
+		if (args.ignore) opts.ignore = args.ignore?.split(/(?<!\\)[:;|]/);
+		if (args.v) opts.keepVendored = args.v;
+		if (args.q) opts.quick = args.q;
+		if (args.A) opts.checkAttributes = args.A;
+		if (args.I) opts.checkIgnored = args.I;
 		const data = await linguist(args._[0], opts);
 		const { count, languages, results } = data;
 		console.log(args.full ? { results, count, languages } : { count, languages });

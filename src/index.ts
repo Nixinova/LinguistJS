@@ -52,7 +52,8 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 			// Attempt to read gitignores
 			if (opts.checkIgnored) try {
 				let ignoresData = fs.readFileSync(folder + '.gitignore', { encoding: 'utf8' }); // may throw
-				const ignoredPaths = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
+				const ignoresList = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
+				const ignoredPaths = ignoresList.map(path => glob2regex('*' + path + '*', { extended: true }).source);
 				vendorData.push(...ignoredPaths);
 			} catch { }
 
