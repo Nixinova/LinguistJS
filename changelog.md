@@ -3,6 +3,7 @@
 ## Next
 - Added `--summary` CLI option to output language data in human-readable manner instead of JSON.
 - Added `unknownBytes` key to `languages.total` which lists the bytes size of unknown languages.
+- Changed vendored file checking to classify generated files as well.
 
 ## 1.3.2
 - Added `unknown` key to `languages` which lists file extensions that cannot be matched with a given language.

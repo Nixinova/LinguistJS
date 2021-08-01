@@ -10,17 +10,15 @@ import * as S from './schema';
 const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
 const last = <T>(arr: T[]): T => arr[arr.length - 1];
 const find = (str: string, match: RegExp): string => str.substr(str.search(match));
-
-const loadFile = async (file: string): Promise<any> => {
-	const DATA_URL = `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}.yml`;
-	const data = await fetch(DATA_URL).then(data => data.text()).then(yaml.load);
-	return data;
-}
+const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
+const loadFile = async (file: string) => await fetch(dataUrl(file)).then(data => data.text());
 
 export = async function analyse(root = '.', opts: T.Options = {}) {
-	const langData = <S.LanguagesScema>await loadFile('languages');
-	const vendorData = <S.VendorSchema>await loadFile('vendor');
-	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics');
+	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
+	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
+	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
+	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
+	vendorData.push(...generatedData);
 
 	const results: Record<T.FilePath, T.Language[]> = {};
 	const finalResults: Record<T.FilePath, T.Language> = {};
