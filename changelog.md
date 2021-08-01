@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Added `--summary` CLI option to output language data in human-readable manner instead of JSON.
 - Added `unknownBytes` key to `languages.total` which lists the bytes size of unknown languages.
 
 ## 1.3.2

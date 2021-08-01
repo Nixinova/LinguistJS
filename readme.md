@@ -104,11 +104,14 @@ linguist --help
     A list of file path globs (delimited with `:`, `;` or `|`) to ignore.
   - `--files` (optional):
     Whether to print a full list of all files analysed.
-  - `--vendored` (optional):
-    Whether to include vendored files (dependencies, etc).
+    Does nothing when `--summary` is specified.
+  - `--summary` (optional):
+    Output language data in a human-readable manner instead of JSON.
   - `--quick` (optional):
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false` `--checkIgnored=false`.
+  - `--keepVendored` (optional):
+    Whether to include vendored files (auto-generated files, dependencies folder, etc).
   - `checkAttributes` (optional):
     Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
   - `checkIgnored` (optional):
