@@ -1,4 +1,4 @@
-const linguist = require('../dist/index.js');
+const linguist = require('..');
 
 async function test() {
 	const samplesFolder = __dirname.replace(/\\/g, '/') + '/samples';

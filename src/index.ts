@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import fetch from 'node-fetch';
 import yaml from 'js-yaml';
 import glob from 'glob';
@@ -31,7 +32,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		total: { unique: 0, bytes: 0, unknownBytes: 0 },
 	};
 
-	const sourceFiles = glob.sync(root + '/**/*', {});
+	const sourceFiles = glob.sync(path.resolve(root) + '/**/*', {});
 	const folders = new Set<string>();
 
 	// Apply aliases

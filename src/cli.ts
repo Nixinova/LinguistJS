@@ -1,8 +1,9 @@
 const VERSION = require('../package.json').version;
 
-import linguist from './index.js';
+import path from 'path';
 import yargs from 'yargs-parser';
 
+import linguist from './index';
 import * as T from './types';
 
 const indent = (n: number) => ' '.repeat(n * 4);
@@ -55,7 +56,9 @@ else if (args.analyse) {
 		if (args.A) opts.checkAttributes = args.A;
 		if (args.I) opts.checkIgnored = args.I;
 		if (args.H) opts.checkHeuristics = args.H;
-		const { count, languages, results } = await linguist(args._[0], opts);
+
+		const root = args._[0] ?? '.';
+		const { count, languages, results } = await linguist(root, opts);
 		if (args.summary) {
 			const { data, markup, programming, prose, total: { bytes: totalBytes } } = languages;
 			const languageData = { data, markup, programming, prose };
@@ -69,7 +72,12 @@ else if (args.analyse) {
 			console.log(`Total: ${totalBytes.toLocaleString()} bytes`);
 		}
 		else {
-			console.log(args.files ? { results, count, languages } : { count, languages });
+			const relResults: Record<T.FilePath, T.Language> = {};
+			for (const [file, lang] of Object.entries(results)) {
+				const relFile = file.replace(path.resolve(root).replace(/\\/g, '/'), '.');
+				relResults[relFile] = lang;
+			}
+			console.log(args.files ? { results: relResults, count, languages } : { count, languages });
 		}
 	})();
 }

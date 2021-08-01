@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3
+*2021-08-01*
+- Changed outputted file paths to always be absolute regardless of input.
+
 ## 1.4.2
 *2021-08-01*
 - Fixed crash occurring when checking named patterns.
