@@ -144,11 +144,25 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 				if (!heuristics.extensions.includes(ext)) continue heuristics;
 			}
 			// Load heuristic rules
-			for (const { language } of heuristics.rules) {
+			for (const heuristic of heuristics.rules) {
 				// Make sure the results includes this language
-				if (!results[file].includes(language)) continue;
-				// If the default (final) heuristic is this language, set it
-				finalResults[file] = last(heuristics.rules).language;
+				if (!results[file].includes(heuristic.language)) continue;
+				// Apply heuristics
+				if (opts.checkHeuristics) {
+					// Normalise heuristic data
+					const patterns: string[] = [];
+					const normalise = (contents: string | string[]) => patterns.push(...(Array.isArray(contents) ? contents : [contents]));
+					if (heuristic.pattern) normalise(heuristic.pattern);
+					if (heuristic.named_pattern) normalise(heuristicsData.namedPatterns[heuristic.named_pattern]);
+					// Check file contents and apply heuristic patterns
+					const fileContent = fs.readFileSync(file, { encoding: 'utf8' });
+					if (patterns.some(pattern => RegExp(pattern).test(fileContent))) {
+						finalResults[file] = heuristic.language;
+						break;
+					}
+				}
+				// Default to final language
+				finalResults[file] ??= last(heuristics.rules).language;
 			}
 		}
 	}

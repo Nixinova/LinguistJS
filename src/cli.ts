@@ -20,8 +20,9 @@ const argOpts = {
 		keepVendored: ['V', 'vendor', 'vendored'],
 		checkAttributes: ['A'],
 		checkIgnored: ['I'],
+		checkHeuristics: ['H'],
 	},
-	boolean: ['help', 'version', 'analyse', 'files', 'quick', 'keepVendored', 'checkAttributes', 'checkIgnored', 'breakdown'],
+	boolean: ['help', 'version', 'analyse', 'files', 'summary', 'quick', 'keepVendored', 'checkAttributes', 'checkIgnored', 'checkHeuristics'],
 }
 const args = yargs(process.argv.slice(2), argOpts);
 
@@ -33,10 +34,11 @@ if (args.help) {
 		`-i|--ignore`, `\tA list of file path globs (delimited with ':', ';' or '|') to ignore (optional).`,
 		`-f|--files`, `\tList every file parsed (optional)`,
 		`-s|--summary`, `\tShow output in a human-readable format (optional)`,
-		`-q|--quick`, `\tSkip checking of gitattributes/gitignore files (optional)`, `\tAlias for -A=false -I=false`,
+		`-q|--quick`, `\tSkip checking of gitattributes/gitignore files (optional)`, `\tAlias for -AIH=false`,
 		`-V|--keepVendored`, `\tPrevent skipping over vendored/generated files (optional)`,
 		`-A|--checkAttributes`, `\tForce the checking of gitattributes files (optional; use alongside --quick to overwrite)`,
 		`-I|--checkIgnored`, `\tForce the checking of gitignore files (optional; use alongside --quick to overwrite)`,
+		`-H|--checkHeuristics`, `\tApply heuristics to ambiguous languages (optional; use alongside --quick to overwrite)`,
 	].join('\n'));
 	usage(`linguist --version`, 'Display the installed version of linguist-js');
 	usage(`linguist --help`, 'Display this help message');
@@ -52,8 +54,8 @@ else if (args.analyse) {
 		if (args.v) opts.keepVendored = args.v;
 		if (args.A) opts.checkAttributes = args.A;
 		if (args.I) opts.checkIgnored = args.I;
-		const data = await linguist(args._[0], opts);
-		const { count, languages, results } = data;
+		if (args.H) opts.checkHeuristics = args.H;
+		const { count, languages, results } = await linguist(args._[0], opts);
 		if (args.summary) {
 			const { data, markup, programming, prose, total: { bytes: totalBytes } } = languages;
 			const languageData = { data, markup, programming, prose };

@@ -18,15 +18,21 @@ export interface LanguagesScema {
 	}
 }
 
+interface HeuristicsRules {
+	pattern?: string
+	named_pattern?: string
+	named_patterns?: string[]
+	negative_pattern?: string
+}
 export interface HeuristicsSchema {
 	disambiguations: Array<{
 		extensions: string[]
-		rules: Array<{
+		rules: Array<HeuristicsRules & {
 			language: string
-			[I: string]: any
+			and?: HeuristicsRules[]
 		}>
 	}>
-	namedPatterns: any
+	namedPatterns: Record<string, string | string[]>
 }
 
 export type VendorSchema = string[]

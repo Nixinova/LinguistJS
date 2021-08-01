@@ -1,19 +1,24 @@
 # Changelog
 
-## Next
+## 1.4.0
+*2021-08-01*
+- Added heuristics checking, using option `checkHeuristics` (defaults to `true` unless `quick` is set).
 - Added `--summary` CLI option to output language data in human-readable manner instead of JSON.
 - Added `unknownBytes` key to `languages.total` which lists the bytes size of unknown languages.
 - Changed vendored file checking to classify generated files as well.
 
 ## 1.3.2
+*2021-07-31*
 - Added `unknown` key to `languages` which lists file extensions that cannot be matched with a given language.
 - Change ignored files list to be globs instead of raw regexes.
 - Fixed CLI usage defaulting to quick checking instead of full checking.
 
 ## 1.3.1
+*2021-07-31*
 - Changed the delimiter for ignored paths in the CLI `--ignored` argument from `;` to `:`/`;`/`|` as a semicolon is actually valid on Windows.
 
 ## 1.3.0
+*2021-07-31*
 - Added checking of `.gitignore` files.
 - Added option `ignore` for specifying explicitly-ignored file paths.
 - Added specific options `checkIgnored` and `checkAttributes`, which can be set together using the inverse of `quick`.

@@ -76,17 +76,19 @@ let { count, results, languages } = linguist(folder, options);
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
     An object containing analyser options.
-	- `ignore` (string array):
-	  A list of file path globs to explicitly ignore.
-    - `keepVendored` (boolean):
-      Whether to keep vendored files (dependencies, etc) (defaults to `false`).
-    - `quick` (boolean):
-      Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications (defaults to `false`).
-	  Alias for `checkAttributes: false, checkIgnored: false`.
-	- `checkAttributes` (boolean):
-	  Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
-	- `checkIgnored` (boolean):
-	  Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
+  - `ignore` (string array):
+    A list of file path globs to explicitly ignore.
+  - `keepVendored` (boolean):
+    Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+  - `quick` (boolean):
+    Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications (defaults to `false`).
+    Alias for `checkAttributes: false, checkIgnored: false`.
+  - `checkAttributes` (boolean):
+    Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
+  - `checkIgnored` (boolean):
+    Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
+  - `checkHeuristics` (boolean):
+    Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
 
 ### Command-line
 
@@ -109,13 +111,15 @@ linguist --help
     Output language data in a human-readable manner instead of JSON.
   - `--quick` (optional):
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
-    Alias for `--checkAttributes=false` `--checkIgnored=false`.
+    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false`.
   - `--keepVendored` (optional):
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
   - `checkAttributes` (optional):
     Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
   - `checkIgnored` (optional):
     Force the checking of `.gitignore` files (use alongside `--quick` to overwrite).
+  - `checkHeuristics` (optional):
+    Apply heuristics to ambiguous languages (use alongside `--quick` to overwrite).
 - `--help`:
   Display a help message.
 - `--version`:
