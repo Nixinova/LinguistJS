@@ -1,4 +1,7 @@
+import { LanguageType } from "./schema"
+
 export type Language = string | null
+export type LanguageName = string
 export type FilePath = string
 export type Bytes = Integer
 export type Integer = number
@@ -13,11 +16,15 @@ export interface Options {
 }
 
 export interface LanguagesData {
-	data: Record<FilePath, Bytes>
-	markup: Record<FilePath, Bytes>
-	programming: Record<FilePath, Bytes>
-	prose: Record<FilePath, Bytes>
-	unknown: Record<FilePath, Bytes>
+	all: Record<LanguageName, {
+		bytes: Bytes
+		type: LanguageType
+	}>
+	data: Record<LanguageName, Bytes>
+	markup: Record<LanguageName, Bytes>
+	programming: Record<LanguageName, Bytes>
+	prose: Record<LanguageName, Bytes>
+	unknown: Record<LanguageName, Bytes>
 	total: {
 		unique: Integer
 		bytes: Bytes

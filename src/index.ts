@@ -24,7 +24,12 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	const finalResults: Record<T.FilePath, T.Language> = {};
 	const extensions: Record<T.FilePath, string[]> = {};
 	const overrides: Record<T.FilePath, T.Language> = {};
-	const languages: T.LanguagesData = { programming: {}, markup: {}, data: {}, prose: {}, unknown: {}, total: { unique: 0, bytes: 0, unknownBytes: 0 } };
+	const languages: T.LanguagesData = {
+		all: {},
+		programming: {}, markup: {}, data: {}, prose: {},
+		unknown: {},
+		total: { unique: 0, bytes: 0, unknownBytes: 0 },
+	};
 
 	const sourceFiles = glob.sync(root + '/**/*', {});
 	const folders = new Set<string>();
@@ -184,7 +189,9 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 			continue;
 		}
 		// Add language and bytes data to corresponding section
-		const type = langData[lang].type;
+		const { type } = langData[lang];
+		languages.all[lang] ??= { type, bytes: 0 };
+		languages.all[lang].bytes += fileSize;
 		languages[type][lang] ??= 0;
 		languages[type][lang] += fileSize;
 		languages.total.bytes += fileSize;

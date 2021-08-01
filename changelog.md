@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1
+*2021-08-01*
+- Added `all` key to `languages` which collates all language data into one object.
+
 ## 1.4.0
 *2021-08-01*
 - Added heuristics checking, using option `checkHeuristics` (defaults to `true` unless `quick` is set).

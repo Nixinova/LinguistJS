@@ -48,6 +48,11 @@ Running Linguist on this folder will return the following JSON:
 		"readme.md": "Markdown"
 	},
 	"languages": {
+		"all": {
+			"JavaScript": { "type": "programming", "bytes": 1000 },
+			"TypeScript": { "type": "programming", "bytes": 2000 },
+			"Markdown": { "type": "prose", "bytes": 3000 }
+		},
 		"programming": { "JavaScript": 1000, "TypeScript": 2000 },
 		"markup": {},
 		"data": {},
