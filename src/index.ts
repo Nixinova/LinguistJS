@@ -158,7 +158,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 					const patterns: string[] = [];
 					const normalise = (contents: string | string[]) => patterns.push(...(Array.isArray(contents) ? contents : [contents]));
 					if (heuristic.pattern) normalise(heuristic.pattern);
-					if (heuristic.named_pattern) normalise(heuristicsData.namedPatterns[heuristic.named_pattern]);
+					if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
 					// Check file contents and apply heuristic patterns
 					const fileContent = fs.readFileSync(file, { encoding: 'utf8' });
 					if (patterns.some(pattern => RegExp(pattern).test(fileContent))) {

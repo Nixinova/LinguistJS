@@ -32,7 +32,7 @@ export interface HeuristicsSchema {
 			and?: HeuristicsRules[]
 		}>
 	}>
-	namedPatterns: Record<string, string | string[]>
+	named_patterns: Record<string, string | string[]>
 }
 
 export type VendorSchema = string[]

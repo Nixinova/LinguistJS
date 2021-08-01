@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2
+*2021-08-01*
+- Fixed crash occurring when checking named patterns.
+
 ## 1.4.1
 *2021-08-01*
 - Added `all` key to `languages` which collates all language data into one object.
