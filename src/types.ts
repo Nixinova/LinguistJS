@@ -19,6 +19,7 @@ export interface LanguagesData {
 	all: Record<LanguageName, {
 		bytes: Bytes
 		type: LanguageType
+		color?: `#${string}`
 	}>
 	data: Record<LanguageName, Bytes>
 	markup: Record<LanguageName, Bytes>

@@ -23,6 +23,7 @@ async function test() {
 		const assert = (a, b, msg) => console.assert(a === b, msg, a, b);
 		const getResults = obj => Object.entries(obj.results).flat().join(',');
 		console.log('Results:', actual);
+		console.log('TOML data:', actual.languages.all['TOML'])
 		assert(getResults(expected), getResults(actual), 'Results');
 		assert(expected.count, actual.count, 'Total count');
 		assert(expected.languages.programming.JavaScript, actual.languages.programming.JavaScript, 'JavaScript count');

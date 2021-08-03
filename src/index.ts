@@ -191,14 +191,14 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		}
 		// Add language and bytes data to corresponding section
 		const { type } = langData[lang];
-		languages.all[lang] ??= { type, bytes: 0 };
+		languages.all[lang] ??= { type, bytes: 0, color: langData[lang].color };
 		languages.all[lang].bytes += fileSize;
 		languages[type][lang] ??= 0;
 		languages[type][lang] += fileSize;
 		languages.total.bytes += fileSize;
 	}
 	// Load unique language count
-	languages.total.unique = Object.values({ ...languages.programming, ...languages.markup, ...languages.data, ...languages.prose }).length;
+	languages.total.unique = Object.values(languages.all).length;
 	// Return
 	return { count: Object.keys(finalResults).length, results: finalResults, languages };
 }

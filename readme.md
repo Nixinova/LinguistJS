@@ -49,9 +49,9 @@ Running Linguist on this folder will return the following JSON:
 	},
 	"languages": {
 		"all": {
-			"JavaScript": { "type": "programming", "bytes": 1000 },
-			"TypeScript": { "type": "programming", "bytes": 2000 },
-			"Markdown": { "type": "prose", "bytes": 3000 }
+			"JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
+			"TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
+			"Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" }
 		},
 		"programming": { "JavaScript": 1000, "TypeScript": 2000 },
 		"markup": {},

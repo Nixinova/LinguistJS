@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.4
+*2021-08-03*
+- Added an nullable `color` key to each entry in `languages.all`.
+
 ## 1.4.3
 *2021-08-01*
 - Changed outputted file paths to always be absolute regardless of input.
