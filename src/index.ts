@@ -54,23 +54,20 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 			// Skip checks if folder is already ignored
 			if (!opts.keepVendored && vendorData.some(path => RegExp(path).test(folder))) continue;
 
-			// Attempt to read gitignores
-			if (opts.checkIgnored) try {
-				let ignoresData = '';
-				try { ignoresData = fs.readFileSync(folder + '.gitignore', { encoding: 'utf8' }); }
-				catch { throw 404; }
+			const attributesFile = folder + '.gitattributes';
+			const ignoresFile = folder + '.gitignore';
+
+			// Parse gitignores
+			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
+				const ignoresData = fs.readFileSync(ignoresFile, { encoding: 'utf8' });
 				const ignoresList = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
 				const ignoredPaths = ignoresList.map(path => glob2regex('*' + path + '*', { extended: true }).source);
 				vendorData.push(...ignoredPaths);
-			} catch (err) {
-				if (err !== 404) throw err;
 			}
 
-			// Attempt to read gitattributes
-			if (opts.checkAttributes) try {
-				let attributesData = '';
-				try { attributesData = fs.readFileSync(folder + '.gitattributes', { encoding: 'utf8' }); }
-				catch { throw 404; }
+			// Parse gitattributes
+			if (opts.checkAttributes && fs.existsSync(attributesFile)) {
+				const attributesData = fs.readFileSync(attributesFile, { encoding: 'utf8' });
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
 				for (const [_line, path] of vendorMatches) {
@@ -90,8 +87,6 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 					const fullPath = folder + convertToRegex(path).source.substr(1);
 					overrides[fullPath] = forcedLang;
 				}
-			} catch (err) {
-				if (err !== 404) throw err;
 			}
 
 		}
