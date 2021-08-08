@@ -14,7 +14,7 @@ const find = (str: string, match: RegExp): string => str.substr(str.search(match
 const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
 const loadFile = async (file: string) => await fetch(dataUrl(file)).then(data => data.text());
 
-export = async function analyse(root = '.', opts: T.Options = {}) {
+export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Results> {
 	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
@@ -32,7 +32,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 		total: { unique: 0, bytes: 0, unknownBytes: 0 },
 	};
 
-	const sourceFiles = glob.sync(root + '/**/*', { absolute: true, onlyFiles: true });
+	const sourceFiles = await glob(root + '/**/*', { absolute: true, onlyFiles: true, dot: true, ignore: ['.git'] });
 	const folders = new Set<string>();
 
 	// Apply aliases
@@ -47,7 +47,7 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 	// Load gitattributes
 	if (!opts.quick) {
 		for (const file of sourceFiles) {
-			folders.add(file.replace(/[^\\/]+$/, ''));
+			folders.add(file.replace(/[^\\/]+$/, '').replace(/\\/g, '/'));
 		}
 		for (const folder of folders) {
 
@@ -78,11 +78,8 @@ export = async function analyse(root = '.', opts: T.Options = {}) {
 				for (let [_line, path, forcedLang] of customLangMatches) {
 					// If specified language is an alias, associate it with its full name
 					if (!langData[forcedLang]) {
-						for (const lang in langData) {
-							if (!langData[lang].aliases?.includes(forcedLang.toLowerCase())) continue;
-							forcedLang = lang;
-							break;
-						}
+						const overrideLang = Object.entries(langData).find(entry => entry[1].aliases?.includes(forcedLang.toLowerCase()));
+						if (overrideLang) forcedLang = overrideLang[0];
 					}
 					const fullPath = folder + convertToRegex(path).source.substr(1);
 					overrides[fullPath] = forcedLang;

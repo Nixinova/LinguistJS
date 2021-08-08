@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed files prefixed with a dot not being checked.
+
 ## 1.4.4
 *2021-08-03*
 - Added an nullable `color` key to each entry in `languages.all`.

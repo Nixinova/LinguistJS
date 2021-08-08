@@ -12,7 +12,7 @@ program
 
 	.requiredOption('-a|--analyze|--analyse [folder]', 'Analyse the language of all files found in a folder')
 	.option('-i|--ignore <files>', `A list of file path globs (delimited with ':', ';' or '|') to ignore`, val => val.split(/(?<!\\)[:;|]/))
-	.option('-f|--files', 'List every file parsed', false)
+	.option('-f|--files|--full', 'List every file parsed', false)
 	.option('-s|--summary', 'Show output in a human-readable format', false)
 	.option('-q|--quick', 'Skip checking of gitattributes/gitignore files (alias for -AIH=false)', false)
 	.option('-V|--keepVendored', 'Prevent skipping over vendored/generated files', false)
@@ -48,7 +48,9 @@ if (args.analyze) {
 				const relFile = file.replace(path.resolve(root).replace(/\\/g, '/'), '.');
 				relResults[relFile] = lang;
 			}
-			console.log(args.files ? { results: relResults, count, languages } : { count, languages });
+			const languageData: Partial<T.LanguagesData> = languages;
+			delete languageData.all;
+			console.log(args.files ? { results: relResults, count, languages: languageData } : { count, languages: languageData });
 		}
 	})();
 }

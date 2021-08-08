@@ -20,7 +20,7 @@ async function test() {
 	}
 
 	await linguist(samplesFolder).then(actual => {
-		const assert = (a, b, msg) => console.assert(a === b, msg, a, b);
+		const assert = (a, b, msg) => console.assert(a === b, msg, [a, b]);
 		const getResults = obj => Object.entries(obj.results).flat().join(',');
 		console.log('Results:', actual);
 		console.log('TOML data:', actual.languages.all['TOML'])
