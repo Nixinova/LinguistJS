@@ -32,8 +32,9 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		total: { unique: 0, bytes: 0, unknownBytes: 0 },
 	};
 
-	const sourceFiles = await glob(root + '/**/*', { absolute: true, onlyFiles: true, dot: true, ignore: ['.git'] });
-	const folders = new Set<string>();
+	let files = await glob(root + '/**/*', { absolute: true, onlyFiles: true, dot: true });
+	files = files.filter(file => !file.includes('/.git/'));
+	const folders = new Set(files.map(file => file.replace(/[^/]+$/, '')));
 
 	// Apply aliases
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, ...opts };
@@ -46,9 +47,6 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 
 	// Load gitattributes
 	if (!opts.quick) {
-		for (const file of sourceFiles) {
-			folders.add(file.replace(/[^\\/]+$/, '').replace(/\\/g, '/'));
-		}
 		for (const folder of folders) {
 
 			// Skip checks if folder is already ignored
@@ -89,7 +87,6 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		}
 	}
 	// Check vendored files
-	let files = [...sourceFiles];
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
 		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
@@ -175,7 +172,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		// If no language found, add extension in other section
 		const fileSize = fs.statSync(file).size;
 		if (!lang) {
-			let ext = find(file, /(\.[^./]+)?$/);
+			const ext = find(file, /(\.[^./]+)?$/);
 			languages.unknown[ext] ??= 0;
 			languages.unknown[ext] += fileSize;
 			languages.total.unknownBytes += fileSize;
