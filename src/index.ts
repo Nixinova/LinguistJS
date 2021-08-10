@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import fetch from 'cross-fetch';
 import yaml from 'js-yaml';
 import glob from 'fast-glob';
@@ -13,6 +12,17 @@ const last = <T>(arr: T[]): T => arr[arr.length - 1];
 const find = (str: string, match: RegExp): string => str.substr(str.search(match));
 const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
 const loadFile = async (file: string) => await fetch(dataUrl(file)).then(data => data.text());
+
+async function readFile(filename: string, onlyFirstLine: boolean = false): Promise<string> {
+	const chunkSize = 100;
+	const stream = fs.createReadStream(filename, { highWaterMark: chunkSize });
+	let content = '';
+	for await (const data of stream) {
+		content += data.toString();
+		if (onlyFirstLine && /\n/.test(content)) return content;
+	}
+	return content;
+}
 
 export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Results> {
 	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
@@ -57,7 +67,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 
 			// Parse gitignores
 			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
-				const ignoresData = fs.readFileSync(ignoresFile, { encoding: 'utf8' });
+				const ignoresData = await readFile(ignoresFile);
 				const ignoresList = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
 				const ignoredPaths = ignoresList.map(path => glob2regex('*' + path + '*', { extended: true }).source);
 				vendorData.push(...ignoredPaths);
@@ -65,7 +75,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 
 			// Parse gitattributes
 			if (opts.checkAttributes && fs.existsSync(attributesFile)) {
-				const attributesData = fs.readFileSync(attributesFile, { encoding: 'utf8' });
+				const attributesData = await readFile(attributesFile);
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
 				for (const [_line, path] of vendorMatches) {
