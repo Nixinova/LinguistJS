@@ -11,7 +11,7 @@ program
 	.usage('[<folder>] [<options...>]')
 
 	.requiredOption('-a|--analyze|--analyse [folder]', 'Analyse the language of all files found in a folder')
-	.option('-i|--ignore <files>', `A list of file path globs (delimited with ':', ';' or '|') to ignore`, val => val.split(/(?<!\\)[:;|]/))
+	.option('-i|--ignore <files...>', `A list of file path globs to ignore`)
 	.option('-f|--files|--full', 'List every file parsed', false)
 	.option('-s|--summary', 'Show output in a human-readable format', false)
 	.option('-q|--quick', 'Skip checking of gitattributes/gitignore files (alias for -AIH=false)', false)
@@ -29,6 +29,7 @@ const args = program.opts();
 if (args.analyze) {
 	(async () => {
 		const root = args.analyze === true ? '.' : args.analyze;
+		if (typeof args.ignore === 'string') args.ignore = args.ignore.split(/(?<!\\)[:;|]/);
 		const { count, languages, results } = await linguist(root, args);
 		if (args.summary) {
 			const { data, markup, programming, prose, total: { bytes: totalBytes } } = languages;

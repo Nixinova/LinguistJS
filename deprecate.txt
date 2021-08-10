@@ -1,0 +1,2 @@
+* languages.{data|markup|programming|prose}
+* --ignore a;b;c

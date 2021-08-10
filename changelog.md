@@ -1,7 +1,9 @@
 # Changelog
 
-## Next
+## 1.4.5
+*2021-08-10*
 - Fixed files prefixed with a dot not being checked.
+- Changed input of command-line `--ignore` to be delimited by spaces.
 
 ## 1.4.4
 *2021-08-03*
