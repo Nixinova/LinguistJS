@@ -14,11 +14,12 @@ program
 	.option('-i|--ignore <files...>', `A list of file path globs to ignore`)
 	.option('-f|--files|--full', 'List every file parsed', false)
 	.option('-s|--summary', 'Show output in a human-readable format', false)
-	.option('-q|--quick', 'Skip checking of gitattributes/gitignore files (alias for -AIH=false)', false)
+	.option('-q|--quick', 'Skip checking of gitattributes/gitignore files (alias for -AIHS=false)', false)
 	.option('-V|--keepVendored', 'Prevent skipping over vendored/generated files', false)
 	.option('-A|--checkAttributes', 'Force the checking of gitattributes files (default: true unless --quick is set)')
 	.option('-I|--checkIgnored', 'Force the checking of gitignore files (default: true unless --quick is set)')
 	.option('-H|--checkHeuristics', 'Apply heuristics to ambiguous languages (default: true unless --quick is set)')
+	.option('-S|--checkShebang|--checkHashbang', 'Check shebang lines for explicit classification (default: true unless --quick is set)')
 
 	.helpOption(`-h|--help`, 'Display this help message')
 	.version(VERSION, '-v|--version', 'Display the installed version of linguist-js')

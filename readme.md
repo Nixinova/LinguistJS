@@ -85,7 +85,7 @@ let { count, results, languages } = linguist(folder, options);
       A list of file path globs to explicitly ignore.
     - `quick` (boolean):
       Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications (defaults to `false`).
-      Alias for `checkAttributes: false, checkIgnored: false`.
+      Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
     - `checkAttributes` (boolean):
@@ -94,6 +94,8 @@ let { count, results, languages } = linguist(folder, options);
       Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
     - `checkHeuristics` (boolean):
       Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
+    - `checkShebang` (boolean):
+      Check shebang (`#!`) lines for explicit language classification (defaults to `true` unless `quick` is set).
 
 ### Command-line
 
@@ -116,15 +118,17 @@ linguist --help
     Output language data in a human-readable manner instead of JSON.
   - `--quick` (optional):
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
-    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false`.
+    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false`.
   - `--keepVendored` (optional):
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
-  - `checkAttributes` (optional):
+  - `--checkAttributes` (optional):
     Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
-  - `checkIgnored` (optional):
+  - `--checkIgnored` (optional):
     Force the checking of `.gitignore` files (use alongside `--quick` to overwrite).
-  - `checkHeuristics` (optional):
+  - `--checkHeuristics` (optional):
     Apply heuristics to ambiguous languages (use alongside `--quick` to overwrite).
+  - `--checkShebang` (optional):
+    Check shebang (`#!`) lines for explicit classification (use alongside `--quick` to overwrite).
 - `--help`:
   Display a help message.
 - `--version`:

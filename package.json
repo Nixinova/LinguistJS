@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "1.4.5",
+	"version": "1.5.0",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
@@ -34,9 +34,9 @@
 	"dependencies": {
 		"commander": "^8.1.0",
 		"cross-fetch": "^3.1.4",
-		"fast-glob": "^3.2.7",
 		"glob-to-regexp": "^0.4.1",
-		"js-yaml": "^4.1.0"
+		"js-yaml": "^4.1.0",
+		"tiny-glob": "^0.2.9"
 	},
 	"devDependencies": {
 		"@types/glob-to-regexp": "^0.4.1",

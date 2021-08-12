@@ -12,6 +12,7 @@ export interface Options {
 	checkIgnored?: boolean
 	checkAttributes?: boolean
 	checkHeuristics?: boolean
+	checkShebang?: boolean
 	ignore?: string[]
 }
 

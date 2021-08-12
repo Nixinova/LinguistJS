@@ -6,16 +6,17 @@ async function test() {
 		results: {
 			[samplesFolder + '/folder/sub.txt']: 'Text',
 			[samplesFolder + '/file.txt']: 'JavaScript',
+			[samplesFolder + '/hashbang']: 'JavaScript',
 			[samplesFolder + '/Pipfile']: 'TOML',
 			[samplesFolder + '/unknown']: null,
 		},
-		count: 4,
+		count: 5,
 		languages: {
-			programming: { JavaScript: 1 },
+			programming: { JavaScript: 22 },
 			markup: {},
 			data: { TOML: 0 },
 			prose: { Text: 0 },
-			total: { unique: 3, bytes: 1, unknownBytes: 9 },
+			total: { unique: 3, bytes: 22, unknownBytes: 9 },
 		},
 	}
 
@@ -23,7 +24,7 @@ async function test() {
 		const assert = (a, b, msg) => console.assert(a === b, msg, [a, b]);
 		const getResults = obj => Object.entries(obj.results).flat().join(',');
 		console.log('Results:', actual);
-		console.log('TOML data:', actual.languages.all['TOML'])
+		console.log('TOML data:', actual.languages.all['TOML'], '\n');
 		assert(getResults(expected), getResults(actual), 'Results');
 		assert(expected.count, actual.count, 'Total count');
 		assert(expected.languages.programming.JavaScript, actual.languages.programming.JavaScript, 'JavaScript count');

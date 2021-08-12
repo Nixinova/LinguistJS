@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+*2021-08-12*
+- Added checking of shebang (`#!`) lines for explicit language classification.
+- Added `checkShebang` API option to implement shebang checking (defaults to `true` unless `quick` is set).
+- Added `--checkShebang` CLI option (ditto).
+
 ## 1.4.5
 *2021-08-10*
 - Fixed files prefixed with a dot not being checked.

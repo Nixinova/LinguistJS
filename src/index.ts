@@ -1,7 +1,7 @@
 import fs from 'fs';
 import fetch from 'cross-fetch';
 import yaml from 'js-yaml';
-import glob from 'fast-glob';
+import glob from 'tiny-glob';
 import glob2regex from 'glob-to-regexp';
 
 import * as T from './types';
@@ -42,12 +42,12 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		total: { unique: 0, bytes: 0, unknownBytes: 0 },
 	};
 
-	let files = await glob(root + '/**/*', { absolute: true, onlyFiles: true, dot: true });
-	files = files.filter(file => !file.includes('/.git/'));
+	let files = await glob(root + '/**/*', { absolute: true, filesOnly: true, dot: true });
+	files = files.map(path => path.replace(/\\/g, '/')).filter(file => !file.includes('/.git/'));
 	const folders = new Set(files.map(file => file.replace(/[^/]+$/, '')));
 
 	// Apply aliases
-	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, ...opts };
+	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };
 
 	// Apply explicit ignores
 	if (opts.ignore) {
@@ -115,8 +115,21 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	const overridesArray = Object.entries(overrides);
 	for (const file of files) {
 		if (fs.lstatSync(file).isDirectory()) continue;
+		// Check shebang line for explicit classification
+		if (!opts.quick && opts.checkShebang) {
+			const firstLine = await readFile(file, true);
+			if (firstLine.startsWith('#!')) {
+				const interpreter = firstLine.split(/\s/)[1];
+				const match = Object.entries(langData).filter(([_lang, data]) => data.interpreters?.includes(interpreter));
+				if (match.length) {
+					const forcedLang = match[0][0];
+					addResult(file, forcedLang);
+					continue;
+				}
+			}
+		}
 		// Check override for manual language classification
-		if (!opts.quick) {
+		if (!opts.quick && opts.checkAttributes) {
 			const match = overridesArray.find(item => RegExp(item[0]).test(file));
 			if (match) {
 				const forcedLang = match[1];
@@ -160,7 +173,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 					if (heuristic.pattern) normalise(heuristic.pattern);
 					if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
 					// Check file contents and apply heuristic patterns
-					const fileContent = fs.readFileSync(file, { encoding: 'utf8' });
+					const fileContent = await readFile(file);
 					if (patterns.some(pattern => RegExp(pattern).test(fileContent))) {
 						finalResults[file] = heuristic.language;
 						break;
