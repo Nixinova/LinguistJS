@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed PCRE regular expressions causing a crash.
+- Fixed shebang lines not being fully checked.
 
 ## 1.5.0
 *2021-08-12*

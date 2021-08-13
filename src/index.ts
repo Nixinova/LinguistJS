@@ -132,10 +132,9 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		if (!opts.quick && opts.checkShebang) {
 			const firstLine = await readFile(file, true);
 			if (firstLine.startsWith('#!')) {
-				const interpreter = firstLine.split(/\s/)[1];
-				const match = Object.entries(langData).filter(([_lang, data]) => data.interpreters?.includes(interpreter));
-				if (match.length) {
-					const forcedLang = match[0][0];
+				const matches = Object.entries(langData).filter(([, data]) => data.interpreters?.some(interpreter => firstLine.includes(interpreter)));
+				if (matches.length) {
+					const forcedLang = matches[0][0];
 					addResult(file, forcedLang);
 					continue;
 				}
