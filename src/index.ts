@@ -153,15 +153,15 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		for (const lang in langData) {
 			// Check if filename is a match
 			const matchesName = langData[lang].filenames?.some(presetName => file.toLowerCase().endsWith(presetName.toLowerCase()));
+			if (matchesName) addResult(file, lang);
+		}
+		for (const lang in langData) {
+			// Check if extension is a match
 			const matchesExt = langData[lang].extensions?.some(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
-			if (matchesName || matchesExt) {
-				addResult(file, lang);
-			}
+			if (matchesExt) addResult(file, lang);
 		}
 		// Fallback to null if no language matches
-		if (!results[file]) {
-			addResult(file, null);
-		}
+		if (!results[file]) addResult(file, null);
 	}
 
 	// Parse heuristics if applicable

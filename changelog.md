@@ -4,6 +4,7 @@
 - Fixed PCRE regular expressions causing a crash.
 - Fixed shebang lines not being fully checked.
 - Fixed heuristics with two fallback languages not choosing just one of them.
+- Fixed extensions being checked alongside filenames instead of being checked after, as the latter should take priority.
 
 ## 1.5.0
 *2021-08-12*
