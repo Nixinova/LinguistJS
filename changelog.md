@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2
+*2021-08-14*
+- Changed web requests to be cached upon fetch, improving performance of successive runs.
+
 ## 1.5.1
 *2021-08-14*
 - Fixed PCRE regular expressions causing a crash.

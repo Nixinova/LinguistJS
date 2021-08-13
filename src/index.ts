@@ -3,6 +3,7 @@ import fetch from 'cross-fetch';
 import yaml from 'js-yaml';
 import glob from 'tiny-glob';
 import glob2regex from 'glob-to-regexp';
+import Cache from 'node-cache';
 
 import * as T from './types';
 import * as S from './schema';
@@ -11,7 +12,17 @@ const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { glob
 const last = <T>(arr: T[]): T => arr[arr.length - 1];
 const find = (str: string, match: RegExp): string => str.substr(str.search(match));
 const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
-const loadFile = async (file: string) => await fetch(dataUrl(file)).then(data => data.text());
+
+const cache = new Cache({});
+async function loadFile(file: string): Promise<string> {
+	// Return cache if it exists
+	const cachedContent = cache.get<string>(file);
+	if (cachedContent) return cachedContent;
+	// Otherwise cache the request
+	const fileContent = await fetch(dataUrl(file)).then(data => data.text());
+	cache.set(file, fileContent);
+	return fileContent;
+}
 
 function pcre(regex: string): RegExp {
 	let finalRegex = regex;
