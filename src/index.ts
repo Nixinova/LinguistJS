@@ -22,7 +22,9 @@ function pcre(regex: string): RegExp {
 		finalRegex = finalRegex.replace(match, '');
 		[...flags].forEach(flag => finalFlags.add(flag));
 	}
-	finalRegex = finalRegex.replace(/([*+]){2}/g, '$1');
+	finalRegex = finalRegex
+		.replace(/([*+]){2}/g, '$1') // ++ and *+ modifiers
+		.replace(/\\A/g, '^').replace(/\\Z/g, '$') // start- and end-of-file markers
 	return RegExp(finalRegex, [...finalFlags].join(''));
 }
 
