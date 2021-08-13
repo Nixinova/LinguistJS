@@ -13,6 +13,19 @@ const find = (str: string, match: RegExp): string => str.substr(str.search(match
 const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
 const loadFile = async (file: string) => await fetch(dataUrl(file)).then(data => data.text());
 
+function pcre(regex: string): RegExp {
+	let finalRegex = regex;
+	let finalFlags = new Set<string>();
+	const inlineMatches = regex.matchAll(/\?([a-z]):/g);
+	const startMatches = regex.matchAll(/\(\?([a-z]+)\)/g);
+	for (const [match, flags] of [...inlineMatches, ...startMatches]) {
+		finalRegex = finalRegex.replace(match, '');
+		[...flags].forEach(flag => finalFlags.add(flag));
+	}
+	finalRegex = finalRegex.replace(/([*+]){2}/g, '$1');
+	return RegExp(finalRegex, [...finalFlags].join(''));
+}
+
 async function readFile(filename: string, onlyFirstLine: boolean = false): Promise<string> {
 	const chunkSize = 100;
 	const stream = fs.createReadStream(filename, { highWaterMark: chunkSize });
@@ -60,7 +73,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		for (const folder of folders) {
 
 			// Skip checks if folder is already ignored
-			if (!opts.keepVendored && vendorData.some(path => RegExp(path).test(folder))) continue;
+			if (!opts.keepVendored && vendorData.some(path => pcre(path).test(folder))) continue;
 
 			const attributesFile = folder + '.gitattributes';
 			const ignoresFile = folder + '.gitignore';
@@ -99,7 +112,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	// Check vendored files
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
+		const matcher = (match: string) => pcre(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !vendorData.some(match => matcher(match).test(file)));
 	}
 
@@ -174,7 +187,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 					if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
 					// Check file contents and apply heuristic patterns
 					const fileContent = await readFile(file);
-					if (patterns.some(pattern => RegExp(pattern).test(fileContent))) {
+					if (patterns.some(pattern => pcre(pattern).test(fileContent))) {
 						finalResults[file] = heuristic.language;
 						break;
 					}

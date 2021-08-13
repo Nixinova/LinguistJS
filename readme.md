@@ -5,6 +5,7 @@
 # Linguist
 
 Analyses all files located in a given folder and collates the results.
+
 Powered by [github-linguist](https://github.com/github/linguist), although it doesn't need to be installed.
 
 ## Install

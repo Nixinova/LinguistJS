@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed PCRE regular expressions causing a crash.
+
 ## 1.5.0
 *2021-08-12*
 - Added checking of shebang (`#!`) lines for explicit language classification.
