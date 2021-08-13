@@ -28,7 +28,7 @@ export interface HeuristicsSchema {
 	disambiguations: Array<{
 		extensions: string[]
 		rules: Array<HeuristicsRules & {
-			language: string
+			language: string | string[]
 			and?: HeuristicsRules[]
 		}>
 	}>

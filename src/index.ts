@@ -175,6 +175,8 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 			}
 			// Load heuristic rules
 			for (const heuristic of heuristics.rules) {
+				// Make sure the language is not an array
+				if (Array.isArray(heuristic.language)) heuristic.language = heuristic.language[0];
 				// Make sure the results includes this language
 				if (!results[file].includes(heuristic.language)) continue;
 				// Apply heuristics
@@ -192,7 +194,8 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 					}
 				}
 				// Default to final language
-				finalResults[file] ??= last(heuristics.rules).language;
+				const lastLanguage = last(heuristics.rules).language;
+				finalResults[file] ??= Array.isArray(lastLanguage) ? lastLanguage[0] : lastLanguage;
 			}
 		}
 	}
