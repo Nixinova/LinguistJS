@@ -45,7 +45,9 @@ async function readFile(filename: string, onlyFirstLine: boolean = false): Promi
 	let content = '';
 	for await (const data of stream) {
 		content += data.toString();
-		if (onlyFirstLine && /\n/.test(content)) return content;
+		if (onlyFirstLine && content.includes('\n')) {
+			return content.split(/\r?\n/)[0];
+		}
 	}
 	return content;
 }
@@ -145,7 +147,9 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		if (!opts.quick && opts.checkShebang) {
 			const firstLine = await readFile(file, true);
 			if (firstLine.startsWith('#!')) {
-				const matches = Object.entries(langData).filter(([, data]) => data.interpreters?.some(interpreter => firstLine.includes(interpreter)));
+				const matches = Object.entries(langData).filter(([, data]) =>
+					data.interpreters?.some(interpreter => firstLine.match('\\b' + interpreter + '\\b'))
+				);
 				if (matches.length) {
 					const forcedLang = matches[0][0];
 					addResult(file, forcedLang);
