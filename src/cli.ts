@@ -36,7 +36,7 @@ for (const arg in args) {
 if (args.analyze) {
 	(async () => {
 		const root = args.analyze === true ? '.' : args.analyze;
-		if (args.ignore[0].match(/(?<!\\)[:;|]/)) args.ignore = args.ignore[0].split(/(?<!\\)[:;|]/);
+		if (args.ignore?.[0].match(/(?<!\\)[:;|]/)) args.ignore = args.ignore[0].split(/(?<!\\)[:;|]/);
 		const { count, languages, results } = await linguist(root, args);
 		if (args.summary) {
 			const { data, markup, programming, prose, total: { bytes: totalBytes } } = languages;

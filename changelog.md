@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.5
+*2021-08-15*
+- Fixed a crash occurring when using the CLI.
+
 ## 1.5.4
 *2021-08-15*
 - Fixed CLI options not being able to be negated.
