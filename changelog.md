@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.4
+*2021-08-15*
+- Fixed CLI options not being able to be negated.
+- Fixed CLI option `--ignore` not allowing delimited paths.
+
 ## 1.5.3
 *2021-08-14*
 - Fixed shebang interpreter checking more than just the first line.
