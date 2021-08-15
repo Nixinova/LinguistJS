@@ -3,6 +3,7 @@ import fetch from 'cross-fetch';
 import yaml from 'js-yaml';
 import glob from 'tiny-glob';
 import glob2regex from 'glob-to-regexp';
+import binaryData from 'binary-extensions';
 import Cache from 'node-cache';
 
 import * as T from './types';
@@ -180,9 +181,11 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		// Fallback to null if no language matches
 		if (!results[file]) addResult(file, null);
 	}
-
-	// Parse heuristics if applicable
 	for (const file in results) {
+		// Skip binary files
+		if (!opts.keepBinary && binaryData.some(ext => file.endsWith(ext))) continue;
+
+		// Parse heuristics if applicable
 		heuristics:
 		for (const heuristics of heuristicsData.disambiguations) {
 			// Check heuristic extensions
@@ -215,9 +218,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 				finalResults[file] ??= Array.isArray(lastLanguage) ? lastLanguage[0] : lastLanguage;
 			}
 		}
-	}
-	// If no heuristics, load the only language
-	for (const file in results) {
+		// If no heuristics, load the only language
 		finalResults[file] ??= results[file][0];
 	}
 

@@ -8,6 +8,7 @@ export type Integer = number
 
 export interface Options {
 	keepVendored?: boolean
+	keepBinary?: boolean
 	quick?: boolean
 	checkIgnored?: boolean
 	checkAttributes?: boolean

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0
+*2021-08-15*
+- Added checking of binary files to avoid including them in the language results.
+- Added `keepBinary` option to control whether binary files are checked (defaults to `false`).
+
 ## 1.5.5
 *2021-08-15*
 - Fixed a crash occurring when using the CLI.
@@ -27,8 +32,7 @@
 ## 1.5.0
 *2021-08-12*
 - Added checking of shebang (`#!`) lines for explicit language classification.
-- Added `checkShebang` API option to implement shebang checking (defaults to `true` unless `quick` is set).
-- Added `--checkShebang` CLI option (ditto).
+- Added `checkShebang` option to implement shebang checking (defaults to `true` unless `quick` is set).
 
 ## 1.4.5
 *2021-08-10*
