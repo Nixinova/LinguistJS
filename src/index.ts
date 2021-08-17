@@ -62,7 +62,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 
 	const results: Record<T.FilePath, T.Language[]> = {};
 	const finalResults: Record<T.FilePath, T.Language> = {};
-	const extensions: Record<T.FilePath, string[]> = {};
+	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.Language> = {};
 	const languages: T.LanguagesData = {
 		all: {},
@@ -93,8 +93,8 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 				continue;
 			}
 
-			const attributesFile = folder + '.gitattributes';
-			const ignoresFile = folder + '.gitignore';
+			const attributesFile = path.join(folder, '.gitattributes');
+			const ignoresFile = path.join(folder, '.gitignore');
 
 			// Parse gitignores
 			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
@@ -138,10 +138,10 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	const addResult = (file: string, data: T.Language) => {
 		if (!results[file]) {
 			results[file] = [];
-			extensions[file] = [];
+			extensions[file] = '';
 		}
 		results[file].push(data);
-		extensions[file].push(path.extname(file));
+		extensions[file] = path.extname(file);
 	}
 	const overridesArray = Object.entries(overrides);
 	for (const file of files) {
@@ -192,7 +192,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		// Parse heuristics if applicable
 		for (const heuristics of heuristicsData.disambiguations) {
 			// Make sure the extension matches the current file
-			if (extensions[file].some(ext => !heuristics.extensions.includes(ext))) {
+			if (!heuristics.extensions.includes(extensions[file])) {
 				continue;
 			}
 			// Load heuristic rules
