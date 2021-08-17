@@ -1,5 +1,5 @@
 import fs from 'fs';
-import path from 'path/posix';
+import { posix as path } from 'path';
 import fetch from 'cross-fetch';
 import yaml from 'js-yaml';
 import glob from 'tiny-glob';
