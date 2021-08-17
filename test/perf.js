@@ -1,20 +1,20 @@
 const linguist = require('..');
 
 async function perfTest() {
-	let times = [];
-	const run = async () => {
+	let time = 0;
+	const amount = +process.argv[2] || 75;
+	for (let i = 0; i < amount; i++) {
 		let t1 = +new Date();
 		await linguist('.');
 		let t2 = +new Date();
-		times.push(t2 - t1);
+		time += t2 - t1;
 	}
-	let amount = +process.argv[2] || 50;
-	for (let i = 0; i < amount; i++) {
-		await run();
-	}
-	let total = times.reduce((arr, val) => arr + val);
+	const total = time / 1e3;
+	const average = total / amount;
+	const EXPECTED_MAX = 0.160; // 1.6
 	console.log('\n<Performance test results>');
-	console.log('Total:', total / 1e3, 'sec', `(n=${amount})`);
-	console.log('Average:', total / times.length / 1e3, 'sec');
+	console.log('Total:', total, 'sec', `(n=${amount})`);
+	console.log('Average:', average, 'sec');
+	if (average > EXPECTED_MAX) console.warn('Warning: average runtime higher than expected');
 }
 perfTest();
