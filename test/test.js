@@ -1,4 +1,5 @@
 const linguist = require('..');
+const deepEqual = require('fast-deep-equal');
 
 async function test() {
 	const samplesFolder = __dirname.replace(/\\/g, '/') + '/samples';
@@ -12,24 +13,24 @@ async function test() {
 		},
 		count: 5,
 		languages: {
+			all: {
+				JavaScript: { type: 'programming', bytes: 22, color: '#f1e05a' },
+				Text: { type: 'prose', bytes: 0, color: undefined },
+				TOML: { type: 'data', bytes: 0, color: '#9c4221' }
+			},
 			programming: { JavaScript: 22 },
 			markup: {},
 			data: { TOML: 0 },
 			prose: { Text: 0 },
+			unknown: { '': 9 },
 			total: { unique: 3, bytes: 22, unknownBytes: 9 },
 		},
 	}
 
 	await linguist(samplesFolder).then(actual => {
-		const assert = (a, b, msg) => console.assert(a === b, msg, [a, b]);
-		const getResults = obj => Object.entries(obj.results).sort(([a], [b]) => a < b ? +1 : -1).flat().join(',');
 		console.log('Results:', actual);
-		console.log('TOML data:', actual.languages.all['TOML'], '\n');
-		assert(getResults(expected), getResults(actual), 'Results');
-		assert(expected.count, actual.count, 'Total count');
-		assert(expected.languages.programming.JavaScript, actual.languages.programming.JavaScript, 'JavaScript count');
-		assert(expected.languages.total.unique, actual.languages.total.unique, 'Total unique');
-		assert(expected.languages.total.unknownBytes, actual.languages.total.unknownBytes, 'Total unknown bytes');
+		console.log('Language data:', actual.languages.all, '\n');
+		if (!deepEqual(expected, actual)) throw new Error('Results differ from expected!');
 	});
 }
 test();
