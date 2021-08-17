@@ -5,6 +5,7 @@ import yaml from 'js-yaml';
 import glob from 'tiny-glob';
 import glob2regex from 'glob-to-regexp';
 import binaryData from 'binary-extensions';
+import { isBinaryFile } from 'isbinaryfile';
 import Cache from 'node-cache';
 
 import * as T from './types';
@@ -185,7 +186,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	}
 	for (const file in results) {
 		// Skip binary files
-		if (!opts.keepBinary && binaryData.some(ext => file.endsWith(ext))) {
+		if (!opts.keepBinary && (binaryData.some(ext => file.endsWith(ext)) || await isBinaryFile(file))) {
 			continue;
 		}
 

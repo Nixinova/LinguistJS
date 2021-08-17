@@ -1,6 +1,8 @@
 # Changelog
 
-## Next
+## 1.6.1
+*2021-08-17*
+- Changed binary file checking to check file content as well as extension.
 - Fixed filename matching not comparing the full base name to the list of filename matches.
 
 ## 1.6.0

@@ -30,7 +30,10 @@ async function test() {
 	await linguist(samplesFolder).then(actual => {
 		console.log('Results:', actual);
 		console.log('Language data:', actual.languages.all, '\n');
-		if (!deepEqual(expected, actual)) throw new Error('Results differ from expected!');
+		if (!deepEqual(expected, actual)) {
+			console.warn('Results:', '\nexpected:', expected, '\nactual:', actual);
+			throw new Error('Results differ from expected!');
+		}
 	});
 }
 test();
