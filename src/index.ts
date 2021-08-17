@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path/posix';
 import fetch from 'cross-fetch';
 import yaml from 'js-yaml';
 import glob from 'tiny-glob';
@@ -11,7 +12,6 @@ import * as S from './schema';
 
 const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
 const last = <T>(arr: T[]): T => arr[arr.length - 1];
-const find = (str: string, match: RegExp): string => str.substr(str.search(match));
 const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
 
 const cache = new Cache({});
@@ -73,7 +73,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 
 	let files = await glob(root + '/**/*', { absolute: true, filesOnly: true, dot: true });
 	files = files.map(path => path.replace(/\\/g, '/')).filter(file => !file.includes('/.git/'));
-	const folders = new Set(files.map(file => file.replace(/[^/]+$/, '')));
+	const folders = new Set(files.map(file => path.dirname(file)));
 
 	// Apply aliases
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };
@@ -89,7 +89,9 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		for (const folder of folders) {
 
 			// Skip checks if folder is already ignored
-			if (!opts.keepVendored && vendorData.some(path => pcre(path).test(folder))) continue;
+			if (!opts.keepVendored && vendorData.some(path => pcre(path).test(folder))) {
+				continue;
+			}
 
 			const attributesFile = folder + '.gitattributes';
 			const ignoresFile = folder + '.gitignore';
@@ -139,7 +141,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 			extensions[file] = [];
 		}
 		results[file].push(data);
-		extensions[file].push('.' + last(file.split('.')));
+		extensions[file].push(path.extname(file));
 	}
 	const overridesArray = Object.entries(overrides);
 	for (const file of files) {
@@ -170,7 +172,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		// Search each language
 		for (const lang in langData) {
 			// Check if filename is a match
-			const matchesName = langData[lang].filenames?.some(presetName => file.toLowerCase().endsWith(presetName.toLowerCase()));
+			const matchesName = langData[lang].filenames?.some(name => path.basename(file.toLowerCase()) === name.toLowerCase());
 			if (matchesName) addResult(file, lang);
 		}
 		for (const lang in langData) {
@@ -183,22 +185,26 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	}
 	for (const file in results) {
 		// Skip binary files
-		if (!opts.keepBinary && binaryData.some(ext => file.endsWith(ext))) continue;
+		if (!opts.keepBinary && binaryData.some(ext => file.endsWith(ext))) {
+			continue;
+		}
 
 		// Parse heuristics if applicable
-		heuristics:
 		for (const heuristics of heuristicsData.disambiguations) {
-			// Check heuristic extensions
-			for (const ext of extensions[file]) {
-				// Make sure the extension matches the current file
-				if (!heuristics.extensions.includes(ext)) continue heuristics;
+			// Make sure the extension matches the current file
+			if (extensions[file].some(ext => !heuristics.extensions.includes(ext))) {
+				continue;
 			}
 			// Load heuristic rules
 			for (const heuristic of heuristics.rules) {
 				// Make sure the language is not an array
-				if (Array.isArray(heuristic.language)) heuristic.language = heuristic.language[0];
+				if (Array.isArray(heuristic.language)) {
+					heuristic.language = heuristic.language[0];
+				}
 				// Make sure the results includes this language
-				if (!results[file].includes(heuristic.language)) continue;
+				if (!results[file].includes(heuristic.language)) {
+					continue;
+				}
 				// Apply heuristics
 				if (opts.checkHeuristics) {
 					// Normalise heuristic data
@@ -225,10 +231,10 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(finalResults)) {
 		if (lang && !langData[lang]) continue;
-		// If no language found, add extension in other section
 		const fileSize = fs.statSync(file).size;
+		// If no language found, add extension in other section
 		if (!lang) {
-			const ext = find(file, /(\.[^./]+)?$/);
+			const ext = path.extname(file);
 			languages.unknown[ext] ??= 0;
 			languages.unknown[ext] += fileSize;
 			languages.total.unknownBytes += fileSize;

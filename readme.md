@@ -89,6 +89,8 @@ let { count, results, languages } = linguist(folder, options);
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+    - `--keepBinary` (boolean):
+      Whether binary files should be included in the output (defaults to `false`).
     - `checkAttributes` (boolean):
       Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
     - `checkIgnored` (boolean):
@@ -122,6 +124,8 @@ linguist --help
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false`.
   - `--keepVendored` (optional):
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
+  - `--keepBinary` (optional):
+    Whether binary files should be excluded from the output.
   - `--checkAttributes` (optional):
     Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
   - `--checkIgnored` (optional):

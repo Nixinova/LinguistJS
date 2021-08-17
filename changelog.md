@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed filename matching not comparing the full base name to the list of filename matches.
+
 ## 1.6.0
 *2021-08-15*
 - Added checking of binary files to avoid including them in the language results.

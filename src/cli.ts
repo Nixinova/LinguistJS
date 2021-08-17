@@ -14,7 +14,7 @@ program
 	.option('-i|--ignore <files...>', `A list of file path globs to ignore`)
 	.option('-f|--files|--full [bool]', 'List every file parsed', false)
 	.option('-s|--summary [bool]', 'Show output in a human-readable format', false)
-	.option('-q|--quick [bool]', 'Skip checking of gitattributes/gitignore files (alias for -AIHS=false)', false)
+	.option('-q|--quick [bool]', 'Skip checking of gitattributes/gitignore files (alias for -{A|I|H|S}=false)', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
 	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files (default: true unless --quick is set)', true)
