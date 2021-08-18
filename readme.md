@@ -112,11 +112,13 @@ linguist --help
   - `<folder>` (optional):
     The folder to analyse (defaults to `./`).
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
-  - `--ignore`  (optional):
-    A list of file path globs to ignore.
+  - `--ignore <paths...>` (optional):
+    A list of space-delimited file path globs to ignore.
   - `--files` (optional):
     Whether to print a full list of all files analysed.
     Does nothing when `--summary` is specified.
+  - `--categories <categories...>` (optional):
+    A list of space-delimited categories that should be displayed in the output.
   - `--summary` (optional):
     Output language data in a human-readable manner instead of JSON.
   - `--quick` (optional):

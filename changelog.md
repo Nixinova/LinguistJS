@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added CLI argument `--categories <categories...>` to control which language categories should be outputted.
+
 ## 1.6.1
 *2021-08-17*
 - Changed binary file checking to check file content as well as extension.
