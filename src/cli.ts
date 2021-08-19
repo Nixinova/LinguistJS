@@ -31,9 +31,14 @@ const args = program.opts();
 
 // Normalise arguments
 for (const arg in args) {
-	if (typeof args[arg] !== 'string') continue;
-	args[arg] = args[arg].replace(/^=/, '');
-	if (args[arg].match(/true$|false$/)) args[arg] = args[arg] === 'true';
+	const normalise = (val: any): any => {
+		if (typeof val !== 'string') return val;
+		val = val.replace(/^=/, '');
+		if (val.match(/true$|false$/)) val = val === 'true';
+		return val;
+	}
+	if (args[arg].length) args[arg] = args[arg].map(normalise);
+	else args[arg] = normalise(args[arg]);
 }
 
 // Run Linguist

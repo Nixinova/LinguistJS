@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed command-line arguments not being fully normalised.
+
 ## 1.7.0
 - Added `categories` option to control which language categories (`data`, `markup`, `programming`, and/or `prose`) should be included in the output.
 - Fixed some files being incorrectly classified as binary.
