@@ -84,6 +84,9 @@ let { count, results, languages } = linguist(folder, options);
     An object containing analyser options.
     - `ignore` (string array):
       A list of file path globs to explicitly ignore.
+    - `categories` (string array):
+      A list of programming language categories that should be included in the results.
+      Defaults to `['data', 'markup', 'programming', 'prose']`.
     - `quick` (boolean):
       Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications (defaults to `false`).
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.

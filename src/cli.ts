@@ -39,32 +39,16 @@ for (const arg in args) {
 // Run Linguist
 if (args.analyze) (async () => {
 	const root = args.analyze === true ? '.' : args.analyze;
-	const categories = ['data', 'markup', 'programming', 'prose'];
-
 	// Normalise array arguments
 	if (args.ignore?.[0].match(/(?<!\\)[:;|]/)) args.ignore = args.ignore[0].split(/(?<!\\)[:;|]/);
 	if (args.categories?.length === 1) args.categories = args.categories[0].split(',');
-
 	// Fetch language data
 	const { count, languages, results } = await linguist(root, args);
-
 	// Make file paths relative
 	for (const [file, lang] of Object.entries(results)) {
 		const relFile = file.replace(path.resolve(root).replace(/\\/g, '/'), '.');
 		results[relFile] = lang;
 		delete results[file];
-	}
-	// Filter out languages not part of the specified categories
-	if (args.categories) for (const type of categories.filter(type => !args.categories.includes(type))) {
-		for (const [file, lang] of Object.entries(results)) {
-			if (!lang) continue;
-			if (lang in languages[type as S.LanguageType]) {
-				if (languages.all[lang]) languages.total.bytes -= languages.all[lang].bytes;
-				delete results[file];
-				delete languages.all[lang];
-			}
-		}
-		delete languages[type as S.LanguageType];
 	}
 	// Print output
 	if (args.summary) {

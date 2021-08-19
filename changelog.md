@@ -1,7 +1,7 @@
 # Changelog
 
-## Next
-- Added CLI argument `--categories <categories...>` to control which language categories should be outputted.
+## 1.7.0
+- Added `categories` option to control which language categories (`data`, `markup`, `programming`, and/or `prose`) should be included in the output.
 - Fixed some files being incorrectly classified as binary.
 
 ## 1.6.1

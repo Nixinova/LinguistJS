@@ -229,6 +229,20 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		finalResults[file] ??= results[file][0];
 	}
 
+	// Skip specified categories
+	if (opts.categories?.length) {
+		const categories: S.LanguageType[] = ['data', 'markup', 'programming', 'prose'];
+		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
+		for (const [file, lang] of Object.entries(finalResults)) {
+			if (!hiddenCategories.some(cat => lang && langData[lang].type === cat)) continue;
+			delete finalResults[file];
+			if (lang) delete languages.all[lang];
+		}
+		for (const category of hiddenCategories) {
+			languages[category] = {};
+		}
+	}
+
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(finalResults)) {
 		if (lang && !langData[lang]) continue;

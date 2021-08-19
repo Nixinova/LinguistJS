@@ -7,6 +7,8 @@ export type Bytes = Integer
 export type Integer = number
 
 export interface Options {
+	ignore?: string[]
+	categories?: LanguageType[]
 	keepVendored?: boolean
 	keepBinary?: boolean
 	quick?: boolean
@@ -14,7 +16,6 @@ export interface Options {
 	checkAttributes?: boolean
 	checkHeuristics?: boolean
 	checkShebang?: boolean
-	ignore?: string[]
 }
 
 export interface LanguagesData {
