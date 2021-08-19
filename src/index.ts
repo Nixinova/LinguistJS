@@ -186,7 +186,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	}
 	for (const file in results) {
 		// Skip binary files
-		if (!opts.keepBinary && (binaryData.some(ext => file.endsWith(ext)) || await isBinaryFile(file))) {
+		if (!opts.keepBinary && (binaryData.some(ext => file.endsWith('.' + ext)) || await isBinaryFile(file))) {
 			continue;
 		}
 

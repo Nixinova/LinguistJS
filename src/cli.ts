@@ -55,7 +55,7 @@ if (args.analyze) (async () => {
 		delete results[file];
 	}
 	// Filter out languages not part of the specified categories
-	for (const type of categories.filter(type => !args.categories.includes(type))) {
+	if (args.categories) for (const type of categories.filter(type => !args.categories.includes(type))) {
 		for (const [file, lang] of Object.entries(results)) {
 			if (!lang) continue;
 			if (lang in languages[type as S.LanguageType]) {

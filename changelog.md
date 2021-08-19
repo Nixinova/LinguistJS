@@ -2,6 +2,7 @@
 
 ## Next
 - Added CLI argument `--categories <categories...>` to control which language categories should be outputted.
+- Fixed some files being incorrectly classified as binary.
 
 ## 1.6.1
 *2021-08-17*
