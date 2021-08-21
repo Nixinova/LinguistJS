@@ -82,7 +82,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 	// Apply explicit ignores
 	if (opts.ignore) {
 		const ignoredPaths = opts.ignore.map(path => glob2regex('*' + path + '*', { extended: true }).source);
-		vendorData.push(...ignoredPaths);
+		files = files.filter(file => !ignoredPaths.some(ignore => RegExp(ignore).test(file)));
 	}
 
 	// Load gitattributes
@@ -263,6 +263,7 @@ export = async function analyse(root = '.', opts: T.Options = {}): Promise<T.Res
 		languages[type][lang] += fileSize;
 		languages.total.bytes += fileSize;
 	}
+
 	// Load unique language count
 	languages.total.unique = Object.values(languages.all).length;
 	// Return

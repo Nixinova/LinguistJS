@@ -1,6 +1,8 @@
 # Changelog
 
-## Next
+## 1.7.1
+- Changed file paths specified in option `ignore` to remain hidden even when `keepVendored` is enabled.
+- Fixed file results not being listed when using globbed input.
 - Fixed command-line arguments not being fully normalised.
 
 ## 1.7.0

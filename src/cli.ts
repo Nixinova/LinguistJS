@@ -4,7 +4,6 @@ import path from 'path';
 import { program } from 'commander';
 
 import linguist from './index';
-import * as S from './schema';
 
 program
 	.name('linguist --analyze')
@@ -37,23 +36,23 @@ for (const arg in args) {
 		if (val.match(/true$|false$/)) val = val === 'true';
 		return val;
 	}
-	if (args[arg].length) args[arg] = args[arg].map(normalise);
+	if (Array.isArray(args[arg])) args[arg] = args[arg].map(normalise);
 	else args[arg] = normalise(args[arg]);
 }
 
 // Run Linguist
 if (args.analyze) (async () => {
-	const root = args.analyze === true ? '.' : args.analyze;
 	// Normalise array arguments
 	if (args.ignore?.[0].match(/(?<!\\)[:;|]/)) args.ignore = args.ignore[0].split(/(?<!\\)[:;|]/);
 	if (args.categories?.length === 1) args.categories = args.categories[0].split(',');
 	// Fetch language data
+	const root = args.analyze === true ? '.' : args.analyze;
 	const { count, languages, results } = await linguist(root, args);
 	// Make file paths relative
 	for (const [file, lang] of Object.entries(results)) {
-		const relFile = file.replace(path.resolve(root).replace(/\\/g, '/'), '.');
-		results[relFile] = lang;
+		const relFile = file.replace(path.resolve().replace(/\\/g, '/'), '.');
 		delete results[file];
+		results[relFile] = lang;
 	}
 	// Print output
 	if (args.summary) {
