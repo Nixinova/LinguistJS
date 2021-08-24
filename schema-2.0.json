@@ -1,0 +1,26 @@
+{
+    "files": {
+        "count": 3,
+        "bytes": 6000,
+        "results": {
+            "src/index.ts": "TypeScript",
+            "src/cli.js": "JavaScript",
+            "readme.md": "Markdown"
+        }
+    },
+    "languages": {
+        "count": 3,
+        "bytes": 6000,
+        "results": {
+            "JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
+            "TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
+            "Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" }
+        },
+        "unknown": {
+            "count": 0,
+            "bytes": 0,
+            "filenames": {},
+            "extensions": {}
+        }
+    }
+}

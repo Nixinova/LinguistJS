@@ -75,9 +75,9 @@ let options = { keepVendored: false, quick: false };
 let { count, results, languages } = linguist(folder, options);
 ```
 
-- `linguist(folder?, opts?)` (default export):
+- `linguist(entry?, opts?)` (default export):
   Analyse the language of all files found in a folder.
-  - `folder` (optional; string):
+  - `entry` (optional; string or string array):
     The folder(s) to analyse (defaults to `./`).
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
@@ -92,7 +92,7 @@ let { count, results, languages } = linguist(folder, options);
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
-    - `--keepBinary` (boolean):
+    - `keepBinary` (boolean):
       Whether binary files should be included in the output (defaults to `false`).
     - `checkAttributes` (boolean):
       Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
@@ -112,9 +112,8 @@ linguist --help
 
 - `--analyze`:
   Analyse the language of all files found in a folder.
-  - `<folder>` (optional):
-    The folder to analyse (defaults to `./`).
-    Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
+  - `<folders...>` (optional):
+    The folders to analyse (defaults to `./`).
   - `--ignore <paths...>` (optional):
     A list of space-delimited file path globs to ignore.
   - `--files` (optional):

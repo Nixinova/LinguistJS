@@ -10,7 +10,11 @@ import { loadFile, pcre, readFile, convertToRegex, last } from './helpers';
 import * as T from './types';
 import * as S from './schema';
 
-async function analyse(root = '.', opts: T.Options = {}): Promise<T.Results> {
+async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
+async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
+async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
+	const root = Array.isArray(input) && input.length > 1 ? `{${input.join(',')}}` : input ?? '.';
+
 	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);

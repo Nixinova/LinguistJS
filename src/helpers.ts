@@ -6,14 +6,13 @@ import glob2regex from 'glob-to-regexp';
 export const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
 export const last = <T>(arr: T[]): T => arr[arr.length - 1];
 
-const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
-
 const cache = new Cache({});
 export async function loadFile(file: string): Promise<string> {
 	// Return cache if it exists
 	const cachedContent = cache.get<string>(file);
 	if (cachedContent) return cachedContent;
 	// Otherwise cache the request
+	const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
 	const fileContent = await fetch(dataUrl(file)).then(data => data.text());
 	cache.set(file, fileContent);
 	return fileContent;

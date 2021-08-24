@@ -9,7 +9,7 @@ program
 	.name('linguist --analyze')
 	.usage('[<folder>] [<options...>]')
 
-	.requiredOption('-a|--analyze|--analyse [folder]', 'Analyse the language of all files found in a folder')
+	.requiredOption('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
 	.option('-i|--ignore <files...>', `A list of file path globs to ignore`)
 	.option('-f|--files|--full [bool]', 'List every file parsed', false)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
@@ -20,7 +20,7 @@ program
 	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files (default: true unless --quick is set)', true)
 	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files (default: true unless --quick is set)', true)
 	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages (default: true unless --quick is set)', true)
-	.option('-S|--checkShebang|--checkHashbang [bool]', 'Check shebang lines for explicit classification (default: true unless --quick is set)', true)
+	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification (default: true unless --quick is set)', true)
 
 	.helpOption(`-h|--help`, 'Display this help message')
 	.version(VERSION, '-v|--version', 'Display the installed version of linguist-js')

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.0
+- Added support for the first argument to `analyse()` to be an array of paths.
+
 ## 1.7.1
 - Changed file paths specified in option `ignore` to remain hidden even when `keepVendored` is enabled.
 - Fixed file results not being listed when using globbed input.
