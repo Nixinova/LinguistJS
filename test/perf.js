@@ -9,12 +9,13 @@ async function perfTest() {
 		let t2 = +new Date();
 		time += t2 - t1;
 	}
-	const total = time / 1e3;
+	const unit = 'ms';
+	const total = time;
 	const average = total / amount;
-	const EXPECTED_MAX = 0.160; // 1.6
+	const EXPECTED_MAX = 80; // 1.8.2
 	console.log('\n<Performance test results>');
-	console.log('Total:', total, 'sec', `(n=${amount})`);
-	console.log('Average:', average, 'sec');
+	console.log('Total:', total, unit, `(n=${amount})`);
+	console.log('Average:', average, unit);
 	if (average > EXPECTED_MAX) console.warn('Warning: average runtime higher than expected');
 }
 perfTest();

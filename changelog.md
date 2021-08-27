@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.2
+- Fixed known vendored files not being removed from output.
+
 ## 1.8.1
 - Fixed input folder paths being case sensitive.
 - Fixed dotfiles not showing up in the output.

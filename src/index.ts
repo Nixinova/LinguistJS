@@ -36,11 +36,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	};
 
 	const ignoredFiles = [
-		'.git',
-		opts.keepVendored ? vendorData.map(path => pcre(path).source) : [],
-		opts.ignore?.map(path => glob2regex('*' + path + '*', { extended: true }).source) ?? [],
+		/\/\.git\//,
+		opts.keepVendored ? [] : vendorData.map(path => pcre(path)),
+		opts.ignore?.map(path => glob2regex('*' + path + '*', { extended: true })) ?? [],
 	].flat();
-	let {files, folders} = walk(input ?? '.', ignoredFiles);
+	let { files, folders } = walk(input ?? '.', ignoredFiles);
 
 	// Apply aliases
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };

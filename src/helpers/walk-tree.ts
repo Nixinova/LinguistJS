@@ -1,25 +1,23 @@
 import fs from 'fs';
 import paths from 'path';
-import glob2regex from 'glob-to-regexp';
 
 const allFiles = new Set<string>();
 const allFolders = new Set<string>();
 
 /** Generate list of files in a directory. */
-export default function walk(folder: string | string[], ignoredGlobs: string[] = []): { files: string[], folders: string[] } {
-	const ignored = ignoredGlobs.map(glob => glob2regex(glob, { extended: true }));
+export default function walk(folder: string | string[], ignored: RegExp[] = []): { files: string[], folders: string[] } {
 	if (Array.isArray(folder)) {
-		for (const path of folder) walk(path, ignoredGlobs);
+		for (const path of folder) walk(path, ignored);
 	}
 	else {
-		allFolders.add(folder.replace(/\\/g, '/'));
 		const files = fs.readdirSync(folder);
 		for (const file of files) {
-			if (ignored.some(pattern => pattern.test(file))) continue;
-			const path = paths.resolve(folder, file);
+			const path = paths.resolve(folder, file).replace(/\\/g, '/');
+			if (ignored.some(pattern => pattern.test(path))) continue;
+			allFolders.add(folder.replace(/\\/g, '/'));
 			if (fs.lstatSync(path).isDirectory()) {
 				allFolders.add(path.replace(/\\/g, '/'))
-				walk(path);
+				walk(path, ignored);
 				continue;
 			}
 			allFiles.add(path.replace(/\\/g, '/'));
