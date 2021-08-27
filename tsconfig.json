@@ -17,24 +17,22 @@
     "outDir": "./dist/",
     //"rootDir": "./",
     //"composite": true,
-    //"tsBuildInfoFile": "./",
     //"removeComments": true,
     //"noEmit": true,
     //"importHelpers": true,
     //"downlevelIteration": true,
     //"isolatedModules": true,
 
-    /* Strict Type-Checking Options */
+    /* Type-Checking */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    //"strictFunctionTypes": true,
+    "strictFunctionTypes": true,
     //"strictBindCallApply": true,
-    //"strictPropertyInitialization": true,
+    "strictPropertyInitialization": true,
     //"noImplicitThis": true,
+	"useUnknownInCatchVariables": true,
     "alwaysStrict": true,
-
-    /* Additional Checks */
     //"noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

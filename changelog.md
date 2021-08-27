@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1
+- Fixed input folder paths being case sensitive.
+- Fixed dotfiles not showing up in the output.
+
 ## 1.8.0
 - Added support for the first argument to `analyse()` to be an array of paths.
 

@@ -5,6 +5,8 @@ import { program } from 'commander';
 
 import linguist from './index';
 
+if (typeof program === 'undefined') throw `Dependency 'commander' is not installed.`;
+
 program
 	.name('linguist --analyze')
 	.usage('[<folder>] [<options...>]')

@@ -1,12 +1,11 @@
 import fs from 'fs';
-import { posix as path } from 'path';
+import paths from 'path';
 import yaml from 'js-yaml';
-import glob from 'tiny-glob';
 import glob2regex from 'glob-to-regexp';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
-import walk from './helpers/tree';
+import walk from './helpers/walk-tree';
 import loadFile from './helpers/load-data';
 import readFile from './helpers/read-file';
 import pcre from './helpers/convert-pcre';
@@ -19,8 +18,6 @@ const last = <T>(arr: T[]): T => arr[arr.length - 1];
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
 async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
-	const root = Array.isArray(input) && input.length > 1 ? `{${input.join(',')}}` : input ?? '.';
-
 	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
@@ -38,46 +35,41 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		total: { unique: 0, bytes: 0, unknownBytes: 0 },
 	};
 
-	let files = await glob(root + '/**/*', { absolute: true, filesOnly: true, dot: true });
-	files = files.map(path => path.replace(/\\/g, '/')).filter(file => !file.includes('/.git/'));
-	const folders = new Set(files.map(file => path.dirname(file)));
+	const ignoredFiles = [
+		'.git',
+		opts.keepVendored ? vendorData.map(path => pcre(path).source) : [],
+		opts.ignore?.map(path => glob2regex('*' + path + '*', { extended: true }).source) ?? [],
+	].flat();
+	let {files, folders} = walk(input ?? '.', ignoredFiles);
 
 	// Apply aliases
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };
 
-	// Apply explicit ignores
-	if (opts.ignore) {
-		const ignoredPaths = opts.ignore.map(path => glob2regex('*' + path + '*', { extended: true }).source);
-		files = files.filter(file => !ignoredPaths.some(ignore => RegExp(ignore).test(file)));
-	}
-
 	// Load gitattributes
+	const customIgnored: string[] = [];
 	if (!opts.quick) {
 		for (const folder of folders) {
 
-			// Skip checks if folder is already ignored
-			if (!opts.keepVendored && vendorData.some(path => pcre(path).test(folder))) {
-				continue;
-			}
-
-			const attributesFile = path.join(folder, '.gitattributes');
-			const ignoresFile = path.join(folder, '.gitignore');
+			// Skip if folder is marked in gitattributes
+			if (customIgnored.some(path => pcre(path).test(folder))) continue;
 
 			// Parse gitignores
+			const ignoresFile = paths.join(folder, '.gitignore');
 			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
 				const ignoresData = await readFile(ignoresFile);
 				const ignoresList = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
-				const ignoredPaths = ignoresList.map(path => glob2regex('*' + path + '*', { extended: true }).source);
-				vendorData.push(...ignoredPaths);
+				const ignoredPaths = ignoresList.map(path => convertToRegex(path).source);
+				customIgnored.push(...ignoredPaths.map(file => file.replace(folder, '')));
 			}
 
 			// Parse gitattributes
+			const attributesFile = paths.join(folder, '.gitattributes');
 			if (opts.checkAttributes && fs.existsSync(attributesFile)) {
 				const attributesData = await readFile(attributesFile);
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
 				for (const [_line, path] of vendorMatches) {
-					vendorData.push(folder + convertToRegex(path).source.substr(1));
+					customIgnored.push(convertToRegex(path).source.substr(1).replace(folder, ''));
 				}
 				// Custom file associations
 				const customLangMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
@@ -98,7 +90,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
 		const matcher = (match: string) => pcre(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
-		files = files.filter(file => !vendorData.some(match => matcher(match).test(file)));
+		files = files.filter(file => !customIgnored.some(pattern => matcher(pattern).test(file)));
 	}
 
 	// Load all files and parse languages
@@ -108,7 +100,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			extensions[file] = '';
 		}
 		results[file].push(data);
-		extensions[file] = path.extname(file);
+		extensions[file] = paths.extname(file);
 	}
 	const overridesArray = Object.entries(overrides);
 	for (const file of files) {
@@ -139,7 +131,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Search each language
 		for (const lang in langData) {
 			// Check if filename is a match
-			const matchesName = langData[lang].filenames?.some(name => path.basename(file.toLowerCase()) === name.toLowerCase());
+			const matchesName = langData[lang].filenames?.some(name => paths.basename(file.toLowerCase()) === name.toLowerCase());
 			if (matchesName) addResult(file, lang);
 		}
 		for (const lang in langData) {
@@ -215,7 +207,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		const fileSize = fs.statSync(file).size;
 		// If no language found, add extension in other section
 		if (!lang) {
-			const ext = path.extname(file);
+			const ext = paths.extname(file);
 			languages.unknown[ext] ??= 0;
 			languages.unknown[ext] += fileSize;
 			languages.total.unknownBytes += fileSize;
