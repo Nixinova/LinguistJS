@@ -6,9 +6,15 @@ import glob2regex from 'glob-to-regexp';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
-import { loadFile, pcre, readFile, convertToRegex, last } from './helpers';
+import walk from './helpers/tree';
+import loadFile from './helpers/load-data';
+import readFile from './helpers/read-file';
+import pcre from './helpers/convert-pcre';
 import * as T from './types';
 import * as S from './schema';
+
+const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
+const last = <T>(arr: T[]): T => arr[arr.length - 1];
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
