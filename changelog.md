@@ -1,8 +1,9 @@
 # Changelog
 
-## Next
+## 1.9.0
 - Add `ignoreLanguages` option to configure which languages to ignore.
 - Added alias `ignoreFiles` for option `ignore`.
+- Added CLI argument `--tree` to traverse the output tree to a specific object instead of logging the entire results.
 - Deprecated option `ignore` as it is now ambiguous.
 
 ## 1.8.2

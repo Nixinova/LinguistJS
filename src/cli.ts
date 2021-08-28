@@ -12,10 +12,11 @@ program
 	.usage('[<folder>] [<options...>]')
 
 	.requiredOption('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
+	.option('-f|--files|--full [bool]', 'List every file parsed', false)
 	.option('-i|--ignoreFiles|--ignore <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoreLanguages <languages...>', `A list of languages to ignore`)
-	.option('-f|--files|--full [bool]', 'List every file parsed', false)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
+	.option('-t|--tree <traversal>', 'Which part of the output object (dot-delimited) to display')
 	.option('-s|--summary [bool]', 'Show output in a human-readable format', false)
 	.option('-q|--quick [bool]', 'Skip checking of gitattributes/gitignore files (alias for -{A|I|H|S}=false)', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
@@ -69,8 +70,17 @@ if (args.analyze) (async () => {
 		console.log(`Total: ${totalBytes.toLocaleString()} bytes`);
 	}
 	else {
-		languages.all = {};
-		console.log(args.files ? { results, count, languages } : { count, languages });
+		const data = args.files ? { results, count, languages } : { count, languages };
+		if (args.tree) {
+			const treeParts: string[] = args.tree.split('.');
+			let nestedData: Record<string, any> = data;
+			for (const part of treeParts) nestedData = nestedData[part];
+			console.log(nestedData);
+		}
+		else {
+			data.languages.all = {};
+			console.log(data);
+		}
 	}
 })();
 else {

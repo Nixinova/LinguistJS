@@ -127,6 +127,9 @@ linguist --help
     A list of space-delimited categories that should be displayed in the output.
   - `--summary` (optional):
     Output language data in a human-readable manner instead of JSON.
+  - `--tree <traversal>` (optional):
+    A dot-delimited traversal to the nested object that should be logged to the console instead of the entire output.
+    Does nothing when `--summary` is specified.
   - `--quick` (optional):
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false`.
