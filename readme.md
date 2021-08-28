@@ -82,8 +82,10 @@ let { count, results, languages } = linguist(folder, options);
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
     An object containing analyser options.
-    - `ignore` (string array):
+    - `ignoreFiles` (string array):
       A list of file path globs to explicitly ignore.
+    - `ignoreLanguages` (string array):
+      A list of languages to ignore.
     - `categories` (string array):
       A list of programming language categories that should be included in the results.
       Defaults to `['data', 'markup', 'programming', 'prose']`.
@@ -114,8 +116,10 @@ linguist --help
   Analyse the language of all files found in a folder.
   - `<folders...>` (optional):
     The folders to analyse (defaults to `./`).
-  - `--ignore <paths...>` (optional):
+  - `--ignoreFiles <paths...>` (optional):
     A list of space-delimited file path globs to ignore.
+  - `--ignoreLanguages` (optional):
+    A list of languages to ignore.
   - `--files` (optional):
     Whether to print a full list of all files analysed.
     Does nothing when `--summary` is specified.

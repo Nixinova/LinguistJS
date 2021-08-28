@@ -16,11 +16,11 @@ export default function walk(folder: string | string[], ignored: RegExp[] = []):
 			if (ignored.some(pattern => pattern.test(path))) continue;
 			allFolders.add(folder.replace(/\\/g, '/'));
 			if (fs.lstatSync(path).isDirectory()) {
-				allFolders.add(path.replace(/\\/g, '/'))
+				allFolders.add(path)
 				walk(path, ignored);
 				continue;
 			}
-			allFiles.add(path.replace(/\\/g, '/'));
+			allFiles.add(path);
 		}
 	}
 	return {

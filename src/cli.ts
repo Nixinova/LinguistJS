@@ -12,7 +12,8 @@ program
 	.usage('[<folder>] [<options...>]')
 
 	.requiredOption('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
-	.option('-i|--ignore <files...>', `A list of file path globs to ignore`)
+	.option('-i|--ignoreFiles|--ignore <files...>', `A list of file path globs to ignore`)
+	.option('-l|--ignoreLanguages <languages...>', `A list of languages to ignore`)
 	.option('-f|--files|--full [bool]', 'List every file parsed', false)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
 	.option('-s|--summary [bool]', 'Show output in a human-readable format', false)

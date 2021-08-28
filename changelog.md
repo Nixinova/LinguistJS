@@ -1,5 +1,10 @@
 # Changelog
 
+## Next
+- Add `ignoreLanguages` option to configure which languages to ignore.
+- Added alias `ignoreFiles` for option `ignore`.
+- Deprecated option `ignore` as it is now ambiguous.
+
 ## 1.8.2
 - Fixed known vendored files not being removed from output.
 
@@ -129,7 +134,6 @@
 - Added alias `--files` for `--full`.
 - Added CLI command `--version`.
 - Fixed the analyser crashing when it comes across a heuristic that cannot be matched to a language.
-- Improved performance.
 
 ## 1.2.0
 *2021-06-06*
