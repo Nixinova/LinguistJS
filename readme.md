@@ -107,6 +107,9 @@ let { count, results, languages } = linguist(folder, options);
 
 ### Command-line
 
+CLI usage requires `commander`, which is marked as an optional dependency.
+If an error saying `Cannot find module 'commander'` is thrown, run `npm install commander --no-save`.
+
 ```
 linguist --analyze [<folder>] [<...options>]
 linguist --help

@@ -1,27 +1,37 @@
 # Changelog
 
+## 1.9.1
+*2021-08-29*
+- Fixed a crash occurring when using both the `categories` and `ignoreLanguages` options together.
+
 ## 1.9.0
-- Add `ignoreLanguages` option to configure which languages to ignore.
+*2021-08-29*
+- Added `ignoreLanguages` option to configure which languages to ignore.
 - Added alias `ignoreFiles` for option `ignore`.
 - Added CLI argument `--tree` to traverse the output tree to a specific object instead of logging the entire results.
 - Deprecated option `ignore` as it is now ambiguous.
 
 ## 1.8.2
+*2021-08-28*
 - Fixed known vendored files not being removed from output.
 
 ## 1.8.1
+*2021-08-28*
 - Fixed input folder paths being case sensitive.
 - Fixed dotfiles not showing up in the output.
 
 ## 1.8.0
+*2021-08-24*
 - Added support for the first argument to `analyse()` to be an array of paths.
 
 ## 1.7.1
+*2021-08-21*
 - Changed file paths specified in option `ignore` to remain hidden even when `keepVendored` is enabled.
 - Fixed file results not being listed when using globbed input.
 - Fixed command-line arguments not being fully normalised.
 
 ## 1.7.0
+*2021-08-19*
 - Added `categories` option to control which language categories (`data`, `markup`, `programming`, and/or `prose`) should be included in the output.
 - Fixed some files being incorrectly classified as binary.
 
