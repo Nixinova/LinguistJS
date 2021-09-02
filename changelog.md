@@ -1,5 +1,19 @@
 # Changelog
 
+## Next
+- **Breaking:** Changed output schema:
+  - `count` &rarr; `files.count`
+  - `results` &rarr; `files.results`
+  - `languages.all` &rarr; `languages.results`
+  - `languages.data` &rarr; (*deleted*)
+  - `languages.markup` &rarr; (*deleted*)
+  - `languages.programming` &rarr; (*deleted*)
+  - `languages.prose` &rarr; (*deleted*)
+  - `languages.unknown` &rarr; `unknown.{filenames|extensions}`
+  - `languages.total.unique` &rarr; `languages.count`
+  - `languages.total.bytes` &rarr; `languages.bytes`
+  - `languages.total.unknownBytes` &rarr; `unknown.bytes`
+
 ## 1.9.1
 *2021-08-29*
 - Fixed a crash occurring when using both the `categories` and `ignoreLanguages` options together.

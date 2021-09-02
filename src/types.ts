@@ -20,26 +20,25 @@ export interface Options {
 	checkShebang?: boolean
 }
 
-export interface LanguagesData {
-	all: Record<LanguageName, {
-		bytes: Bytes
-		type: LanguageType
-		color?: `#${string}`
-	}>
-	data: Record<LanguageName, Bytes>
-	markup: Record<LanguageName, Bytes>
-	programming: Record<LanguageName, Bytes>
-	prose: Record<LanguageName, Bytes>
-	unknown: Record<LanguageName, Bytes>
-	total: {
-		unique: Integer
-		bytes: Bytes
-		unknownBytes: Bytes
-	}
-}
-
 export interface Results {
-	count: Integer
-	languages: LanguagesData
-	results: Record<FilePath, Language>
+	files: {
+		count: Integer
+		bytes: Bytes
+		results: Record<FilePath, Language>
+	}
+	languages: {
+		count: Integer
+		bytes: Bytes
+		results: Record<LanguageName, {
+			bytes: Bytes
+			type: LanguageType
+			color?: `#${string}`
+		}>
+	}
+	unknown: {
+		count: Integer
+		bytes: Bytes
+		extensions: Record<string, Bytes>
+		filenames: Record<string, Bytes>
+	}
 }

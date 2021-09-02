@@ -49,26 +49,32 @@ if (args.analyze) (async () => {
 	if (args.categories?.length === 1) args.categories = args.categories[0].split(',');
 	// Fetch language data
 	const root = args.analyze === true ? '.' : args.analyze;
-	const { count, languages, results } = await linguist(root, args);
+	const { files, languages, unknown } = await linguist(root, args);
 	// Make file paths relative
-	for (const [file, lang] of Object.entries(results)) {
+	for (const [file, lang] of Object.entries(files.results)) {
 		const relFile = file.replace(path.resolve().replace(/\\/g, '/'), '.');
-		delete results[file];
-		results[relFile] = lang;
+		delete files.results[file];
+		files.results[relFile] = lang;
 	}
 	// Print output
 	if (args.summary) {
-		const sortedEntries = Object.entries(languages.all).map(([lang, data]) => [lang, data.bytes]).sort((a, b) => a[1] < b[1] ? +1 : -1) as [string, number][];
-		const totalBytes = languages.total.bytes;
-		console.log(`Languages summary:`);
+		const sortedEntries = Object.entries(languages.results).map(([lang, data]) => [lang, data.bytes]).sort((a, b) => a[1] < b[1] ? +1 : -1) as [string, number][];
+		const totalBytes = languages.bytes;
+		console.log(` Linguist analysis results:`);
+		let i=0;
 		for (const [lang, bytes] of sortedEntries) {
-			const percent = (bytes / totalBytes * 100).toFixed(2).toString().padStart(5, '0');
-			console.log(`- ${percent}% ${lang}`);
+			const f={
+				index: (++i).toString().padStart(2, ' '),
+				lang: lang.padEnd(24, ' '),
+				percent: (bytes / totalBytes * 100).toFixed(2).padStart(5, ' '),
+				bytes: bytes.toLocaleString().padStart(10, ' '),
+			}
+			console.log(`  ${f.index}. ${f.lang} ${f.percent}% ${f.bytes} B`);
 		}
-		console.log(`Total: ${totalBytes.toLocaleString()} bytes`);
+		console.log(` Total: ${totalBytes.toLocaleString('en')} B`);
 	}
 	else {
-		const data = args.files ? { results, count, languages } : { count, languages };
+		const data = args.files ? { results: files, languages, unknown } : { languages, unknown };
 		if (args.tree) {
 			const treeParts: string[] = args.tree.split('.');
 			let nestedData: Record<string, any> = data;
@@ -76,8 +82,7 @@ if (args.analyze) (async () => {
 			console.log(nestedData);
 		}
 		else {
-			data.languages.all = {};
-			console.log(data);
+			console.log(JSON.stringify(data, null, 2).replace(/{\s+"type".+?}/sg, obj => obj.replace(/\n\s+/g, ' ')));
 		}
 	}
 })();

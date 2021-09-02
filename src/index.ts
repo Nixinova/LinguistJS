@@ -24,16 +24,14 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
 	vendorData.push(...generatedData);
 
-	const results: Record<T.FilePath, T.Language[]> = {};
-	const finalResults: Record<T.FilePath, T.Language> = {};
+	const fileAssociations: Record<T.FilePath, T.Language[]> = {};
 	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.Language> = {};
-	const languages: T.LanguagesData = {
-		all: {},
-		programming: {}, markup: {}, data: {}, prose: {},
-		unknown: {},
-		total: { unique: 0, bytes: 0, unknownBytes: 0 },
-	};
+	const results: T.Results = {
+		files: { count: 0, bytes: 0, results: {} },
+		languages: { count: 0, bytes: 0, results: {} },
+		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
+	}
 
 	const ignoredFiles = [
 		/\/\.git\//,
@@ -105,11 +103,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Load all files and parse languages
 	const addResult = (file: string, data: T.Language) => {
-		if (!results[file]) {
-			results[file] = [];
+		if (!fileAssociations[file]) {
+			fileAssociations[file] = [];
 			extensions[file] = '';
 		}
-		results[file].push(data);
+		fileAssociations[file].push(data);
 		extensions[file] = paths.extname(file);
 	}
 	const overridesArray = Object.entries(overrides);
@@ -150,9 +148,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			if (matchesExt) addResult(file, lang);
 		}
 		// Fallback to null if no language matches
-		if (!results[file]) addResult(file, null);
+		if (!fileAssociations[file]) addResult(file, null);
 	}
-	for (const file in results) {
+	for (const file in fileAssociations) {
 		// Skip binary files
 		if (!opts.keepBinary && (binaryData.some(ext => file.endsWith('.' + ext)) || await isBinaryFile(file))) {
 			continue;
@@ -171,7 +169,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					heuristic.language = heuristic.language[0];
 				}
 				// Make sure the results includes this language
-				if (!results[file].includes(heuristic.language)) {
+				if (!fileAssociations[file].includes(heuristic.language)) {
 					continue;
 				}
 				// Apply heuristics
@@ -184,57 +182,62 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					// Check file contents and apply heuristic patterns
 					const fileContent = await readFile(file);
 					if (patterns.some(pattern => pcre(pattern).test(fileContent))) {
-						finalResults[file] = heuristic.language;
+						results.files.results[file] = heuristic.language;
 						break;
 					}
 				}
 				// Default to final language
 				const lastLanguage = last(heuristics.rules).language;
-				finalResults[file] ??= Array.isArray(lastLanguage) ? lastLanguage[0] : lastLanguage;
+				results.files.results[file] ??= Array.isArray(lastLanguage) ? lastLanguage[0] : lastLanguage;
 			}
 		}
 		// If no heuristics, load the only language
-		finalResults[file] ??= results[file][0];
+		results.files.results[file] ??= fileAssociations[file][0];
 	}
 
 	// Skip specified categories
 	if (opts.categories?.length) {
 		const categories: S.LanguageType[] = ['data', 'markup', 'programming', 'prose'];
 		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
-		for (const [file, lang] of Object.entries(finalResults)) {
+		for (const [file, lang] of Object.entries(fileAssociations.files)) {
 			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat)) continue;
-			delete finalResults[file];
-			if (lang) delete languages.all[lang];
+			delete results.files.results[file];
+			if (lang) delete results.languages.results[lang];
 		}
 		for (const category of hiddenCategories) {
-			languages[category] = {};
+			for (const [lang, { type }] of Object.entries(results.languages.results)) {
+				if (type === category) delete results.languages.results[lang];
+			}
 		}
 	}
 
 	// Load language bytes size
-	for (const [file, lang] of Object.entries(finalResults)) {
+	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
 		const fileSize = fs.statSync(file).size;
 		// If no language found, add extension in other section
 		if (!lang) {
 			const ext = paths.extname(file);
-			languages.unknown[ext] ??= 0;
-			languages.unknown[ext] += fileSize;
-			languages.total.unknownBytes += fileSize;
+			const unknownType = ext === '' ? 'filenames' : 'extensions';
+			const name = ext === '' ? paths.basename(file) : ext;
+			results.unknown[unknownType][name] ??= 0;
+			results.unknown[unknownType][name] += fileSize;
+			results.unknown.bytes += fileSize;
 			continue;
 		}
 		// Add language and bytes data to corresponding section
 		const { type } = langData[lang];
-		languages.all[lang] ??= { type, bytes: 0, color: langData[lang].color };
-		languages.all[lang].bytes += fileSize;
-		languages[type][lang] ??= 0;
-		languages[type][lang] += fileSize;
-		languages.total.bytes += fileSize;
+		results.languages.results[lang] ??= { type, bytes: 0, color: langData[lang].color };
+		results.languages.results[lang].bytes += fileSize;
+		results.languages.bytes += fileSize;
 	}
 
-	// Load unique language count
-	languages.total.unique = Object.values(languages.all).length;
+	// Set counts
+	results.files.count = Object.keys(results.files.results).length;
+	results.languages.count = Object.keys(results.languages.results).length;
+	results.unknown.count = Object.keys({ ...results.unknown.extensions, ...results.unknown.filenames }).length;
+
 	// Return
-	return { count: Object.keys(finalResults).length, results: finalResults, languages };
+	return results;
 }
 export = analyse;

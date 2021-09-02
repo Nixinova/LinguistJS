@@ -36,31 +36,40 @@ As an example, take the following file structure:
 | | cli.js 1kB
 | | index.ts 2kB
 | readme.md 3kB
+| no-lang 10B
 ```
 
 Running Linguist on this folder will return the following JSON:
 
 ```json
 {
-	"count": 3,
-	"results": {
-		"src/index.ts": "TypeScript",
-		"src/cli.js": "JavaScript",
-		"readme.md": "Markdown"
-	},
-	"languages": {
-		"all": {
-			"JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
-			"TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
-			"Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" }
-		},
-		"programming": { "JavaScript": 1000, "TypeScript": 2000 },
-		"markup": {},
-		"data": {},
-		"prose": { "Markdown": 3000 },
-		"unknown": {},
-		"total": { "unique": 3, "bytes": 6000, "unknownBytes": 0 }
-	}
+  "files": {
+    "count": 4,
+    "bytes": 6010,
+    "results": {
+      "src/index.ts": "TypeScript",
+      "src/cli.js": "JavaScript",
+      "readme.md": "Markdown",
+      "no-lang": null,
+    }
+  },
+  "languages": {
+    "count": 3,
+    "bytes": 6000,
+    "results": {
+      "JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
+      "TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
+      "Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" },
+    },
+  },
+  "unknown": {
+    "count": 1,
+    "bytes": 10,
+    "filenames": {
+      "no-lang": 10,
+    },
+    "extensions": {},
+  },
 }
 ```
 
