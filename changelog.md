@@ -13,6 +13,10 @@
   - `languages.total.unique` &rarr; `languages.count`
   - `languages.total.bytes` &rarr; `languages.bytes`
   - `languages.total.unknownBytes` &rarr; `unknown.bytes`
+- **Breaking:** Changed the default CLI output format from JSON to summary.
+- Added CLI option `--json` to display the results as JSON (the previous default behavior).
+- Removed CLI option `--summary` as it is now the default output format.
+- Removed CLI option `--files` to list all files parsed.
 
 ## 1.9.1
 *2021-08-29*

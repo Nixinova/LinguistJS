@@ -215,6 +215,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
 		const fileSize = fs.statSync(file).size;
+		results.files.bytes += fileSize;
 		// If no language found, add extension in other section
 		if (!lang) {
 			const ext = paths.extname(file);

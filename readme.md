@@ -132,16 +132,13 @@ linguist --help
     A list of space-delimited file path globs to ignore.
   - `--ignoreLanguages` (optional):
     A list of languages to ignore.
-  - `--files` (optional):
-    Whether to print a full list of all files analysed.
-    Does nothing when `--summary` is specified.
   - `--categories <categories...>` (optional):
     A list of space-delimited categories that should be displayed in the output.
-  - `--summary` (optional):
-    Output language data in a human-readable manner instead of JSON.
+  - `--json` (optional):
+    Display the outputted language data as JSON.
   - `--tree <traversal>` (optional):
     A dot-delimited traversal to the nested object that should be logged to the console instead of the entire output.
-    Does nothing when `--summary` is specified.
+    Requires `--json` to be specified.
   - `--quick` (optional):
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false`.

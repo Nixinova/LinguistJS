@@ -10,12 +10,11 @@ program
 	.usage('[<folder>] [<options...>]')
 
 	.requiredOption('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
-	.option('-f|--files|--full [bool]', 'List every file parsed', false)
 	.option('-i|--ignoreFiles|--ignore <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoreLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
 	.option('-t|--tree <traversal>', 'Which part of the output object (dot-delimited) to display')
-	.option('-s|--summary [bool]', 'Show output in a human-readable format', false)
+	.option('-j|--json [bool]', 'Display the output as JSON', false)
 	.option('-q|--quick [bool]', 'Skip checking of gitattributes/gitignore files (alias for -{A|I|H|S}=false)', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
@@ -57,24 +56,35 @@ if (args.analyze) (async () => {
 		files.results[relFile] = lang;
 	}
 	// Print output
-	if (args.summary) {
+	if (!args.json) {
 		const sortedEntries = Object.entries(languages.results).map(([lang, data]) => [lang, data.bytes]).sort((a, b) => a[1] < b[1] ? +1 : -1) as [string, number][];
 		const totalBytes = languages.bytes;
-		console.log(` Linguist analysis results:`);
-		let i=0;
+		console.log(`Analysed ${files.bytes} B from ${files.count} files with linguist-js`);
+		console.log(`\n Language analysis results:`);
+		let i = 0;
 		for (const [lang, bytes] of sortedEntries) {
-			const f={
+			const fmtd = {
 				index: (++i).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
 				percent: (bytes / totalBytes * 100).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
 			}
-			console.log(`  ${f.index}. ${f.lang} ${f.percent}% ${f.bytes} B`);
+			console.log(`  ${fmtd.index}. ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
 		}
 		console.log(` Total: ${totalBytes.toLocaleString('en')} B`);
+		if (unknown.bytes > 0) {
+			console.log(`\n Unknown files and extensions:`);
+			for (const [name, bytes] of Object.entries(unknown.filenames)) {
+				console.log(`  '${name}': ${bytes.toLocaleString()} B`);
+			}
+			for (const [ext, bytes] of Object.entries(unknown.extensions)) {
+				console.log(`  '.${ext}': ${bytes.toLocaleString()} B`);
+			}
+			console.log(` Total: ${unknown.bytes.toLocaleString()} B`)
+		}
 	}
 	else {
-		const data = args.files ? { results: files, languages, unknown } : { languages, unknown };
+		const data = { files, languages, unknown };
 		if (args.tree) {
 			const treeParts: string[] = args.tree.split('.');
 			let nestedData: Record<string, any> = data;

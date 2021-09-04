@@ -1,7 +1,7 @@
 {
 	"results": {
 		"count": 7,
-		"bytes": 0,
+		"bytes": 131,
 		"results": {
 			"*/test/samples/.gitattributes": "Git Attributes",
 			"*/test/samples/.gitignore": "Ignore List",
