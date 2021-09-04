@@ -43,9 +43,6 @@ for (const arg in args) {
 
 // Run Linguist
 if (args.analyze) (async () => {
-	// Normalise array arguments
-	if (args.ignore?.[0].match(/(?<!\\)[:;|]/)) args.ignore = args.ignore[0].split(/(?<!\\)[:;|]/);
-	if (args.categories?.length === 1) args.categories = args.categories[0].split(',');
 	// Fetch language data
 	const root = args.analyze === true ? '.' : args.analyze;
 	const { files, languages, unknown } = await linguist(root, args);
@@ -71,7 +68,7 @@ if (args.analyze) (async () => {
 			}
 			console.log(`  ${fmtd.index}. ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
 		}
-		console.log(` Total: ${totalBytes.toLocaleString('en')} B`);
+		console.log(` Total: ${totalBytes.toLocaleString()} B`);
 		if (unknown.bytes > 0) {
 			console.log(`\n Unknown files and extensions:`);
 			for (const [name, bytes] of Object.entries(unknown.filenames)) {

@@ -1,6 +1,0 @@
-* languages.{data|markup|programming|prose}
-* --ignore a;b;c
-* --full
-* Rename --files
-* Allow two-letter short CLI args
-

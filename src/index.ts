@@ -199,7 +199,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	if (opts.categories?.length) {
 		const categories: S.LanguageType[] = ['data', 'markup', 'programming', 'prose'];
 		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
-		for (const [file, lang] of Object.entries(fileAssociations.files)) {
+		for (const [file, lang] of Object.entries(results.files.results)) {
 			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat)) continue;
 			delete results.files.results[file];
 			if (lang) delete results.languages.results[lang];
