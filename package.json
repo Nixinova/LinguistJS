@@ -6,6 +6,9 @@
 	"bin": {
 		"linguist": "bin/index.js"
 	},
+	"engines": {
+		"node": ">=12"
+	},
 	"scripts": {
 		"prepublish": "tsc",
 		"perf": "tsc && node test/perf",

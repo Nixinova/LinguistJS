@@ -31,7 +31,7 @@ Linguist contains one function which analyses a given folder.
 As an example, take the following file structure:
 
 ```
-.
+/
 | src
 | | cli.js 1kB
 | | index.ts 2kB
@@ -47,10 +47,10 @@ Running Linguist on this folder will return the following JSON:
     "count": 4,
     "bytes": 6010,
     "results": {
-      "src/index.ts": "TypeScript",
-      "src/cli.js": "JavaScript",
-      "readme.md": "Markdown",
-      "no-lang": null,
+      "/src/index.ts": "TypeScript",
+      "/src/cli.js": "JavaScript",
+      "/readme.md": "Markdown",
+      "/no-lang": null,
     }
   },
   "languages": {
@@ -72,6 +72,8 @@ Running Linguist on this folder will return the following JSON:
   },
 }
 ```
+
+Note that file paths in the output use only forward slashes as delimiters, even on Windows.
 
 ## API
 

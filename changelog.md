@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Changed file paths in CLI output JSON to be absolute instead of relative.
+
 ## 2.0.0
 *2021-09-05*
 - **Breaking:** Changed output schema:
