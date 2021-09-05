@@ -4,7 +4,7 @@
 
 # Linguist
 
-Analyses all files located in a given folder and collates the results.
+Analyses the languages of all files in a given folder and collates the results.
 
 Powered by [github-linguist](https://github.com/github/linguist), although it doesn't need to be installed.
 

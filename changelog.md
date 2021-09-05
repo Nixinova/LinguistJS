@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.0.0
+*2021-09-05*
 - **Breaking:** Changed output schema:
   - `count` &rarr; `files.count`
   - `results` &rarr; `files.results`
