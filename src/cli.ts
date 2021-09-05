@@ -9,9 +9,9 @@ program
 	.name('linguist --analyze')
 	.usage('[<folder>] [<options...>]')
 
-	.requiredOption('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
-	.option('-i|--ignoreFiles|--ignore <files...>', `A list of file path globs to ignore`)
-	.option('-l|--ignoreLanguages <languages...>', `A list of languages to ignore`)
+	.option('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
+	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
+	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
 	.option('-t|--tree <traversal>', 'Which part of the output object (dot-delimited) to display')
 	.option('-j|--json [bool]', 'Display the output as JSON', false)

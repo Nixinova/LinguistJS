@@ -36,7 +36,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const ignoredFiles = [
 		/\/\.git\//,
 		opts.keepVendored ? [] : vendorData.map(path => pcre(path)),
-		(opts.ignoreFiles ?? opts.ignore)?.map(path => glob2regex('*' + path + '*', { extended: true })) ?? [],
+		opts.ignoredFiles?.map(path => glob2regex('*' + path + '*', { extended: true })) ?? [],
 	].flat();
 	let { files, folders } = walk(input ?? '.', ignoredFiles);
 
@@ -44,7 +44,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };
 
 	// Ignore specific languages
-	for (const lang of opts.ignoreLanguages ?? []) {
+	for (const lang of opts.ignoredLanguages ?? []) {
 		for (const key in langData) {
 			if (lang.toLowerCase() === key.toLowerCase()) {
 				delete langData[key];

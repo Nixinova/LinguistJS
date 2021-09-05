@@ -15,9 +15,12 @@
   - `languages.total.unknownBytes` &rarr; `unknown.bytes`
 - **Breaking:** Changed the default CLI output format from JSON to summary.
 - **Breaking:** Changed CLI array arguments to require delimiters to be spaces instead of other characters.
+- **Breaking:** Changed the name of option `ignoreFiles` to `ignoredFiles`.
+- **Breaking:** Changed the name of option `ignoreLanguages` to `ignoredLanguages`.
 - Added CLI option `--json` to display the results as JSON (the previous default behavior).
 - Removed CLI option `--summary` as it is now the default output format.
 - Removed CLI option `--files` to list all files parsed.
+- Removed deprecated option `ignore` which was superceded by `ignoredFiles`.
 
 ## 1.9.1
 *2021-08-29*

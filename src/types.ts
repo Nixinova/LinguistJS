@@ -7,9 +7,8 @@ export type Bytes = Integer
 export type Integer = number
 
 export interface Options {
-	/** @deprecated */ ignore?: string[]
-	ignoreFiles?: string[]
-	ignoreLanguages?: LanguageName[]
+	ignoredFiles?: string[]
+	ignoredLanguages?: LanguageName[]
 	categories?: LanguageType[]
 	keepVendored?: boolean
 	keepBinary?: boolean
