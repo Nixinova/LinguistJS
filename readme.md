@@ -99,7 +99,7 @@ let { count, results, languages } = linguist(folder, options);
       A list of programming language categories that should be included in the results.
       Defaults to `['data', 'markup', 'programming', 'prose']`.
     - `quick` (boolean):
-      Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications (defaults to `false`).
+      Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).

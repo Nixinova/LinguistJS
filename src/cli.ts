@@ -6,22 +6,22 @@ import { program } from 'commander';
 import linguist from './index';
 
 program
-	.name('linguist --analyze')
-	.usage('[<folder>] [<options...>]')
+	.name('linguist')
+	.usage('--analyze [<folder>] [<options...>]')
 
-	.option('-a|--analyze|--analyse [folders...]', 'Analyse the language of all files found in a folder')
+	.option('-a|--analyze|--analyse [folders...]', 'Analyse the languages of all files in a folder')
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
-	.option('-t|--tree <traversal>', 'Which part of the output object (dot-delimited) to display')
 	.option('-j|--json [bool]', 'Display the output as JSON', false)
-	.option('-q|--quick [bool]', 'Skip checking of gitattributes/gitignore files (alias for -{A|I|H|S}=false)', false)
+	.option('-t|--tree <traversal>', 'Which part of the output JSON to display (dot-delimited)')
+	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
-	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files (default: true unless --quick is set)', true)
-	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files (default: true unless --quick is set)', true)
-	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages (default: true unless --quick is set)', true)
-	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification (default: true unless --quick is set)', true)
+	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files', true)
+	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files', true)
+	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages', true)
+	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification', true)
 
 	.helpOption(`-h|--help`, 'Display this help message')
 	.version(VERSION, '-v|--version', 'Display the installed version of linguist-js')
