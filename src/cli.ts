@@ -1,6 +1,5 @@
 const VERSION = require('../package.json').version;
 
-import path from 'path';
 import { program } from 'commander';
 
 import linguist from './index';
@@ -57,7 +56,7 @@ if (args.analyze) (async () => {
 			const fmtd = {
 				index: (++i).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
-				percent: (bytes / totalBytes * 100).toFixed(2).padStart(5, ' '),
+				percent: (bytes / (totalBytes || 1) * 100).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
 			}
 			console.log(`  ${fmtd.index}. ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
