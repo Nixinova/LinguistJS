@@ -1,5 +1,6 @@
-# General
+# Line endings
 * text=auto
+bin/* eol=lf
 
 # Samples
 samples/**/* linguist-documentation

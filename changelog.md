@@ -1,8 +1,11 @@
 # Changelog
 
+## Next
+- Fixed CLI usage not working when installed with Yarn ([#2](https://github.com/Nixinova/Linguist/issues/2)).
+
 ## 2.0.1
 *2021-09-08*
-- Changed file paths in CLI output JSON to be absolute instead of relative.
+- Changed file paths in CLI output JSON to be absolute instead of relative ([#3](https://github.com/Nixinova/Linguist/issues/3)).
 - Fixed percentages in CLI output displaying `NaN` when the total byte count is `0`.
 
 ## 2.0.0
