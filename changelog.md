@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.0.1
+*2021-09-08*
 - Changed file paths in CLI output JSON to be absolute instead of relative.
 - Fixed percentages in CLI output displaying `NaN` when the total byte count is `0`.
 
