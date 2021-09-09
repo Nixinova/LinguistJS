@@ -83,7 +83,7 @@ Note that file paths in the output use only forward slashes as delimiters, even 
 const linguist = require('linguist-js');
 let folder = './src';
 let options = { keepVendored: false, quick: false };
-let { count, results, languages } = linguist(folder, options);
+const { files, languages, unknown } = linguist(folder, options);
 ```
 
 - `linguist(entry?, opts?)` (default export):

@@ -111,6 +111,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		extensions[file] = paths.extname(file);
 	}
 	const overridesArray = Object.entries(overrides);
+	// List all languages that could be associated with a given file
 	for (const file of files) {
 		if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) continue;
 		// Check shebang line for explicit classification
@@ -150,6 +151,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Fallback to null if no language matches
 		if (!fileAssociations[file]) addResult(file, null);
 	}
+	// Narrow down file associations to the best fit
 	for (const file in fileAssociations) {
 		// Skip binary files
 		if (!opts.keepBinary && (binaryData.some(ext => file.endsWith('.' + ext)) || await isBinaryFile(file))) {
