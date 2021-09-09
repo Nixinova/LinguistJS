@@ -1,6 +1,6 @@
 /** Convert a PCRE regex into JS. */
 export default function pcre(regex: string): RegExp {
-	let finalRegex = regex.replace(/\./g, '\\$&');
+	let finalRegex = regex;
 	let finalFlags = new Set<string>();
 	const inlineMatches = regex.matchAll(/\?([a-z]):/g);
 	const startMatches = regex.matchAll(/\(\?([a-z]+)\)/g);

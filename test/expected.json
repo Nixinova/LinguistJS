@@ -1,10 +1,8 @@
 {
 	"results": {
-		"count": 7,
-		"bytes": 131,
+		"count": 5,
+		"bytes": 31,
 		"results": {
-			"*/test/samples/.gitattributes": "Git Attributes",
-			"*/test/samples/.gitignore": "Ignore List",
 			"*/test/samples/file.txt": "JavaScript",
 			"*/test/samples/folder/sub.txt": "Text",
 			"*/test/samples/hashbang": "JavaScript",
@@ -13,11 +11,9 @@
 		}
 	},
 	"languages": {
-		"count": 5,
-		"bytes": 122,
+		"count": 3,
+		"bytes": 22,
 		"results": {
-			"Git Attributes": { "type": "data", "bytes": 71, "color": "#F44D27" },
-			"Ignore List": { "type": "data", "bytes": 29, "color": "#000000" },
 			"JavaScript": { "type": "programming", "bytes": 22, "color": "#f1e05a" },
 			"Text": { "type": "prose", "bytes": 0 },
 			"TOML": { "type": "data", "bytes": 0, "color": "#9c4221" }
