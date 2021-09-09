@@ -13,7 +13,7 @@ export default function walk(folder: string | string[], ignored: RegExp[] = []):
 		const files = fs.readdirSync(folder);
 		for (const file of files) {
 			const path = paths.resolve(folder, file).replace(/\\/g, '/');
-			if (ignored.some(pattern => pattern.test(path))) continue;
+			if (!fs.existsSync(path) || ignored.some(pattern => pattern.test(path))) continue;
 			allFolders.add(folder.replace(/\\/g, '/'));
 			if (fs.lstatSync(path).isDirectory()) {
 				allFolders.add(path)

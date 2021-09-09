@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed CLI usage not working when installed with Yarn ([#2](https://github.com/Nixinova/Linguist/issues/2)).
+- Fixed a crash that occurred when file contents changed between runs ([#4](https://github.com/Nixinova/Linguist/issues/4)).
 - Fixed heuristics containing dot wildcards being incorrectly applied ([#5](https://github.com/Nixinova/Linguist/issues/5)).
 - Fixed vendored/generated files containing dots not being classified as vendored.
 

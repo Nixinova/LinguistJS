@@ -112,7 +112,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 	const overridesArray = Object.entries(overrides);
 	for (const file of files) {
-		if (fs.lstatSync(file).isDirectory()) continue;
+		if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) continue;
 		// Check shebang line for explicit classification
 		if (!opts.quick && opts.checkShebang) {
 			const firstLine = await readFile(file, true);
