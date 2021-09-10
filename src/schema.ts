@@ -1,10 +1,10 @@
-export type LanguageType = 'data' | 'markup' | 'programming' | 'prose'
+import { Category } from './types'
 
 export interface LanguagesScema {
 	[name: string]: {
 		language_id: number
 		fs_name?: string
-		type: LanguageType
+		type: Category
 		color?: `#${string}`
 		aliases?: string[]
 		extensions?: string[]

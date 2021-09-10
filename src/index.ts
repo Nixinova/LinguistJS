@@ -23,9 +23,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
 	vendorData.push(...generatedData);
 
-	const fileAssociations: Record<T.FilePath, T.Language[]> = {};
+	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
 	const extensions: Record<T.FilePath, string> = {};
-	const overrides: Record<T.FilePath, T.Language> = {};
+	const overrides: Record<T.FilePath, T.LanguageResult> = {};
 	const results: T.Results = {
 		files: { count: 0, bytes: 0, results: {} },
 		languages: { count: 0, bytes: 0, results: {} },
@@ -101,7 +101,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 
 	// Load all files and parse languages
-	const addResult = (file: string, data: T.Language) => {
+	const addResult = (file: string, data: T.LanguageResult) => {
 		if (!fileAssociations[file]) {
 			fileAssociations[file] = [];
 			extensions[file] = '';
@@ -195,7 +195,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Skip specified categories
 	if (opts.categories?.length) {
-		const categories: S.LanguageType[] = ['data', 'markup', 'programming', 'prose'];
+		const categories: T.Category[] = ['data', 'markup', 'programming', 'prose'];
 		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
 		for (const [file, lang] of Object.entries(results.files.results)) {
 			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat)) continue;

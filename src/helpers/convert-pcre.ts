@@ -2,6 +2,7 @@
 export default function pcre(regex: string): RegExp {
 	let finalRegex = regex;
 	let finalFlags = new Set<string>();
+	// Convert inline flag declarations
 	const inlineMatches = regex.matchAll(/\?([a-z]):/g);
 	const startMatches = regex.matchAll(/\(\?([a-z]+)\)/g);
 	for (const [match, flags] of [...inlineMatches, ...startMatches]) {
@@ -16,5 +17,6 @@ export default function pcre(regex: string): RegExp {
 		finalFlags.delete('m');
 	}
 	else finalFlags.add('m');
+	
 	return RegExp(finalRegex, [...finalFlags].join(''));
 }

@@ -1,15 +1,14 @@
-import { LanguageType } from "./schema"
-
-export type Language = string | null
-export type LanguageName = string
+export type LanguageResult = string | null
+export type Language = string
+export type Category = 'data' | 'markup' | 'programming' | 'prose'
 export type FilePath = string
 export type Bytes = Integer
 export type Integer = number
 
 export interface Options {
 	ignoredFiles?: string[]
-	ignoredLanguages?: LanguageName[]
-	categories?: LanguageType[]
+	ignoredLanguages?: Language[]
+	categories?: Category[]
 	keepVendored?: boolean
 	keepBinary?: boolean
 	quick?: boolean
@@ -23,14 +22,15 @@ export interface Results {
 	files: {
 		count: Integer
 		bytes: Bytes
-		results: Record<FilePath, Language>
+		/** Note: Results use slashes as delimiters even on Windows. */
+		results: Record<FilePath, LanguageResult>
 	}
 	languages: {
 		count: Integer
 		bytes: Bytes
-		results: Record<LanguageName, {
+		results: Record<Language, {
 			bytes: Bytes
-			type: LanguageType
+			type: Category
 			color?: `#${string}`
 		}>
 	}

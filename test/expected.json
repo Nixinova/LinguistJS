@@ -1,8 +1,9 @@
 {
 	"results": {
-		"count": 5,
+		"count": 6,
 		"bytes": 31,
 		"results": {
+			"*/test/samples/al.al": "AL",
 			"*/test/samples/file.txt": "JavaScript",
 			"*/test/samples/folder/sub.txt": "Text",
 			"*/test/samples/hashbang": "JavaScript",
@@ -11,9 +12,10 @@
 		}
 	},
 	"languages": {
-		"count": 3,
+		"count": 4,
 		"bytes": 22,
 		"results": {
+			"AL": { "type": "programming", "bytes": 0, "color": "#3AA2B5" },
 			"JavaScript": { "type": "programming", "bytes": 22, "color": "#f1e05a" },
 			"Text": { "type": "prose", "bytes": 0 },
 			"TOML": { "type": "data", "bytes": 0, "color": "#9c4221" }
