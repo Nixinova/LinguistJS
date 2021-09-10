@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Changed the error thrown when traversing an invalid tree via CLI to contain a more useful description.
 - Fixed heuristics not applying start- and end-of-line markers properly ([#5](https://github.com/Nixinova/Linguist/issues/5)).
 
 ## 2.0.2
