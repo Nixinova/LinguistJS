@@ -13,7 +13,6 @@ import * as T from './types';
 import * as S from './schema';
 
 const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
-const last = <T>(arr: T[]): T => arr[arr.length - 1];
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
@@ -183,14 +182,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
 					// Check file contents and apply heuristic patterns
 					const fileContent = await readFile(file);
-					if (patterns.some(pattern => pcre(pattern).test(fileContent))) {
+					if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
 						results.files.results[file] = heuristic.language;
 						break;
 					}
 				}
-				// Default to final language
-				const lastLanguage = last(heuristics.rules).language;
-				results.files.results[file] ??= Array.isArray(lastLanguage) ? lastLanguage[0] : lastLanguage;
 			}
 		}
 		// If no heuristics, load the only language
