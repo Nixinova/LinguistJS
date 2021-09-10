@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed heuristics not applying start- and end-of-line markers properly ([#5](https://github.com/Nixinova/Linguist/issues/5)).
+
 ## 2.0.2
 *2021-09-09*
 - Fixed CLI usage not working when installed with Yarn ([#2](https://github.com/Nixinova/Linguist/issues/2)).
