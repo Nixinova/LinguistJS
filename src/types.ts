@@ -11,6 +11,7 @@ export interface Options {
 	categories?: Category[]
 	keepVendored?: boolean
 	keepBinary?: boolean
+	childLanguages?: boolean
 	quick?: boolean
 	checkIgnored?: boolean
 	checkAttributes?: boolean
@@ -31,6 +32,7 @@ export interface Results {
 		results: Record<Language, {
 			bytes: Bytes
 			type: Category
+			parent?: Language
 			color?: `#${string}`
 		}>
 	}

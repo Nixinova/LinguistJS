@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Added nullable `parent` property to each entry in `languages.results` to display the parent language.
+- Added option `childLanguages` to control whether child languages are displayed instead of their parent (defaults to `false`).
+
 ## 2.0.3
 *2021-09-11*
 - Changed the error thrown when traversing an invalid tree via CLI to contain a more useful description.

@@ -100,6 +100,8 @@ const { files, languages, unknown } = linguist(folder, options);
     - `categories` (string array):
       A list of programming language categories that should be included in the results.
       Defaults to `['data', 'markup', 'programming', 'prose']`.
+    - `childLanguages` (boolean):
+      Whether to display sub-languages instead of their parents when possible (defaults to `false`).
     - `quick` (boolean):
       Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.
@@ -133,6 +135,8 @@ linguist --help
     A list of languages to ignore.
   - `--categories <categories...>` (optional):
     A list of space-delimited categories that should be displayed in the output.
+  - `--childLanguages` (optional):
+    Whether to display sub-languages instead of their parents, when possible.
   - `--json` (optional):
     Display the outputted language data as JSON.
   - `--tree <traversal>` (optional):

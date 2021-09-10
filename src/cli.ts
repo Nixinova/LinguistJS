@@ -12,6 +12,7 @@ program
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
+	.option('-C|--childLanguages [bool]', 'Display child languages instead of their parents', false)
 	.option('-j|--json [bool]', 'Display the output as JSON', false)
 	.option('-t|--tree <traversal>', 'Which part of the output JSON to display (dot-delimited)')
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)

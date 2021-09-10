@@ -101,12 +101,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 
 	// Load all files and parse languages
-	const addResult = (file: string, data: T.LanguageResult) => {
+	const addResult = (file: string, result: T.LanguageResult) => {
 		if (!fileAssociations[file]) {
 			fileAssociations[file] = [];
 			extensions[file] = '';
 		}
-		fileAssociations[file].push(data);
+		const parent = !opts.childLanguages && result && langData[result].group || false;
+		fileAssociations[file].push(parent || result);
 		extensions[file] = paths.extname(file);
 	}
 	const overridesArray = Object.entries(overrides);
@@ -227,6 +228,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Add language and bytes data to corresponding section
 		const { type } = langData[lang];
 		results.languages.results[lang] ??= { type, bytes: 0, color: langData[lang].color };
+		if (opts.childLanguages) results.languages.results[lang].parent = langData[lang].group;
 		results.languages.results[lang].bytes += fileSize;
 		results.languages.bytes += fileSize;
 	}
