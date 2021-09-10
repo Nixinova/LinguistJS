@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.1.0
+*2021-09-11*
 - Added nullable `parent` property to each entry in `languages.results` to display the parent language.
 - Added option `childLanguages` to control whether child languages are displayed instead of their parent (defaults to `false`).
 

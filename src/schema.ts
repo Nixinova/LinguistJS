@@ -3,18 +3,18 @@ import { Category, Language } from './types'
 export interface LanguagesScema {
 	[name: string]: {
 		language_id: number
-		fs_name?: string
+		fs_name?: Language
 		type: Category
 		group?: Language
 		color?: `#${string}`
 		aliases?: string[]
-		extensions?: string[]
+		extensions?: `.${string}`[]
 		filenames?: string[]
 		interpreters?: string[]
-		tm_scope?: string
+		tm_scope?: `${'source' | 'text'}.${string}`
 		ace_mode?: string
 		codemirror_mode?: string
-		codemirror_mime_type?: string
+		codemirror_mime_type?: `${string}/${string}`
 		wrap?: boolean
 	}
 }
