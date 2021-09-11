@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed filenames not taking precedence over extensions when classifying.
+
 ## 2.1.0
 *2021-09-11*
 - Added nullable `parent` property to each entry in `languages.results` to display the parent language.

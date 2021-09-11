@@ -138,12 +138,16 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			}
 		}
 		// Search each language
+		let skipExts = false;
 		for (const lang in langData) {
 			// Check if filename is a match
 			const matchesName = langData[lang].filenames?.some(name => paths.basename(file.toLowerCase()) === name.toLowerCase());
-			if (matchesName) addResult(file, lang);
+			if (matchesName) {
+				addResult(file, lang);
+				skipExts = true;
+			}
 		}
-		for (const lang in langData) {
+		if (!skipExts) for (const lang in langData) {
 			// Check if extension is a match
 			const matchesExt = langData[lang].extensions?.some(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
 			if (matchesExt) addResult(file, lang);
