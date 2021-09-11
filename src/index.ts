@@ -163,7 +163,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 
 		// Parse heuristics if applicable
-		for (const heuristics of heuristicsData.disambiguations) {
+		if (opts.checkHeuristics) for (const heuristics of heuristicsData.disambiguations) {
 			// Make sure the extension matches the current file
 			if (!heuristics.extensions.includes(extensions[file])) {
 				continue;
@@ -175,26 +175,23 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					heuristic.language = heuristic.language[0];
 				}
 				// Make sure the results includes this language
-				if (!fileAssociations[file].includes(heuristic.language)) {
-					continue;
-				}
-				// Apply heuristics
-				if (opts.checkHeuristics) {
-					// Normalise heuristic data
-					const patterns: string[] = [];
-					const normalise = (contents: string | string[]) => patterns.push(...(Array.isArray(contents) ? contents : [contents]));
-					if (heuristic.pattern) normalise(heuristic.pattern);
-					if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
-					// Check file contents and apply heuristic patterns
-					const fileContent = await readFile(file);
-					if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
-						results.files.results[file] = heuristic.language;
-						break;
-					}
+				const matchesLang = fileAssociations[file].includes(heuristic.language);
+				const matchesParent = langData[heuristic.language].group && fileAssociations[file].includes(langData[heuristic.language].group!);
+				if (!matchesLang && !matchesParent) continue;
+				// Normalise heuristic data
+				const patterns: string[] = [];
+				const normalise = (contents: string | string[]) => patterns.push(...(Array.isArray(contents) ? contents : [contents]));
+				if (heuristic.pattern) normalise(heuristic.pattern);
+				if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
+				// Check file contents and apply heuristic patterns
+				const fileContent = await readFile(file);
+				if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
+					results.files.results[file] = heuristic.language;
+					break;
 				}
 			}
 		}
-		// If no heuristics, load the only language
+		// If no heuristics, assign a language
 		results.files.results[file] ??= fileAssociations[file][0];
 	}
 

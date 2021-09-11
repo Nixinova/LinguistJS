@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed filenames not taking precedence over extensions when classifying.
+- Fixed parent languages not being checked when parsing heuristics relating to their children.
 
 ## 2.1.0
 *2021-09-11*
