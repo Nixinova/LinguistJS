@@ -53,7 +53,7 @@ if (args.analyze) (async () => {
 	if (!args.json) {
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);
 		const totalBytes = languages.bytes;
-		console.log(`Analysed ${files.bytes.toLocaleString()} B from ${files.count} files with linguist-js`);
+		console.log(`\n Analysed ${files.bytes.toLocaleString()} B from ${files.count} files with linguist-js`);
 		console.log(`\n Language analysis results:`);
 		let i = 0;
 		for (const [lang, { bytes, color }] of sortedEntries) {
@@ -62,7 +62,7 @@ if (args.analyze) (async () => {
 				lang: lang.padEnd(24, ' '),
 				percent: (bytes / (totalBytes || 1) * 100).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
-				icon: colouredMsg(hexToRgb(color ?? '#eee'), '\u2588'),
+				icon: colouredMsg(hexToRgb(color ?? '#ededed'), '\u2588'),
 			}
 			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
 		}
@@ -73,7 +73,7 @@ if (args.analyze) (async () => {
 				console.log(`  '${name}': ${bytes.toLocaleString()} B`);
 			}
 			for (const [ext, bytes] of Object.entries(unknown.extensions)) {
-				console.log(`  '.${ext}': ${bytes.toLocaleString()} B`);
+				console.log(`  '${ext}': ${bytes.toLocaleString()} B`);
 			}
 			console.log(` Total: ${unknown.bytes.toLocaleString()} B`)
 		}

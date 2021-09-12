@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Fixed languages without a colour not having their icon displayed properly in the CLI output.
+- Fixed unknown extensions erroneously having an extra dot prefix in the CLI output.
+
 ## 2.1.1
 *2021-09-12*
 - Changed CLI output to display associated language colours.
