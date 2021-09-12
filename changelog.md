@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Changed CLI output to display associated language colours.
 - Fixed filenames not taking precedence over extensions when classifying.
 - Fixed parent languages not being checked when parsing heuristics relating to their children.
 

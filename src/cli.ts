@@ -4,6 +4,9 @@ import { program } from 'commander';
 
 import linguist from './index';
 
+const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
+const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+
 program
 	.name('linguist')
 	.usage('--analyze [<folder>] [<options...>]')
@@ -48,19 +51,20 @@ if (args.analyze) (async () => {
 	const { files, languages, unknown } = await linguist(root, args);
 	// Print output
 	if (!args.json) {
-		const sortedEntries = Object.entries(languages.results).map(([lang, data]) => [lang, data.bytes]).sort((a, b) => a[1] < b[1] ? +1 : -1) as [string, number][];
+		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);
 		const totalBytes = languages.bytes;
 		console.log(`Analysed ${files.bytes.toLocaleString()} B from ${files.count} files with linguist-js`);
 		console.log(`\n Language analysis results:`);
 		let i = 0;
-		for (const [lang, bytes] of sortedEntries) {
+		for (const [lang, { bytes, color }] of sortedEntries) {
 			const fmtd = {
 				index: (++i).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
 				percent: (bytes / (totalBytes || 1) * 100).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
+				icon: colouredMsg(hexToRgb(color ?? '#eee'), '\u2588'),
 			}
-			console.log(`  ${fmtd.index}. ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
+			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
 		}
 		console.log(` Total: ${totalBytes.toLocaleString()} B`);
 		if (unknown.bytes > 0) {
