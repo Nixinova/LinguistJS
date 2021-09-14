@@ -54,6 +54,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Load gitattributes
 	const customIgnored: string[] = [];
+	const customBinary: string[] = [];
+	const customText: string[] = [];
 	if (!opts.quick) {
 		for (const folder of folders) {
 
@@ -73,10 +75,17 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			const attributesFile = paths.join(folder, '.gitattributes');
 			if (opts.checkAttributes && fs.existsSync(attributesFile)) {
 				const attributesData = await readFile(attributesFile);
+				const relPathToRegex = (path: string): string => convertToRegex(path).source.substr(1).replace(folder, '');
+				// Explicit text/binary associations
+				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)/gm);
+				for (const [_line, path, type] of contentTypeMatches) {
+					if (['text', '-binary'].includes(type)) customText.push(relPathToRegex(path));
+					if (['-text', 'binary'].includes(type)) customBinary.push(relPathToRegex(path));
+				}
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
 				for (const [_line, path] of vendorMatches) {
-					customIgnored.push(convertToRegex(path).source.substr(1).replace(folder, ''));
+					customIgnored.push(relPathToRegex(path));
 				}
 				// Custom file associations
 				const customLangMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
@@ -158,8 +167,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Narrow down file associations to the best fit
 	for (const file in fileAssociations) {
 		// Skip binary files
-		if (!opts.keepBinary && (binaryData.some(ext => file.endsWith('.' + ext)) || await isBinaryFile(file))) {
-			continue;
+		if (!opts.keepBinary) {
+			const isCustomText = customText.some(path => pcre(path).test(file));
+			const isCustomBinary = customBinary.some(path => pcre(path).test(file));
+			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
+			if (!isCustomText && (isCustomBinary || isBinaryExt || await isBinaryFile(file))) {
+				continue;
+			}
 		}
 
 		// Parse heuristics if applicable
