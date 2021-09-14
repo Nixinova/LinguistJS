@@ -1,6 +1,8 @@
 import fs from 'fs';
 import paths from 'path';
 import yaml from 'js-yaml';
+import fetch from 'cross-fetch';
+import classificator from 'classificator';
 import glob2regex from 'glob-to-regexp';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
@@ -204,6 +206,21 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					break;
 				}
 			}
+		}
+		{
+			// Bayesian classifier
+			classificator;
+			// const githubLinguistTree = await fetch('https://api.github.com/repos/github/linguist/git/trees/HEAD?recursive=1').then(data => data.json());
+			// const samples: string[] = githubLinguistTree.tree.map((obj: { path: string }) => obj.path);
+			const classifier = classificator();
+			classifier.learn(`const foo = require('bar')`, 'JavaScript');
+			// for (const sample in samples) {
+			classifier.learn(`const foo = require('bar')`, 'JavaScript');
+			// }
+			const res = classifier.categorize(`whatever`);
+			console.debug(res);
+			throw 1
+
 		}
 		// If no heuristics, assign a language
 		results.files.results[file] ??= fileAssociations[file][0];
