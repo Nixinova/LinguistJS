@@ -76,8 +76,8 @@ Running Linguist on this folder will return the following JSON:
 ### Notes
 
 - File paths in the output use only forward slashes as delimiters, even on Windows.
-- Do not rely on any language classification output from Linguist being immutable between runs.
-  Language data is fetched each run from the latest classifications of `github-linguist`.
+- Do not rely on any language classification output from Linguist being unchanged between runs.
+  Language data is fetched each run from the latest classifications of [`github-linguist`](https://github.com/github/linguist).
   This data is subject to change at any time and may change the results of a run even when using the same version of Linguist.
 
 ## API

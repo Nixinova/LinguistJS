@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.1.2
+*2021-09-14*
 - Fixed languages without a colour not having their icon displayed properly in the CLI output.
 - Fixed unknown extensions erroneously having an extra dot prefix in the CLI output.
 
