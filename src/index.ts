@@ -8,7 +8,7 @@ import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
 import walk from './helpers/walk-tree';
-import loadFile from './helpers/load-data';
+import { loadFile, loadApi } from './helpers/load-data';
 import readFile from './helpers/read-file';
 import pcre from './helpers/convert-pcre';
 import * as T from './types';
@@ -19,10 +19,10 @@ const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { glob
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
 async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
-	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
-	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
-	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
-	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
+	const langData = <S.LanguagesScema>await loadFile('lib/linguist/languages.yml').then(yaml.load);
+	const vendorData = <S.VendorSchema>await loadFile('lib/linguist/vendor.yml').then(yaml.load);
+	const heuristicsData = <S.HeuristicsSchema>await loadFile('lib/linguist/heuristics.yml').then(yaml.load);
+	const generatedData = await loadFile('lib/linguist/generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
 	vendorData.push(...generatedData);
 
 	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
@@ -207,23 +207,21 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				}
 			}
 		}
-		{
+		if (/* opts.checkSamples && */ !results.files.results[file] && fileAssociations[file].length > 1) {
 			// Bayesian classifier
-			classificator;
-			// const githubLinguistTree = await fetch('https://api.github.com/repos/github/linguist/git/trees/HEAD?recursive=1').then(data => data.json());
-			// const samples: string[] = githubLinguistTree.tree.map((obj: { path: string }) => obj.path);
+			const samples = (<S.GitHubTreeSchema>await loadApi('git/trees/HEAD?recursive=1')).tree;
 			const classifier = classificator();
-			classifier.learn(`const foo = require('bar')`, 'JavaScript');
-			// for (const sample in samples) {
-			classifier.learn(`const foo = require('bar')`, 'JavaScript');
-			// }
-			const res = classifier.categorize(`whatever`);
-			console.debug(res);
-			throw 1
-
+			for (const testLang of fileAssociations[file]) if (testLang) {
+				const applicableSamples = samples.filter(obj => obj.type === 'blob' && obj.path.startsWith(`samples/${testLang}`));
+				console.debug({ testLang, sample: applicableSamples[0].path })
+				const sampleContent = await loadFile(applicableSamples[0].path);
+				classifier.learn(sampleContent, testLang);
+			}
+			const result = classifier.categorize(`whatever`);
+			console.debug('result', result.predictedCategory, result.likelihoods.map(({ category, proba }) => ({ category, proba })));
+			results.files.results[file] = result.predictedCategory;
 		}
-		// If no heuristics, assign a language
-		results.files.results[file] ??= fileAssociations[file][0];
+		else results.files.results[file] ??= fileAssociations[file][0];
 	}
 
 	// Skip specified categories

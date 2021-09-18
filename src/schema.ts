@@ -37,3 +37,17 @@ export interface HeuristicsSchema {
 }
 
 export type VendorSchema = string[]
+
+export interface GitHubTreeSchema {
+	sha: string
+	url: string
+	truncated: false
+	tree: Array<{
+		path: string,
+		mode: number,
+		type: 'blob' | 'tree'
+		sha: string
+		size: number
+		url: string
+	}>
+}
