@@ -16,7 +16,7 @@ export default function walk(folder: string | string[], ignored: RegExp[] = []):
 			if (!fs.existsSync(path) || ignored.some(pattern => pattern.test(path))) continue;
 			allFolders.add(folder.replace(/\\/g, '/'));
 			if (fs.lstatSync(path).isDirectory()) {
-				allFolders.add(path)
+				allFolders.add(path);
 				walk(path, ignored);
 				continue;
 			}

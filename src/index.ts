@@ -30,11 +30,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		files: { count: 0, bytes: 0, results: {} },
 		languages: { count: 0, bytes: 0, results: {} },
 		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
-	}
+	};
 
 	const ignoredFiles = [
 		/\/\.git\//,
-		opts.keepVendored ? [] : vendorData.map(path => pcre(path)),
+		opts.keepVendored ? [] : vendorData.map(path => RegExp(path)),
 		opts.ignoredFiles?.map(path => glob2regex('*' + path + '*', { extended: true })) ?? [],
 	].flat();
 	let { files, folders } = walk(input ?? '.', ignoredFiles);
@@ -60,7 +60,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
-			if (customIgnored.some(path => pcre(path).test(folder))) continue;
+			if (customIgnored.some(path => glob2regex(path).test(folder))) continue;
 
 			// Parse gitignores
 			const ignoresFile = paths.join(folder, '.gitignore');
@@ -105,7 +105,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Check vendored files
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		const matcher = (match: string) => pcre(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
+		const matcher = (match: string) => glob2regex(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !customIgnored.some(pattern => matcher(pattern).test(file)));
 	}
 
@@ -118,7 +118,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		const parent = !opts.childLanguages && result && langData[result].group || false;
 		fileAssociations[file].push(parent || result);
 		extensions[file] = paths.extname(file);
-	}
+	};
 	const overridesArray = Object.entries(overrides);
 	// List all languages that could be associated with a given file
 	for (const file of files) {
@@ -168,8 +168,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	for (const file in fileAssociations) {
 		// Skip binary files
 		if (!opts.keepBinary) {
-			const isCustomText = customText.some(path => pcre(path).test(file));
-			const isCustomBinary = customBinary.some(path => pcre(path).test(file));
+			const isCustomText = customText.some(path => glob2regex(path).test(file));
+			const isCustomBinary = customBinary.some(path => glob2regex(path).test(file));
 			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
 			if (!isCustomText && (isCustomBinary || isBinaryExt || await isBinaryFile(file))) {
 				continue;

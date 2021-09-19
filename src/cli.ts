@@ -63,7 +63,7 @@ if (args.analyze) (async () => {
 				percent: (bytes / (totalBytes || 1) * 100).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
 				icon: colouredMsg(hexToRgb(color ?? '#ededed'), '\u2588'),
-			}
+			};
 			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
 		}
 		console.log(` Total: ${totalBytes.toLocaleString()} B`);
@@ -75,7 +75,7 @@ if (args.analyze) (async () => {
 			for (const [ext, bytes] of Object.entries(unknown.extensions)) {
 				console.log(`  '${ext}': ${bytes.toLocaleString()} B`);
 			}
-			console.log(` Total: ${unknown.bytes.toLocaleString()} B`)
+			console.log(` Total: ${unknown.bytes.toLocaleString()} B`);
 		}
 	}
 	else {
