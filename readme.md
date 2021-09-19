@@ -10,6 +10,7 @@ Powered by [github-linguist](https://github.com/github/linguist), although it do
 
 ## Install
 
+[Node.js](https://nodejs.org) must be installed to be able to use this.
 Linguist is available [on npm](https://npmjs.com/package/linguist-js) as `linguist-js`.
 
 Install locally using `npm install linguist-js` and import it into your code like so:
@@ -132,35 +133,35 @@ linguist --help
 
 - `--analyze`:
   Analyse the language of all files found in a folder.
-  - `<folders...>` (optional):
+  - `<folders...>`:
     The folders to analyse (defaults to `./`).
-  - `--ignoredFiles <paths...>` (optional):
+  - `--ignoredFiles <paths...>`:
     A list of space-delimited file path globs to ignore.
-  - `--ignoredLanguages` (optional):
+  - `--ignoredLanguages`:
     A list of languages to ignore.
-  - `--categories <categories...>` (optional):
+  - `--categories <categories...>`:
     A list of space-delimited categories that should be displayed in the output.
-  - `--childLanguages` (optional):
+  - `--childLanguages`:
     Whether to display sub-languages instead of their parents, when possible.
-  - `--json` (optional):
+  - `--json`:
     Display the outputted language data as JSON.
-  - `--tree <traversal>` (optional):
+  - `--tree <traversal>`:
     A dot-delimited traversal to the nested object that should be logged to the console instead of the entire output.
     Requires `--json` to be specified.
-  - `--quick` (optional):
+  - `--quick`:
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false`.
-  - `--keepVendored` (optional):
+  - `--keepVendored`:
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
-  - `--keepBinary` (optional):
+  - `--keepBinary`:
     Whether binary files should be excluded from the output.
-  - `--checkAttributes` (optional):
+  - `--checkAttributes`:
     Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
-  - `--checkIgnored` (optional):
+  - `--checkIgnored`:
     Force the checking of `.gitignore` files (use alongside `--quick` to overwrite).
-  - `--checkHeuristics` (optional):
+  - `--checkHeuristics`:
     Apply heuristics to ambiguous languages (use alongside `--quick` to overwrite).
-  - `--checkShebang` (optional):
+  - `--checkShebang`:
     Check shebang (`#!`) lines for explicit classification (use alongside `--quick` to overwrite).
 - `--help`:
   Display a help message.

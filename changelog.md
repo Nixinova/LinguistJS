@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.1.3
+*2021-09-19*
 - Changed gitattributes parsing to support `text` and `binary` parameters.
 - Fixed a crash occurring when compiling regular expressions.
 
