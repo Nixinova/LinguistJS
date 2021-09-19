@@ -1,7 +1,7 @@
 import fs from 'fs';
 import paths from 'path';
 import yaml from 'js-yaml';
-import glob2regex from 'glob-to-regexp';
+import globToRegexp from 'glob-to-regexp';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
@@ -12,7 +12,7 @@ import pcre from './helpers/convert-pcre';
 import * as T from './types';
 import * as S from './schema';
 
-const convertToRegex = (path: string): RegExp => glob2regex('**/' + path, { globstar: true, extended: true });
+const convertToRegex = (path: string): RegExp => globToRegexp('**/' + path, { globstar: true, extended: true });
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
@@ -35,7 +35,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const ignoredFiles = [
 		/\/\.git\//,
 		opts.keepVendored ? [] : vendorData.map(path => RegExp(path)),
-		opts.ignoredFiles?.map(path => glob2regex('*' + path + '*', { extended: true })) ?? [],
+		opts.ignoredFiles?.map(path => globToRegexp('*' + path + '*', { extended: true })) ?? [],
 	].flat();
 	let { files, folders } = walk(input ?? '.', ignoredFiles);
 
@@ -60,7 +60,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
-			if (customIgnored.some(path => glob2regex(path).test(folder))) continue;
+			if (customIgnored.some(path => convertToRegex(path).test(folder))) continue;
 
 			// Parse gitignores
 			const ignoresFile = paths.join(folder, '.gitignore');
@@ -105,7 +105,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Check vendored files
 	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		const matcher = (match: string) => glob2regex(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
+		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !customIgnored.some(pattern => matcher(pattern).test(file)));
 	}
 
@@ -168,8 +168,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	for (const file in fileAssociations) {
 		// Skip binary files
 		if (!opts.keepBinary) {
-			const isCustomText = customText.some(path => glob2regex(path).test(file));
-			const isCustomBinary = customBinary.some(path => glob2regex(path).test(file));
+			const isCustomText = customText.some(path => RegExp(path).test(file));
+			const isCustomBinary = customBinary.some(path => RegExp(path).test(file));
 			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
 			if (!isCustomText && (isCustomBinary || isBinaryExt || await isBinaryFile(file))) {
 				continue;
