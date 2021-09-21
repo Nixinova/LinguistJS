@@ -48,7 +48,8 @@ for (const arg in args) {
 if (args.analyze) (async () => {
 	// Fetch language data
 	const root = args.analyze === true ? '.' : args.analyze;
-	const { files, languages, unknown } = await linguist(root, args);
+	const data = await linguist(root, args);
+	const { files, languages, unknown } = data;
 	// Print output
 	if (!args.json) {
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);
@@ -78,20 +79,17 @@ if (args.analyze) (async () => {
 			console.log(` Total: ${unknown.bytes.toLocaleString()} B`);
 		}
 	}
+	else if (args.tree) {
+		const treeParts: string[] = args.tree.split('.');
+		let nestedData: Record<string, any> = data;
+		for (const part of treeParts) {
+			if (!nestedData[part]) throw Error(`TraversalError: Key '${part}' cannot be found on output object.`);
+			nestedData = nestedData[part];
+		}
+		console.log(nestedData);
+	}
 	else {
-		const data = { files, languages, unknown };
-		if (args.tree) {
-			const treeParts: string[] = args.tree.split('.');
-			let nestedData: Record<string, any> = data;
-			for (const part of treeParts) {
-				if (!nestedData[part]) throw Error(`TraversalError: Key '${part}' cannot be found on output object.`);
-				nestedData = nestedData[part];
-			}
-			console.log(nestedData);
-		}
-		else {
-			console.log(JSON.stringify(data, null, 2).replace(/{\s+"type".+?}/sg, obj => obj.replace(/\n\s+/g, ' ')));
-		}
+		console.dir(data, { depth: null });
 	}
 })();
 else {
