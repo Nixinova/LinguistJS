@@ -68,7 +68,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const ignoresData = await readFile(ignoresFile);
 				const ignoresList = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
 				const ignoredPaths = ignoresList.map(path => convertToRegex(path).source);
-				customIgnored.push(...ignoredPaths.map(file => file.replace(folder, '')));
+				customIgnored.push(...ignoredPaths);
 			}
 
 			// Parse gitattributes
