@@ -9,10 +9,9 @@ import walk from './helpers/walk-tree';
 import loadFile from './helpers/load-data';
 import readFile from './helpers/read-file';
 import pcre from './helpers/convert-pcre';
+import convertToRegex from './helpers/convert-glob';
 import * as T from './types';
 import * as S from './schema';
-
-const convertToRegex = (path: string): RegExp => globToRegexp('**/' + path, { globstar: true, extended: true });
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>

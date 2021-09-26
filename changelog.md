@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed gitignore entries containing dots not being parsed properly.
+- Fixed git config files containing character classes like `[[:digit:]]` not being parsed properly.
 
 ## 2.1.3
 *2021-09-19*
