@@ -74,7 +74,7 @@ if (args.analyze) (async () => {
 				console.log(`  '${name}': ${bytes.toLocaleString()} B`);
 			}
 			for (const [ext, bytes] of Object.entries(unknown.extensions)) {
-				console.log(`  '${ext}': ${bytes.toLocaleString()} B`);
+				console.log(`  '*${ext}': ${bytes.toLocaleString()} B`);
 			}
 			console.log(` Total: ${unknown.bytes.toLocaleString()} B`);
 		}
