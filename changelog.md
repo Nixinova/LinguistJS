@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Changed CLI output to display the number of skipped files.
 - Fixed git config entries containing backslashes causing a crash.
 
 ## 2.1.4

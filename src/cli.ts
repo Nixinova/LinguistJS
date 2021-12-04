@@ -3,6 +3,7 @@ const VERSION = require('../package.json').version;
 import { program } from 'commander';
 
 import linguist from './index';
+import walk from './helpers/walk-tree';
 
 const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
 const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
@@ -50,16 +51,19 @@ if (args.analyze) (async () => {
 	const root = args.analyze === true ? '.' : args.analyze;
 	const data = await linguist(root, args);
 	const { files, languages, unknown } = data;
+	// Get file count
+	let totalFiles = walk(root).files.length;
 	// Print output
 	if (!args.json) {
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);
 		const totalBytes = languages.bytes;
-		console.log(`\n Analysed ${files.bytes.toLocaleString()} B from ${files.count} files with linguist-js`);
+		console.log(`\n Analysed ${files.bytes.toLocaleString()} B from ${totalFiles} files (${totalFiles - files.count} ignored) with linguist-js`);
 		console.log(`\n Language analysis results:`);
-		let i = 0;
+		let count = 0;
+		if (sortedEntries.length === 0) console.log(`  None`);
 		for (const [lang, { bytes, color }] of sortedEntries) {
 			const fmtd = {
-				index: (++i).toString().padStart(2, ' '),
+				index: (++count).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
 				percent: (bytes / (totalBytes || 1) * 100).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
