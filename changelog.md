@@ -1,6 +1,7 @@
 # Changelog
 
 ## Next
+- Added option `relativePaths` to allow output results to be shown as relative paths (defaults to `false`).
 - Changed CLI output to display the number of skipped files.
 - Fixed git config entries containing backslashes causing a crash.
 

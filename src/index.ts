@@ -224,6 +224,17 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 	}
 
+	// Convert paths to relative
+	if (opts.relativePaths) {
+		const newMap: Record<T.FilePath, T.LanguageResult> = {};
+		for (const [file, lang] of Object.entries(results.files.results)) {
+			let relPath = paths.relative(process.cwd(), file).replace(/\\/g, '/');
+			if (!relPath.startsWith('../')) relPath = './' + relPath;
+			newMap[relPath] = lang;
+		}
+		results.files.results = newMap;
+	}
+
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;

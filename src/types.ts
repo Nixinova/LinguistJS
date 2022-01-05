@@ -11,6 +11,7 @@ export interface Options {
 	categories?: Category[]
 	keepVendored?: boolean
 	keepBinary?: boolean
+	relativePaths?: boolean
 	childLanguages?: boolean
 	quick?: boolean
 	checkIgnored?: boolean

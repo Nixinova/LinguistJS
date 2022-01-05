@@ -22,6 +22,7 @@ program
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
+	.option('-r|--relativePaths [bool]', 'Convert absolute file paths to relative', false)
 	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files', true)
 	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files', true)
 	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages', true)

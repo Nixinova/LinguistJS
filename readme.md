@@ -115,6 +115,8 @@ const { files, languages, unknown } = linguist(folder, options);
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
     - `keepBinary` (boolean):
       Whether binary files should be included in the output (defaults to `false`).
+    - `relativePaths` (boolean):
+      Change the absolute file paths in the output to be relative to the current working directory (defaults to `false`).
     - `checkAttributes` (boolean):
       Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
     - `checkIgnored` (boolean):
@@ -155,6 +157,8 @@ linguist --help
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
   - `--keepBinary`:
     Whether binary files should be excluded from the output.
+  - `--relativePaths`:
+    Change the absolute file paths in the output to be relative to the current working directory.
   - `--checkAttributes`:
     Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
   - `--checkIgnored`:
