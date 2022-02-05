@@ -76,7 +76,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const attributesData = await readFile(attributesFile);
 				const relPathToRegex = (path: string): string => convertToRegex(path).source.substr(1).replace(folder, '');
 				// Explicit text/binary associations
-				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)/gm);
+				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)(?!=auto)/gm);
 				for (const [_line, path, type] of contentTypeMatches) {
 					if (['text', '-binary'].includes(type)) customText.push(relPathToRegex(path));
 					if (['-text', 'binary'].includes(type)) customBinary.push(relPathToRegex(path));

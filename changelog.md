@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed files marked as `text=auto` being classified as text.
+
 ## 2.2.0
 *2022-01-06*
 - Added option `relativePaths` to allow output results to be shown as relative paths (defaults to `false`).
