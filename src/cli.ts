@@ -62,6 +62,7 @@ if (args.analyze) (async () => {
 		console.log(`\n Language analysis results:`);
 		let count = 0;
 		if (sortedEntries.length === 0) console.log(`  None`);
+		// List parsed results
 		for (const [lang, { bytes, color }] of sortedEntries) {
 			const fmtd = {
 				index: (++count).toString().padStart(2, ' '),
@@ -73,6 +74,7 @@ if (args.analyze) (async () => {
 			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
 		}
 		console.log(` Total: ${totalBytes.toLocaleString()} B`);
+		// List unknown files/extensions
 		if (unknown.bytes > 0) {
 			console.log(`\n Unknown files and extensions:`);
 			for (const [name, bytes] of Object.entries(unknown.filenames)) {
@@ -98,6 +100,6 @@ if (args.analyze) (async () => {
 	}
 })();
 else {
-	console.log(`Welcome to linguist-js, the JavaScript port of GitHub's language analyzer.`);
+	console.log(`Welcome to linguist-js, a JavaScript port of GitHub's language analyzer.`);
 	console.log(`Type 'linguist --help' for a list of commands.`);
 }

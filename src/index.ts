@@ -122,18 +122,19 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// List all languages that could be associated with a given file
 	for (const file of files) {
 		if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) continue;
+		const firstLine = await readFile(file, true).catch(() => null);
+		// Skip if file is unreadable
+		if (firstLine === null) continue;
 		// Check shebang line for explicit classification
-		if (!opts.quick && opts.checkShebang) {
-			const firstLine = await readFile(file, true);
-			if (firstLine.startsWith('#!')) {
-				const matches = Object.entries(langData).filter(([, data]) =>
-					data.interpreters?.some(interpreter => firstLine.match('\\b' + interpreter + '\\b'))
-				);
-				if (matches.length) {
-					const forcedLang = matches[0][0];
-					addResult(file, forcedLang);
-					continue;
-				}
+		if (!opts.quick && opts.checkShebang && firstLine.startsWith('#!')) {
+			// Find matching interpreters
+			const matches = Object.entries(langData).filter(([, data]) =>
+				data.interpreters?.some(interpreter => firstLine.match('\\b' + interpreter + '\\b'))
+			);
+			if (matches.length) {
+				// Add explicitly-identified language
+				const forcedLang = matches[0][0];
+				addResult(file, forcedLang);
 			}
 		}
 		// Check override for manual language classification
@@ -197,7 +198,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				if (heuristic.pattern) normalise(heuristic.pattern);
 				if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
 				// Check file contents and apply heuristic patterns
-				const fileContent = await readFile(file);
+				const fileContent = await readFile(file).catch(() => null);
+				if (fileContent === null) continue;
 				if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
 					results.files.results[file] = heuristic.language;
 					break;

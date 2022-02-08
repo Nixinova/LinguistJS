@@ -1,11 +1,14 @@
 import fs from 'fs';
 
-/** Read part of a file on disc. */
+/**
+ * Read part of a file on disc.
+ * @throws 'EPERM' if the file is not readable.
+ */
 export default async function readFile(filename: string, onlyFirstLine: boolean = false): Promise<string> {
 	const chunkSize = 100;
 	const stream = fs.createReadStream(filename, { highWaterMark: chunkSize });
 	let content = '';
-	for await (const data of stream) {
+	for await (const data of stream) { // may throw
 		content += data.toString();
 		if (onlyFirstLine && content.includes('\n')) {
 			return content.split(/\r?\n/)[0];

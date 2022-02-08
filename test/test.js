@@ -14,7 +14,7 @@ async function test() {
 		console.info('Results match expected');
 	}
 	else {
-		console.warn('Difference:', JSON.stringify(diff, null, 2));
+		console.dir({ EXPECTED: expected, ACTUAL: actual, DIFFERENCE: diff }, { depth: null });
 		throw new Error('Results differ from expected!');
 	}
 }
