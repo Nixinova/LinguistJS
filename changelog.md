@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.2.1
+*2022-02-11*
 - Fixed files marked as `text=auto` being classified as text.
 - Fixed a crash occurring when attempting to load unreadable files.
 
