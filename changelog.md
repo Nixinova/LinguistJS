@@ -1,7 +1,8 @@
 # Changelog
 
-## Next
-- Added option `fileContent` to provide manual file content to analyse instead of reading a folder from disk.
+## 2.3.0
+*2021-02-13*
+- Added option `fileContent` to provide manual file content to analyse instead of reading from a folder on disk.
 
 ## 2.2.1
 *2022-02-11*
