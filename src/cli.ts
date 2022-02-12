@@ -53,7 +53,7 @@ if (args.analyze) (async () => {
 	const data = await linguist(root, args);
 	const { files, languages, unknown } = data;
 	// Get file count
-	let totalFiles = walk(root).files.length;
+	const totalFiles = walk(root).files.length;
 	// Print output
 	if (!args.json) {
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);

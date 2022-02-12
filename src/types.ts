@@ -6,6 +6,7 @@ export type Bytes = Integer
 export type Integer = number
 
 export interface Options {
+	fileContent?: string | string[]
 	ignoredFiles?: string[]
 	ignoredLanguages?: Language[]
 	categories?: Category[]

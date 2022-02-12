@@ -2,14 +2,14 @@ const fs = require('fs');
 const linguist = require('..');
 const { updatedDiff } = require('deep-object-diff');
 
-async function test() {
+async function testFolder() {
 	const samplesFolder = __dirname.replace(/\\/g, '/') + '/samples';
 	const expectedJson = fs.readFileSync(__dirname + '/expected.json', { encoding: 'utf8' });
 	const expected = JSON.parse(expectedJson.replace(/\*/g, samplesFolder));
 
 	const actual = await linguist(samplesFolder);
 	const diff = updatedDiff(expected, actual);
-	console.log(JSON.stringify(actual, null, 2));
+	console.dir(actual, { depth: null });
 	if (JSON.stringify(diff) === '{}') {
 		console.info('Results match expected');
 	}
@@ -18,4 +18,16 @@ async function test() {
 		throw new Error('Results differ from expected!');
 	}
 }
-test();
+testFolder();
+
+async function testRaw() {
+	const actual = await linguist('test.example', { fileContent: ['#!/usr/bin/env node'] });
+	console.dir(actual, { depth: null });
+	if (actual.files.results['test.example'] === 'JavaScript' && actual.languages.bytes === 19) {
+		console.info('Results match expected');
+	}
+	else {
+		throw new Error('Results differ from expected!');
+	}
+}
+testRaw();

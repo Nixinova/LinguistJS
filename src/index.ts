@@ -36,7 +36,17 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		opts.keepVendored ? [] : vendorData.map(path => RegExp(path)),
 		opts.ignoredFiles?.map(path => globToRegexp('*' + path + '*', { extended: true })) ?? [],
 	].flat();
-	let { files, folders } = walk(input ?? '.', ignoredFiles);
+
+	let files, folders;
+	if (opts.fileContent) {
+		opts.fileContent = Array.isArray(opts.fileContent) ? opts.fileContent : [opts.fileContent];
+		files = [`${input}`];
+		folders = [''];
+	}
+	else {
+		const data = walk(input ?? '.', ignoredFiles);
+		({ files, folders } = data);
+	}
 
 	// Apply aliases
 	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };
@@ -55,7 +65,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const customIgnored: string[] = [];
 	const customBinary: string[] = [];
 	const customText: string[] = [];
-	if (!opts.quick) {
+	if (!opts.fileContent && !opts.quick) {
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
@@ -102,7 +112,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 	}
 	// Check vendored files
-	if (!opts.keepVendored) {
+	if (!opts.fileContent && !opts.keepVendored) {
 		// Filter out any files that match a vendor file path
 		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !customIgnored.some(pattern => matcher(pattern).test(file)));
@@ -121,15 +131,21 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const overridesArray = Object.entries(overrides);
 	// List all languages that could be associated with a given file
 	for (const file of files) {
-		if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) continue;
-		const firstLine = await readFile(file, true).catch(() => null);
+		let firstLine: string | null;
+		if (opts.fileContent) {
+			firstLine = opts.fileContent?.[files.indexOf(file)]?.split('\n')[0] ?? null;
+		}
+		else {
+			if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) continue;
+			firstLine = await readFile(file, true).catch(() => null);
+		}
 		// Skip if file is unreadable
 		if (firstLine === null) continue;
 		// Check shebang line for explicit classification
 		if (!opts.quick && opts.checkShebang && firstLine.startsWith('#!')) {
 			// Find matching interpreters
 			const matches = Object.entries(langData).filter(([, data]) =>
-				data.interpreters?.some(interpreter => firstLine.match('\\b' + interpreter + '\\b'))
+				data.interpreters?.some(interpreter => firstLine!.match('\\b' + interpreter + '\\b'))
 			);
 			if (matches.length) {
 				// Add explicitly-identified language
@@ -138,7 +154,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			}
 		}
 		// Check override for manual language classification
-		if (!opts.quick && opts.checkAttributes) {
+		if (!opts.fileContent && !opts.quick && opts.checkAttributes) {
 			const match = overridesArray.find(item => RegExp(item[0]).test(file));
 			if (match) {
 				const forcedLang = match[1];
@@ -167,7 +183,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Narrow down file associations to the best fit
 	for (const file in fileAssociations) {
 		// Skip binary files
-		if (!opts.keepBinary) {
+		if (!opts.fileContent && !opts.keepBinary) {
 			const isCustomText = customText.some(path => RegExp(path).test(file));
 			const isCustomBinary = customBinary.some(path => RegExp(path).test(file));
 			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
@@ -227,7 +243,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 
 	// Convert paths to relative
-	if (opts.relativePaths) {
+	if (!opts.fileContent && opts.relativePaths) {
 		const newMap: Record<T.FilePath, T.LanguageResult> = {};
 		for (const [file, lang] of Object.entries(results.files.results)) {
 			let relPath = paths.relative(process.cwd(), file).replace(/\\/g, '/');
@@ -240,7 +256,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
-		const fileSize = fs.statSync(file).size;
+		const fileSize = opts.fileContent?.[files.indexOf(file)]?.length ?? fs.statSync(file).size;
 		results.files.bytes += fileSize;
 		// If no language found, add extension in other section
 		if (!lang) {

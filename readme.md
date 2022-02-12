@@ -77,6 +77,7 @@ Running Linguist on this folder will return the following JSON:
 ### Notes
 
 - File paths in the output use only forward slashes as delimiters, even on Windows.
+- This tool does not work when offline.
 - Do not rely on any language classification output from Linguist being unchanged between runs.
   Language data is fetched each run from the latest classifications of [`github-linguist`](https://github.com/github/linguist).
   This data is subject to change at any time and may change the results of a run even when using the same version of Linguist.
@@ -99,6 +100,8 @@ const { files, languages, unknown } = linguist(folder, options);
     Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
     An object containing analyser options.
+    - `fileContent` (string or string array):
+      Provides the file content associated with the file name(s) given as `entry` to analyse instead of reading from a folder on disk.
     - `ignoredFiles` (string array):
       A list of file path globs to explicitly ignore.
     - `ignoredLanguages` (string array):

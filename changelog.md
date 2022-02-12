@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added option `fileContent` to provide manual file content to analyse instead of reading a folder from disk.
+
 ## 2.2.1
 *2022-02-11*
 - Fixed files marked as `text=auto` being classified as text.
