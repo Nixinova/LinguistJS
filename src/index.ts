@@ -205,8 +205,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					heuristic.language = heuristic.language[0];
 				}
 				// Make sure the results includes this language
+				const languageGroup = langData[heuristic.language]?.group;
 				const matchesLang = fileAssociations[file].includes(heuristic.language);
-				const matchesParent = langData[heuristic.language].group && fileAssociations[file].includes(langData[heuristic.language].group!);
+				const matchesParent = languageGroup && fileAssociations[file].includes(languageGroup);
 				if (!matchesLang && !matchesParent) continue;
 				// Normalise heuristic data
 				const patterns: string[] = [];

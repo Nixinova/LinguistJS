@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed a crash occurring when parsing heuristics containing atomic groups.
+
 ## 2.3.0
 *2021-02-13*
 - Added option `fileContent` to provide manual file content to analyse instead of reading from a folder on disk.
