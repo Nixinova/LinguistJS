@@ -126,7 +126,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		const parent = !opts.childLanguages && result && langData[result].group || false;
 		fileAssociations[file].push(parent || result);
-		extensions[file] = paths.extname(file);
+		extensions[file] = paths.extname(file).toLowerCase();
 	};
 	const overridesArray = Object.entries(overrides);
 	// List all languages that could be associated with a given file

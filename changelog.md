@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed a crash occurring when parsing heuristics containing atomic groups.
+- Fixed file extensions being treated as case sensitive.
 
 ## 2.3.0
 *2021-02-13*
