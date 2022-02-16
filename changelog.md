@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed a crash occurring when parsing heuristics containing atomic groups.
+- Fixed option `fileContent` being ignored if set to an empty string.
 - Fixed file extensions being treated as case sensitive.
 
 ## 2.3.0

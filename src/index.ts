@@ -16,6 +16,8 @@ import * as S from './schema';
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
 async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
+	const useRawContent = opts.fileContent !== undefined;
+
 	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
@@ -65,7 +67,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const customIgnored: string[] = [];
 	const customBinary: string[] = [];
 	const customText: string[] = [];
-	if (!opts.fileContent && !opts.quick) {
+	if (!useRawContent && !opts.quick) {
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
@@ -112,7 +114,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 	}
 	// Check vendored files
-	if (!opts.fileContent && !opts.keepVendored) {
+	if (!useRawContent && !opts.keepVendored) {
 		// Filter out any files that match a vendor file path
 		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
 		files = files.filter(file => !customIgnored.some(pattern => matcher(pattern).test(file)));
@@ -154,7 +156,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			}
 		}
 		// Check override for manual language classification
-		if (!opts.fileContent && !opts.quick && opts.checkAttributes) {
+		if (!useRawContent && !opts.quick && opts.checkAttributes) {
 			const match = overridesArray.find(item => RegExp(item[0]).test(file));
 			if (match) {
 				const forcedLang = match[1];
@@ -183,7 +185,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Narrow down file associations to the best fit
 	for (const file in fileAssociations) {
 		// Skip binary files
-		if (!opts.fileContent && !opts.keepBinary) {
+		if (!useRawContent && !opts.keepBinary) {
 			const isCustomText = customText.some(path => RegExp(path).test(file));
 			const isCustomBinary = customBinary.some(path => RegExp(path).test(file));
 			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
@@ -244,7 +246,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 
 	// Convert paths to relative
-	if (!opts.fileContent && opts.relativePaths) {
+	if (!useRawContent && opts.relativePaths) {
 		const newMap: Record<T.FilePath, T.LanguageResult> = {};
 		for (const [file, lang] of Object.entries(results.files.results)) {
 			let relPath = paths.relative(process.cwd(), file).replace(/\\/g, '/');
