@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.3.1
+*2021-02-16*
 - Fixed a crash occurring when parsing heuristics containing atomic groups.
 - Fixed option `fileContent` being ignored if set to an empty string.
 - Fixed file extensions being treated as case sensitive.
