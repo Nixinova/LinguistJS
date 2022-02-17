@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed array input not being parsed properly when used with `fileContent`.
+
 ## 2.3.1
 *2021-02-16*
 - Fixed a crash occurring when parsing heuristics containing atomic groups.

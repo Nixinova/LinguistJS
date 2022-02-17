@@ -42,7 +42,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	let files, folders;
 	if (opts.fileContent) {
 		opts.fileContent = Array.isArray(opts.fileContent) ? opts.fileContent : [opts.fileContent];
-		files = [`${input}`];
+		files = Array.isArray(input) ? input : [`${input}`];
 		folders = [''];
 	}
 	else {
