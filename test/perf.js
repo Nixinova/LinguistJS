@@ -12,7 +12,7 @@ async function perfTest() {
 	const unit = 'ms';
 	const total = time;
 	const average = total / amount;
-	const EXPECTED_MAX = 75; // 2.0.0
+	const EXPECTED_MAX = 75; // 2.3
 	console.log('\n<Performance test results>');
 	console.log('Total:', total, unit, `(n=${amount})`);
 	console.log('Average:', average, unit);
