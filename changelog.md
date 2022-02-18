@@ -1,7 +1,10 @@
 # Changelog
 
 ## Next
+- Changed vendored checking to include paths marked as documentation.
 - Fixed array input not being parsed properly when used with `fileContent`.
+- Fixed vendor patterns being erroneously applied to parent folders.
+- Fixed vendor patterns made for relative paths not being applied.
 
 ## 2.3.1
 *2021-02-16*

@@ -38,6 +38,7 @@
 	"dependencies": {
 		"binary-extensions": "^2.2.0",
 		"commander": "^9.0.0",
+		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.1.5",
 		"glob-to-regexp": "~0.4.1",
 		"isbinaryfile": "^4.0.8",

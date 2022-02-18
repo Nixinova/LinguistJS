@@ -2,6 +2,7 @@ import fs from 'fs';
 import paths from 'path';
 import yaml from 'js-yaml';
 import globToRegexp from 'glob-to-regexp';
+import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
@@ -17,13 +18,18 @@ async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
 async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
 	const useRawContent = opts.fileContent !== undefined;
+	input = [input ?? []].flat();
+	opts.fileContent = [opts.fileContent ?? []].flat();
 
+	// Load data from github-linguist web repo
 	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
+	const docData = <S.VendorSchema>await loadFile('documentation.yml').then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
 	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
-	vendorData.push(...generatedData);
+	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
+	// Setup main variables
 	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
 	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.LanguageResult> = {};
@@ -33,21 +39,30 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
 	};
 
-	const ignoredFiles = [
-		/\/\.git\//,
-		opts.keepVendored ? [] : vendorData.map(path => RegExp(path)),
-		opts.ignoredFiles?.map(path => globToRegexp('*' + path + '*', { extended: true })) ?? [],
-	].flat();
+	// Prepare list of ignored files
+	const ignoredFiles = ['(^|\\/)\\.git\\/'];
+	if (!opts.keepVendored) {
+		ignoredFiles.push(...vendorPaths);
+	}
+	if (opts.ignoredFiles) {
+		ignoredFiles.push(...opts.ignoredFiles.map(path => globToRegexp('*' + path + '*', { extended: true }).source));
+	}
 
+	// Load file paths and folders
 	let files, folders;
-	if (opts.fileContent) {
-		opts.fileContent = Array.isArray(opts.fileContent) ? opts.fileContent : [opts.fileContent];
-		files = Array.isArray(input) ? input : [`${input}`];
+	if (useRawContent) {
+		// Uses raw file content
+		files = input;
 		folders = [''];
 	}
 	else {
-		const data = walk(input ?? '.', ignoredFiles);
-		({ files, folders } = data);
+		// Uses directory on disc
+		// Set a common root path so that vendor paths do not incorrectly match parent folders
+		const resolvedInput = input.map(path => paths.resolve(path).replace(/\\/g, '/'));
+		const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
+		const data = walk(commonRoot, input, ignoredFiles);
+		files = data.files;
+		folders = data.folders;
 	}
 
 	// Apply aliases
@@ -67,7 +82,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const customIgnored: string[] = [];
 	const customBinary: string[] = [];
 	const customText: string[] = [];
-	if (!useRawContent && !opts.quick) {
+	if (!useRawContent && opts.checkAttributes) {
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
@@ -134,7 +149,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// List all languages that could be associated with a given file
 	for (const file of files) {
 		let firstLine: string | null;
-		if (opts.fileContent) {
+		if (useRawContent) {
 			firstLine = opts.fileContent?.[files.indexOf(file)]?.split('\n')[0] ?? null;
 		}
 		else {
@@ -213,7 +228,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				if (!matchesLang && !matchesParent) continue;
 				// Normalise heuristic data
 				const patterns: string[] = [];
-				const normalise = (contents: string | string[]) => patterns.push(...(Array.isArray(contents) ? contents : [contents]));
+				const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());
 				if (heuristic.pattern) normalise(heuristic.pattern);
 				if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
 				// Check file contents and apply heuristic patterns

@@ -52,13 +52,11 @@ if (args.analyze) (async () => {
 	const root = args.analyze === true ? '.' : args.analyze;
 	const data = await linguist(root, args);
 	const { files, languages, unknown } = data;
-	// Get file count
-	const totalFiles = walk(root).files.length;
 	// Print output
 	if (!args.json) {
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);
 		const totalBytes = languages.bytes;
-		console.log(`\n Analysed ${files.bytes.toLocaleString()} B from ${totalFiles} files (${totalFiles - files.count} ignored) with linguist-js`);
+		console.log(`\n Analysed ${files.bytes.toLocaleString()} B from ${files.count} files with linguist-js`);
 		console.log(`\n Language analysis results:`);
 		let count = 0;
 		if (sortedEntries.length === 0) console.log(`  None`);
