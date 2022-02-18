@@ -113,21 +113,26 @@ const { files, languages, unknown } = linguist(folder, options);
       Whether to display sub-languages instead of their parents when possible (defaults to `false`).
     - `quick` (boolean):
       Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
-      Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false`.
+      Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+      Does nothing when `fileContent` is set.
     - `keepBinary` (boolean):
       Whether binary files should be included in the output (defaults to `false`).
     - `relativePaths` (boolean):
       Change the absolute file paths in the output to be relative to the current working directory (defaults to `false`).
     - `checkAttributes` (boolean):
       Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
+      Does nothing when `fileContent` is set.
     - `checkIgnored` (boolean):
       Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
+      Does nothing when `fileContent` is set.
     - `checkHeuristics` (boolean):
       Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
     - `checkShebang` (boolean):
       Check shebang (`#!`) lines for explicit language classification (defaults to `true` unless `quick` is set).
+    - `checkModeline` (boolean):
+      Check modelines for explicit language classification (defaults to `true` unless `quick` is set).
 
 ### Command-line
 
@@ -155,7 +160,7 @@ linguist --help
     Requires `--json` to be specified.
   - `--quick`:
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
-    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false`.
+    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkExplicit=false --checkModeline=false`.
   - `--keepVendored`:
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
   - `--keepBinary`:
@@ -170,6 +175,8 @@ linguist --help
     Apply heuristics to ambiguous languages (use alongside `--quick` to overwrite).
   - `--checkShebang`:
     Check shebang (`#!`) lines for explicit classification (use alongside `--quick` to overwrite).
+  - `--checkModeline`:
+    Check modelines for explicit classification (use alongside `--quick` to overwrite).
 - `--help`:
   Display a help message.
 - `--version`:

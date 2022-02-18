@@ -27,6 +27,7 @@ program
 	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files', true)
 	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages', true)
 	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification', true)
+	.option('-M|--checkModeline [bool]', 'Check modelines for explicit classification', true)
 
 	.helpOption(`-h|--help`, 'Display this help message')
 	.version(VERSION, '-v|--version', 'Display the installed version of linguist-js')

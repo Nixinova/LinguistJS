@@ -19,6 +19,7 @@ export interface Options {
 	checkAttributes?: boolean
 	checkHeuristics?: boolean
 	checkShebang?: boolean
+	checkModeline?: boolean
 }
 
 export interface Results {

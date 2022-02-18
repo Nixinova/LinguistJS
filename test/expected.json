@@ -7,17 +7,19 @@
 			"*/test/samples/file.txt": "JavaScript",
 			"*/test/samples/folder/sub.txt": "Text",
 			"*/test/samples/hashbang": "JavaScript",
+			"*/test/samples/modeline.txt": "C",
 			"*/test/samples/Pipfile": "TOML",
 			"*/test/samples/unknown": null
 		}
 	},
 	"languages": {
-		"count": 4,
-		"bytes": 22,
+		"count": 5,
+		"bytes": 35,
 		"results": {
 			"AL": { "type": "programming", "bytes": 0, "color": "#3AA2B5" },
 			"JavaScript": { "type": "programming", "bytes": 22, "color": "#f1e05a" },
 			"Text": { "type": "prose", "bytes": 0 },
+			"C": { "type": "programming", "bytes": 13, "color": "#555555" },
 			"TOML": { "type": "data", "bytes": 0, "color": "#9c4221" }
 		}
 	},

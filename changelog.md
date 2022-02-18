@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Added boolean option `checkModeline` (defaults to `true`) to check the modeline of files for explicit classification.
+- Fixed shebang statements not taking priority over other methods of disambiguation.
+
 ## 2.3.2
 *2021-02-18*
 - Changed vendored checking to include paths marked as documentation.

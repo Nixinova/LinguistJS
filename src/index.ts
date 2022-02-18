@@ -31,6 +31,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Setup main variables
 	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
+	const definiteness: Record<T.FilePath, true | undefined> = {};
 	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.LanguageResult> = {};
 	const results: T.Results = {
@@ -66,7 +67,14 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 
 	// Apply aliases
-	opts = { checkIgnored: !opts.quick, checkAttributes: !opts.quick, checkHeuristics: !opts.quick, checkShebang: !opts.quick, ...opts };
+	opts = {
+		checkIgnored: !opts.quick,
+		checkAttributes: !opts.quick,
+		checkHeuristics: !opts.quick,
+		checkShebang: !opts.quick,
+		checkModeline: !opts.quick,
+		...opts
+	};
 
 	// Ignore specific languages
 	for (const lang of opts.ignoredLanguages ?? []) {
@@ -158,16 +166,29 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Skip if file is unreadable
 		if (firstLine === null) continue;
-		// Check shebang line for explicit classification
-		if (!opts.quick && opts.checkShebang && firstLine.startsWith('#!')) {
-			// Find matching interpreters
-			const matches = Object.entries(langData).filter(([, data]) =>
-				data.interpreters?.some(interpreter => firstLine!.match('\\b' + interpreter + '\\b'))
-			);
+		// Check first line for explicit classification
+		const hasShebang = opts.checkShebang && /^#!/.test(firstLine);
+		const hasModeline = opts.checkModeline && /-\*-|(syntax|filetype|ft)\s*=/.test(firstLine);
+		if (!opts.quick && (hasShebang || hasModeline)) {
+			const matches = [];
+			for (const [lang, data] of Object.entries(langData)) {
+				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}\\b`;
+				// Check for interpreter match
+				const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
+				// Check modeline declaration
+				const matchesLang = firstLine!.toLowerCase().match(langMatcher(lang));
+				const matchesAlias = data.aliases?.some(lang => firstLine!.toLowerCase().match(langMatcher(lang)));
+				// Add language
+				if (opts.checkShebang && matchesInterpretor) matches.push(lang);
+				if (opts.checkModeline && (matchesLang || matchesAlias)) matches.push(lang);
+
+			}
 			if (matches.length) {
 				// Add explicitly-identified language
-				const forcedLang = matches[0][0];
+				const forcedLang = matches[0];
 				addResult(file, forcedLang);
+				definiteness[file] = true;
+				continue;
 			}
 		}
 		// Check override for manual language classification
@@ -176,6 +197,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			if (match) {
 				const forcedLang = match[1];
 				addResult(file, forcedLang);
+				definiteness[file] = true;
 				continue;
 			}
 		}
@@ -199,6 +221,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 	// Narrow down file associations to the best fit
 	for (const file in fileAssociations) {
+		// Skip if file has explicit association
+		if (definiteness[file]) {
+			results.files.results[file] = fileAssociations[file][0];
+			continue;
+		}
 		// Skip binary files
 		if (!useRawContent && !opts.keepBinary) {
 			const isCustomText = customText.some(path => RegExp(path).test(file));
