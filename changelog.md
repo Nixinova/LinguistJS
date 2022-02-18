@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.4.0
+*2021-02-19*
 - Added boolean option `checkModeline` (defaults to `true`) to check the modeline of files for explicit classification.
 - Fixed shebang statements not taking priority over other methods of disambiguation.
 
