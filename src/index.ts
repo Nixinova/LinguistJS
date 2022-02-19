@@ -1,7 +1,7 @@
 import fs from 'fs';
 import paths from 'path';
 import yaml from 'js-yaml';
-import globToRegexp from 'glob-to-regexp';
+import ignore from 'ignore';
 import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
@@ -10,7 +10,6 @@ import walk from './helpers/walk-tree';
 import loadFile from './helpers/load-data';
 import readFile from './helpers/read-file';
 import pcre from './helpers/convert-pcre';
-import convertToRegex from './helpers/convert-glob';
 import * as T from './types';
 import * as S from './schema';
 
@@ -41,13 +40,17 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	};
 
 	// Prepare list of ignored files
-	const ignoredFiles = ['(^|\\/)\\.git\\/'];
-	if (!opts.keepVendored) {
-		ignoredFiles.push(...vendorPaths);
-	}
-	if (opts.ignoredFiles) {
-		ignoredFiles.push(...opts.ignoredFiles.map(path => globToRegexp('*' + path + '*', { extended: true }).source));
-	}
+	const gitignores = ignore();
+	const regexIgnores = [];
+	gitignores.add('/.git');
+	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path)));
+	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
+
+	// Set a common root path so that vendor paths do not incorrectly match parent folders
+	const resolvedInput = input.map(path => paths.resolve(path).replace(/\\/g, '/'));
+	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
+	const relPath = (file: string) => paths.relative(commonRoot, file).replace(/\\/g, '/');
+	const unRelPath = (file: string) => paths.resolve(commonRoot, file).replace(/\\/g, '/');
 
 	// Load file paths and folders
 	let files, folders;
@@ -58,10 +61,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 	else {
 		// Uses directory on disc
-		// Set a common root path so that vendor paths do not incorrectly match parent folders
-		const resolvedInput = input.map(path => paths.resolve(path).replace(/\\/g, '/'));
-		const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-		const data = walk(commonRoot, input, ignoredFiles);
+		const data = walk(commonRoot, input, gitignores, regexIgnores);
 		files = data.files;
 		folders = data.folders;
 	}
@@ -86,40 +86,36 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 	}
 
-	// Load gitattributes
-	const customIgnored: string[] = [];
-	const customBinary: string[] = [];
-	const customText: string[] = [];
+	// Load gitignores and gitattributes
+	const customBinary = ignore();
+	const customText = ignore();
 	if (!useRawContent && opts.checkAttributes) {
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
-			if (customIgnored.some(path => convertToRegex(path).test(folder))) continue;
+			if (relPath(folder) && gitignores.test(relPath(folder)).ignored) continue;
 
 			// Parse gitignores
 			const ignoresFile = paths.join(folder, '.gitignore');
 			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
 				const ignoresData = await readFile(ignoresFile);
-				const ignoresList = ignoresData.split(/\r?\n/).filter(line => line.trim() && !line.startsWith('#'));
-				const ignoredPaths = ignoresList.map(path => convertToRegex(path).source);
-				customIgnored.push(...ignoredPaths);
+				gitignores.add(ignoresData);
 			}
 
 			// Parse gitattributes
 			const attributesFile = paths.join(folder, '.gitattributes');
 			if (opts.checkAttributes && fs.existsSync(attributesFile)) {
 				const attributesData = await readFile(attributesFile);
-				const relPathToRegex = (path: string): string => convertToRegex(path).source.substr(1).replace(folder, '');
 				// Explicit text/binary associations
 				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)(?!=auto)/gm);
 				for (const [_line, path, type] of contentTypeMatches) {
-					if (['text', '-binary'].includes(type)) customText.push(relPathToRegex(path));
-					if (['-text', 'binary'].includes(type)) customBinary.push(relPathToRegex(path));
+					if (['text', '-binary'].includes(type)) customText.add(path);
+					if (['-text', 'binary'].includes(type)) customBinary.add(path);
 				}
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
 				for (const [_line, path] of vendorMatches) {
-					customIgnored.push(relPathToRegex(path));
+					gitignores.add(path);
 				}
 				// Custom file associations
 				const customLangMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
@@ -129,7 +125,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 						const overrideLang = Object.entries(langData).find(entry => entry[1].aliases?.includes(forcedLang.toLowerCase()));
 						if (overrideLang) forcedLang = overrideLang[0];
 					}
-					const fullPath = folder + convertToRegex(path).source.substr(1);
+					const fullPath = relPath(folder) + '/' + path;
 					overrides[fullPath] = forcedLang;
 				}
 			}
@@ -139,8 +135,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Check vendored files
 	if (!useRawContent && !opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		const matcher = (match: string) => RegExp(match.replace(/\/$/, '/.+$').replace(/^\.\//, ''));
-		files = files.filter(file => !customIgnored.some(pattern => matcher(pattern).test(file)));
+		files = gitignores.filter(files.map(relPath)).map(unRelPath);
 	}
 
 	// Load all files and parse languages
@@ -193,7 +188,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Check override for manual language classification
 		if (!useRawContent && !opts.quick && opts.checkAttributes) {
-			const match = overridesArray.find(item => RegExp(item[0]).test(file));
+			const isOverridden = (path: string) => ignore().add(path).test(relPath(file)).ignored;
+			const match = overridesArray.find(item => isOverridden(item[0]));
 			if (match) {
 				const forcedLang = match[1];
 				addResult(file, forcedLang);
@@ -228,8 +224,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Skip binary files
 		if (!useRawContent && !opts.keepBinary) {
-			const isCustomText = customText.some(path => RegExp(path).test(file));
-			const isCustomBinary = customBinary.some(path => RegExp(path).test(file));
+			const isCustomText = customText.test(relPath(file)).ignored;
+			const isCustomBinary = customBinary.test(relPath(file)).ignored;
 			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
 			if (!isCustomText && (isCustomBinary || isBinaryExt || await isBinaryFile(file))) {
 				continue;

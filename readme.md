@@ -97,7 +97,6 @@ const { files, languages, unknown } = linguist(folder, options);
   Analyse the language of all files found in a folder.
   - `entry` (optional; string or string array):
     The folder(s) to analyse (defaults to `./`).
-    Analyse multiple folders using the syntax `"{folder1,folder2,...}"`.
   - `opts` (optional; object):
     An object containing analyser options.
     - `fileContent` (string or string array):
@@ -160,7 +159,7 @@ linguist --help
     Requires `--json` to be specified.
   - `--quick`:
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
-    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkExplicit=false --checkModeline=false`.
+    Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false --checkModeline=false`.
   - `--keepVendored`:
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
   - `--keepBinary`:

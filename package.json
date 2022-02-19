@@ -40,7 +40,7 @@
 		"commander": "^9.0.0",
 		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.1.5",
-		"glob-to-regexp": "~0.4.1",
+		"ignore": "^5.2.0",
 		"isbinaryfile": "^4.0.8",
 		"js-yaml": "^4.1.0",
 		"node-cache": "^5.1.2"

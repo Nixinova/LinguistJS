@@ -3,4 +3,4 @@
 bin/* eol=lf
 
 # Samples
-samples/**/* linguist-documentation
+test/samples/**/* linguist-documentation

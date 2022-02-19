@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed parsing of gitignore statements not matching its specification.
+
 ## 2.4.0
 *2021-02-19*
 - Added boolean option `checkModeline` (defaults to `true`) to check the modeline of files for explicit classification.

@@ -1,13 +1,12 @@
 import fs from 'fs';
 import paths from 'path';
+import { Ignore } from 'ignore';
 
 const allFiles = new Set<string>();
 const allFolders = new Set<string>();
 
 /** Generate list of files in a directory. */
-export default function walk(root: string, folders: string[], ignored: string[] = []): { files: string[], folders: string[] } {
-	// Switch out paths that expect being in root
-	ignored = ignored.map(match => match.replace(/^\^/, '^\\./'));
+export default function walk(root: string, folders: string[], gitignores: Ignore, regexIgnores: RegExp[]): { files: string[], folders: string[] } {
 	// Walk tree of a folder
 	if (folders.length === 1) {
 		const folder = folders[0];
@@ -24,14 +23,17 @@ export default function walk(root: string, folders: string[], ignored: string[] 
 			// Create absolute path for disc operations
 			const path = paths.resolve(root, file).replace(/\\/g, '/');
 			// Skip if nonexistant or ignored
-			if (!fs.existsSync(path) || ignored.some(pattern => RegExp(pattern).test(file))) continue;
+			const nonExistant = !fs.existsSync(path);
+			const isGitIgnored = gitignores.test(file.replace('./', '')).ignored;
+			const isRegexIgnored = regexIgnores.find(match => file.replace('./', '').match(match));
+			if (nonExistant || isGitIgnored || isRegexIgnored) continue;
 			// Add absolute folder path to list
 			allFolders.add(paths.resolve(folder).replace(/\\/g, '/'));
 			// Check if this is a folder or file
 			if (file.endsWith('/')) {
 				// Recurse into subfolders
 				allFolders.add(path);
-				walk(root, [path], ignored);
+				walk(root, [path], gitignores, regexIgnores);
 			}
 			else {
 				// Add relative file path to list
@@ -42,7 +44,7 @@ export default function walk(root: string, folders: string[], ignored: string[] 
 	// Recurse into all folders
 	else {
 		for (const path of folders) {
-			walk(root, [path], ignored);
+			walk(root, [path], gitignores, regexIgnores);
 		}
 	}
 	// Return absolute files and folders lists
