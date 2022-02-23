@@ -167,7 +167,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		if (!opts.quick && (hasShebang || hasModeline)) {
 			const matches = [];
 			for (const [lang, data] of Object.entries(langData)) {
-				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}\\b`;
+				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*\\-])`;
 				// Check for interpreter match
 				const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
 				// Check modeline declaration

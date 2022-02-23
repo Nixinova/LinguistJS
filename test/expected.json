@@ -7,7 +7,7 @@
 			"*/test/samples/file.txt": "JavaScript",
 			"*/test/samples/folder/sub.txt": "Text",
 			"*/test/samples/hashbang": "JavaScript",
-			"*/test/samples/modeline.txt": "C",
+			"*/test/samples/modeline.txt": "C++",
 			"*/test/samples/Pipfile": "TOML",
 			"*/test/samples/unknown": null
 		}
@@ -19,7 +19,7 @@
 			"AL": { "type": "programming", "bytes": 0, "color": "#3AA2B5" },
 			"JavaScript": { "type": "programming", "bytes": 22, "color": "#f1e05a" },
 			"Text": { "type": "prose", "bytes": 0 },
-			"C": { "type": "programming", "bytes": 15, "color": "#555555" },
+			"C++": { "type": "programming", "bytes": 15, "color": "#f34b7d" },
 			"TOML": { "type": "data", "bytes": 0, "color": "#9c4221" }
 		}
 	},
