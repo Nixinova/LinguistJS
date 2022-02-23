@@ -25,7 +25,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
 	const docData = <S.VendorSchema>await loadFile('documentation.yml').then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
-	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/\))/gm) ?? []);
+	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []);
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
 	// Setup main variables
@@ -43,7 +43,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const gitignores = ignore();
 	const regexIgnores = [];
 	gitignores.add('/.git');
-	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path)));
+	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
 	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders

@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed parsing of gitignore statements not matching its specification.
+- Fixed generated file names being applied case-sensitively.
 
 ## 2.4.0
 *2021-02-19*
