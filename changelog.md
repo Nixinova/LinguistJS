@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.4.1
+*2021-02-24*
 - Fixed parsing of gitignore statements not matching its specification.
 - Fixed generated file names being applied case-sensitively.
 - Fixed generated files not being excluded from the input when using raw file mode.
