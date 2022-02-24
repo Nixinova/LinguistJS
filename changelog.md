@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed heuristics not being applied when using raw file input.
+
 ## 2.4.1
 *2021-02-24*
 - Fixed parsing of gitignore statements not matching its specification.
