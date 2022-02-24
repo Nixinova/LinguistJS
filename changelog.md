@@ -3,6 +3,7 @@
 ## Next
 - Fixed parsing of gitignore statements not matching its specification.
 - Fixed generated file names being applied case-sensitively.
+- Fixed generated files not being excluded from the input when using raw file mode.
 - Fixed modeline language selection not working for languages containing non-alphanumeric characters.
 
 ## 2.4.0

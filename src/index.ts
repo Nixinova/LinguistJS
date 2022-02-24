@@ -41,7 +41,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Prepare list of ignored files
 	const gitignores = ignore();
-	const regexIgnores = [];
+	const regexIgnores: RegExp[] = [];
 	gitignores.add('/.git');
 	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
 	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
@@ -133,9 +133,15 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 	}
 	// Check vendored files
-	if (!useRawContent && !opts.keepVendored) {
+	if (!opts.keepVendored) {
 		// Filter out any files that match a vendor file path
-		files = gitignores.filter(files.map(relPath)).map(unRelPath);
+		if (useRawContent) {
+			files = gitignores.filter(files);
+			files = files.filter(file => !regexIgnores.find(match => match.test(file)));
+		}
+		else {
+			files = gitignores.filter(files.map(relPath)).map(unRelPath);
+		}
 	}
 
 	// Load all files and parse languages
@@ -167,7 +173,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		if (!opts.quick && (hasShebang || hasModeline)) {
 			const matches = [];
 			for (const [lang, data] of Object.entries(langData)) {
-				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*\\-])`;
+				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*]|-\*-)`;
 				// Check for interpreter match
 				const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
 				// Check modeline declaration
