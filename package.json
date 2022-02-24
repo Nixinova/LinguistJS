@@ -12,7 +12,7 @@
 	"scripts": {
 		"prepare": "npm test && npm run perf",
 		"perf": "tsc && node test/perf",
-		"test": "tsc && node test/test"
+		"test": "tsc && node test/unit && node test/folder"
 	},
 	"files": [
 		"bin/",
