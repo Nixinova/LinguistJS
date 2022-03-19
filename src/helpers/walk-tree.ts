@@ -2,11 +2,18 @@ import fs from 'fs';
 import paths from 'path';
 import { Ignore } from 'ignore';
 
-const allFiles = new Set<string>();
-const allFolders = new Set<string>();
+let allFiles: Set<string>;
+let allFolders: Set<string>;
 
 /** Generate list of files in a directory. */
-export default function walk(root: string, folders: string[], gitignores: Ignore, regexIgnores: RegExp[]): { files: string[], folders: string[] } {
+export default function walk(init: boolean, root: string, folders: string[], gitignores: Ignore, regexIgnores: RegExp[]): { files: string[], folders: string[] } {
+
+	// Initialise files and folders lists
+	if (init) {
+		allFiles = new Set();
+		allFolders = new Set();
+	}
+
 	// Walk tree of a folder
 	if (folders.length === 1) {
 		const folder = folders[0];
@@ -33,7 +40,7 @@ export default function walk(root: string, folders: string[], gitignores: Ignore
 			if (file.endsWith('/')) {
 				// Recurse into subfolders
 				allFolders.add(path);
-				walk(root, [path], gitignores, regexIgnores);
+				walk(false, root, [path], gitignores, regexIgnores);
 			}
 			else {
 				// Add relative file path to list
@@ -44,7 +51,7 @@ export default function walk(root: string, folders: string[], gitignores: Ignore
 	// Recurse into all folders
 	else {
 		for (const path of folders) {
-			walk(root, [path], gitignores, regexIgnores);
+			walk(false, root, [path], gitignores, regexIgnores);
 		}
 	}
 	// Return absolute files and folders lists

@@ -1,15 +1,15 @@
 {
-	"results": {
-		"count": 6,
-		"bytes": 31,
+	"files": {
+		"count": 7,
+		"bytes": 46,
 		"results": {
-			"*/test/samples/al.al": "AL",
-			"*/test/samples/file.txt": "JavaScript",
-			"*/test/samples/folder/sub.txt": "Text",
-			"*/test/samples/hashbang": "JavaScript",
-			"*/test/samples/modeline.txt": "C++",
-			"*/test/samples/Pipfile": "TOML",
-			"*/test/samples/unknown": null
+			"~/al.al": "AL",
+			"~/file.txt": "JavaScript",
+			"~/folder/sub.txt": "Text",
+			"~/hashbang": "JavaScript",
+			"~/modeline.txt": "C++",
+			"~/Pipfile": "TOML",
+			"~/unknown": null
 		}
 	},
 	"languages": {

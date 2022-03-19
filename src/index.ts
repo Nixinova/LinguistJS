@@ -61,7 +61,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 	else {
 		// Uses directory on disc
-		const data = walk(commonRoot, input, gitignores, regexIgnores);
+		const data = walk(true, commonRoot, input, gitignores, regexIgnores);
 		files = data.files;
 		folders = data.folders;
 	}
