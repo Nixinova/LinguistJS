@@ -9,7 +9,11 @@ function desc(text) {
 
 async function test([filename, fileContent = ''], [type, testVal]) {
 	const actual = await linguist(filename, { fileContent, childLanguages: true });
-	const testContent = { 'files': actual.files.results[filename] }[type];
+	const testContent = {
+		'files': actual.files.results[filename],
+		'size': actual.files.bytes,
+		'count': actual.files.count,
+	}[type];
 	const result = testContent === testVal;
 	i = `${+i + 1}`.padStart(2, '0');
 	if (result) {
@@ -22,7 +26,11 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 }
 
 async function unitTest() {
-	console.info('Unit tests\n' + '-'.repeat(10))
+	console.info('Unit tests\n' + '-'.repeat(10));
+	desc('metadata');
+	await test(['file_size', '0123456789'], ['size', 10]);
+	await test(['empty', ''], ['size', 0]);
+	await test(['count.js', ''], ['count', 1]);
 	desc('file extensions');
 	await test(['x.js'], ['files', 'JavaScript']);
 	await test(['x.cpp'], ['files', 'C++']);

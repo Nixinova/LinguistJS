@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.4.2
+*2021-03-20*
 - Fixed a crash occurring because of outdated file caches.
 - Fixed heuristics not being applied when using raw file input.
 

@@ -93,7 +93,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
-			if (relPath(folder) && gitignores.test(relPath(folder)).ignored) continue;
+			if (relPath(folder) && gitignores.ignores(relPath(folder))) continue;
 
 			// Parse gitignores
 			const ignoresFile = paths.join(folder, '.gitignore');
@@ -194,7 +194,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Check override for manual language classification
 		if (!useRawContent && !opts.quick && opts.checkAttributes) {
-			const isOverridden = (path: string) => ignore().add(path).test(relPath(file)).ignored;
+			const isOverridden = (path: string) => ignore().add(path).ignores(relPath(file));
 			const match = overridesArray.find(item => isOverridden(item[0]));
 			if (match) {
 				const forcedLang = match[1];
@@ -230,8 +230,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Skip binary files
 		if (!useRawContent && !opts.keepBinary) {
-			const isCustomText = customText.test(relPath(file)).ignored;
-			const isCustomBinary = customBinary.test(relPath(file)).ignored;
+			const isCustomText = customText.ignores(relPath(file));
+			const isCustomBinary = customBinary.ignores(relPath(file));
 			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
 			if (!isCustomText && (isCustomBinary || isBinaryExt || await isBinaryFile(file))) {
 				continue;

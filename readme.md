@@ -2,7 +2,7 @@
 [![Last updated](https://img.shields.io/github/release-date/Nixinova/Linguist?label=updated&style=flat-square)](https://github.com/Nixinova/Linguist/releases)
 [![npm downloads](https://img.shields.io/npm/dt/linguist-js?logo=npm)](https://www.npmjs.com/package/linguist-js)
 
-# Linguist
+# LinguistJS
 
 Analyses the languages of all files in a given folder and collates the results.
 
@@ -11,7 +11,7 @@ Powered by [github-linguist](https://github.com/github/linguist), although it do
 ## Install
 
 [Node.js](https://nodejs.org) must be installed to be able to use this.
-Linguist is available [on npm](https://npmjs.com/package/linguist-js) as `linguist-js`.
+LinguistJS is available [on npm](https://npmjs.com/package/linguist-js) as `linguist-js`.
 
 Install locally using `npm install linguist-js` and import it into your code like so:
 
@@ -27,7 +27,7 @@ linguist --help
 
 ## Usage
 
-Linguist contains one function which analyses a given folder.
+LinguistJS contains one function which analyses a given folder.
 
 As an example, take the following file structure:
 
@@ -40,7 +40,7 @@ As an example, take the following file structure:
 | no-lang 10B
 ```
 
-Running Linguist on this folder will return the following JSON:
+Running LinguistJS on this folder will return the following JSON:
 
 ```json
 {
@@ -78,7 +78,7 @@ Running Linguist on this folder will return the following JSON:
 
 - File paths in the output use only forward slashes as delimiters, even on Windows.
 - This tool does not work when offline.
-- Do not rely on any language classification output from Linguist being unchanged between runs.
+- Do not rely on any language classification output from LinguistJS being unchanged between runs.
   Language data is fetched each run from the latest classifications of [`github-linguist`](https://github.com/github/linguist).
   This data is subject to change at any time and may change the results of a run even when using the same version of Linguist.
 
