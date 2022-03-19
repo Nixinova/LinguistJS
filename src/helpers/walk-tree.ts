@@ -2,11 +2,11 @@ import fs from 'fs';
 import paths from 'path';
 import { Ignore } from 'ignore';
 
-const allFiles = new Set<string>();
-const allFolders = new Set<string>();
-
 /** Generate list of files in a directory. */
 export default function walk(root: string, folders: string[], gitignores: Ignore, regexIgnores: RegExp[]): { files: string[], folders: string[] } {
+	const allFiles = new Set<string>();
+	const allFolders = new Set<string>();
+	
 	// Walk tree of a folder
 	if (folders.length === 1) {
 		const folder = folders[0];
