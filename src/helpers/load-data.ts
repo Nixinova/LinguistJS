@@ -9,7 +9,7 @@ export default async function loadFile(file: string): Promise<string> {
 	const cachedContent = cache.get<string>(file);
 	if (cachedContent) return cachedContent;
 	// Otherwise cache the request
-	const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
+	const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/master/lib/linguist/${file}`;
 	const fileContent = await fetch(dataUrl(file)).then(data => data.text());
 	cache.set(file, fileContent);
 	return fileContent;
