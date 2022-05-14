@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "2.4.2",
+	"version": "2.5.0",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
@@ -53,6 +53,6 @@
 		"@types/js-yaml": "ts4.6",
 		"@types/node": "ts4.6",
 		"deep-object-diff": "^1.1.7",
-		"typescript": "~4.6.2"
+		"typescript": "~4.6.4"
 	}
 }

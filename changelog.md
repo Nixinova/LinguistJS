@@ -1,7 +1,9 @@
 # Changelog
 
-## Next
+## 2.5.0
+*2021-05-14*
 - Added boolean option `offline` to allow the use of pre-packaged metadata files instead of having them fetched from GitHub at runtime.
+- Added `linguist-js` as an alias of the `linguist` executable.
 
 ## 2.4.2
 *2021-03-20*

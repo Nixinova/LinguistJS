@@ -113,7 +113,9 @@ const { files, languages, unknown } = linguist(folder, options);
     - `quick` (boolean):
       Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
-    - `keepVendored` (boolean):
+    - `offline` (boolean):
+      Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
+	- `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
       Does nothing when `fileContent` is set.
     - `keepBinary` (boolean):
@@ -160,6 +162,8 @@ linguist --help
   - `--quick`:
     Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false --checkModeline=false`.
+  - `--offline`:
+    Use pre-packaged metadata files instead of fetching them from GitHub at runtime.
   - `--keepVendored`:
     Whether to include vendored files (auto-generated files, dependencies folder, etc).
   - `--keepBinary`:
