@@ -21,11 +21,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	opts.fileContent = [opts.fileContent ?? []].flat();
 
 	// Load data from github-linguist web repo
-	const langData = <S.LanguagesScema>await loadFile('languages.yml').then(yaml.load);
-	const vendorData = <S.VendorSchema>await loadFile('vendor.yml').then(yaml.load);
-	const docData = <S.VendorSchema>await loadFile('documentation.yml').then(yaml.load);
-	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml').then(yaml.load);
-	const generatedData = await loadFile('generated.rb').then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []);
+	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(yaml.load);
+	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(yaml.load);
+	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(yaml.load);
+	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(yaml.load);
+	const generatedData = await loadFile('generated.rb', opts.offline).then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []);
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
 	// Setup main variables
@@ -93,7 +93,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		for (const folder of folders) {
 
 			// Skip if folder is marked in gitattributes
-			if (relPath(folder) && gitignores.ignores(relPath(folder))) continue;
+			if (relPath(folder) && gitignores.ignores(relPath(folder))) {
+				continue;
+			}
 
 			// Parse gitignores
 			const ignoresFile = paths.join(folder, '.gitignore');
@@ -109,8 +111,12 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				// Explicit text/binary associations
 				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)(?!=auto)/gm);
 				for (const [_line, path, type] of contentTypeMatches) {
-					if (['text', '-binary'].includes(type)) customText.add(path);
-					if (['-text', 'binary'].includes(type)) customBinary.add(path);
+					if (['text', '-binary'].includes(type)) {
+						customText.add(path);
+					}
+					if (['-text', 'binary'].includes(type)) {
+						customBinary.add(path);
+					}
 				}
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
@@ -123,7 +129,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 					// If specified language is an alias, associate it with its full name
 					if (!langData[forcedLang]) {
 						const overrideLang = Object.entries(langData).find(entry => entry[1].aliases?.includes(forcedLang.toLowerCase()));
-						if (overrideLang) forcedLang = overrideLang[0];
+						if (overrideLang) {
+							forcedLang = overrideLang[0];
+						}
 					}
 					const fullPath = relPath(folder) + '/' + path;
 					overrides[fullPath] = forcedLang;
@@ -161,10 +169,10 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		if (useRawContent) {
 			firstLine = opts.fileContent?.[files.indexOf(file)]?.split('\n')[0] ?? null;
 		}
-		else {
-			if (!fs.existsSync(file) || fs.lstatSync(file).isDirectory()) continue;
+		else if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()) {
 			firstLine = await readFile(file, true).catch(() => null);
 		}
+		else continue;
 		// Skip if file is unreadable
 		if (firstLine === null) continue;
 		// Check first line for explicit classification
@@ -180,9 +188,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const matchesLang = firstLine!.toLowerCase().match(langMatcher(lang));
 				const matchesAlias = data.aliases?.some(lang => firstLine!.toLowerCase().match(langMatcher(lang)));
 				// Add language
-				if (opts.checkShebang && matchesInterpretor) matches.push(lang);
-				if (opts.checkModeline && (matchesLang || matchesAlias)) matches.push(lang);
-
+				const interpretorCheck = opts.checkShebang && matchesInterpretor;
+				const modelineCheck = opts.checkModeline && (matchesLang || matchesAlias);
+				if (interpretorCheck || modelineCheck) {
+					matches.push(lang);
+				}
 			}
 			if (matches.length) {
 				// Add explicitly-identified language
@@ -216,10 +226,14 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		if (!skipExts) for (const lang in langData) {
 			// Check if extension is a match
 			const matchesExt = langData[lang].extensions?.some(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
-			if (matchesExt) addResult(file, lang);
+			if (matchesExt) {
+				addResult(file, lang);
+			}
 		}
 		// Fallback to null if no language matches
-		if (!fileAssociations[file]) addResult(file, null);
+		if (!fileAssociations[file]) {
+			addResult(file, null);
+		}
 	}
 	// Narrow down file associations to the best fit
 	for (const file in fileAssociations) {
@@ -278,13 +292,19 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		const categories: T.Category[] = ['data', 'markup', 'programming', 'prose'];
 		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
 		for (const [file, lang] of Object.entries(results.files.results)) {
-			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat)) continue;
+			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat)) {
+				continue;
+			}
 			delete results.files.results[file];
-			if (lang) delete results.languages.results[lang];
+			if (lang) {
+				delete results.languages.results[lang];
+			}
 		}
 		for (const category of hiddenCategories) {
 			for (const [lang, { type }] of Object.entries(results.languages.results)) {
-				if (type === category) delete results.languages.results[lang];
+				if (type === category) {
+					delete results.languages.results[lang];
+				}
 			}
 		}
 	}
@@ -294,7 +314,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		const newMap: Record<T.FilePath, T.LanguageResult> = {};
 		for (const [file, lang] of Object.entries(results.files.results)) {
 			let relPath = paths.relative(process.cwd(), file).replace(/\\/g, '/');
-			if (!relPath.startsWith('../')) relPath = './' + relPath;
+			if (!relPath.startsWith('../')) {
+				relPath = './' + relPath;
+			}
 			newMap[relPath] = lang;
 		}
 		results.files.results = newMap;
@@ -318,7 +340,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Add language and bytes data to corresponding section
 		const { type } = langData[lang];
 		results.languages.results[lang] ??= { type, bytes: 0, color: langData[lang].color };
-		if (opts.childLanguages) results.languages.results[lang].parent = langData[lang].group;
+		if (opts.childLanguages) {
+			results.languages.results[lang].parent = langData[lang].group;
+		}
 		results.languages.results[lang].bytes += fileSize;
 		results.languages.bytes += fileSize;
 	}

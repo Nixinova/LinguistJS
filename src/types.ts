@@ -15,6 +15,7 @@ export interface Options {
 	relativePaths?: boolean
 	childLanguages?: boolean
 	quick?: boolean
+	offline?: boolean
 	checkIgnored?: boolean
 	checkAttributes?: boolean
 	checkHeuristics?: boolean

@@ -3,7 +3,6 @@ const VERSION = require('../package.json').version;
 import { program } from 'commander';
 
 import linguist from './index';
-import walk from './helpers/walk-tree';
 
 const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
 const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
@@ -20,6 +19,7 @@ program
 	.option('-j|--json [bool]', 'Display the output as JSON', false)
 	.option('-t|--tree <traversal>', 'Which part of the output JSON to display (dot-delimited)')
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
+	.option('-o|--offline [bool]', 'Use packaged data files instead of fetching latest from GitHub', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
 	.option('-r|--relativePaths [bool]', 'Convert absolute file paths to relative', false)

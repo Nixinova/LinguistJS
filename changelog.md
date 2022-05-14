@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added boolean option `offline` to allow the use of pre-packaged metadata files instead of having them fetched from GitHub at runtime.
+
 ## 2.4.2
 *2021-03-20*
 - Fixed a crash occurring because of outdated file caches.

@@ -1,4 +1,9 @@
 {
+  "exclude": [
+    "dist/",
+    "build/"
+  ],
+
   "compilerOptions": {
     /* More info: https://aka.ms/tsconfig.json */
     /* Examples: https://github.com/tsconfig/bases */
@@ -31,7 +36,7 @@
     //"strictBindCallApply": true,
     "strictPropertyInitialization": true,
     //"noImplicitThis": true,
-	"useUnknownInCatchVariables": true,
+    "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     //"noUnusedLocals": true,
     "noUnusedParameters": true,

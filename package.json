@@ -4,20 +4,23 @@
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
+		"linguist-js": "bin/index.js",
 		"linguist": "bin/index.js"
 	},
 	"engines": {
 		"node": ">=12"
 	},
 	"scripts": {
-		"prepare": "npm test && npm run perf",
+		"download-files": "npx tsx build/download-files",
+		"prepare": "npm run download-files && npm test && npm run perf",
 		"perf": "tsc && node test/perf",
 		"test": "tsc && node test/folder && echo --- && node test/unit"
 	},
 	"files": [
 		"bin/",
 		"dist/**/*.js",
-		"dist/*.d.ts"
+		"dist/*.d.ts",
+		"ext/"
 	],
 	"repository": {
 		"type": "git",
@@ -37,7 +40,7 @@
 	"homepage": "https://github.com/Nixinova/Linguist#readme",
 	"dependencies": {
 		"binary-extensions": "^2.2.0",
-		"commander": "^9.1.0",
+		"commander": "^9.2.0",
 		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.1.5",
 		"ignore": "^5.2.0",

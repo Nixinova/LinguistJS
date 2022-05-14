@@ -1,10 +1,11 @@
+import fs from 'fs/promises';
+import path from 'path';
 import fetch from 'cross-fetch';
 import Cache from 'node-cache';
 
 const cache = new Cache({});
 
-/** Load a data file from github-linguist. */
-export default async function loadFile(file: string): Promise<string> {
+async function loadWebFile(file: string): Promise<string> {
 	// Return cache if it exists
 	const cachedContent = cache.get<string>(file);
 	if (cachedContent) return cachedContent;
@@ -13,4 +14,14 @@ export default async function loadFile(file: string): Promise<string> {
 	const fileContent = await fetch(dataUrl(file)).then(data => data.text());
 	cache.set(file, fileContent);
 	return fileContent;
+}
+
+async function loadLocalFile(file: string): Promise<string> {
+	const filePath = path.resolve(__dirname, '../../ext', file);
+	return fs.readFile(filePath).then(buffer => buffer.toString());
+}
+
+/** Load a data file from github-linguist. */
+export default async function loadFile(file: string, offline: boolean = false): Promise<string> {
+	return offline ? loadLocalFile(file) : loadWebFile(file);
 }
