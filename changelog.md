@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.5.1
+*2022-06-26*
 - Fixed heuristics not being applied to files.
 - Fixed heuristics with multiple rules not being parsed.
 

@@ -3,7 +3,7 @@
 		"count": 7,
 		"bytes": 46,
 		"results": {
-			"~/al.al": "AL",
+			"~/al.al": "Perl",
 			"~/file.txt": "JavaScript",
 			"~/folder/sub.txt": "Text",
 			"~/hashbang": "JavaScript",
@@ -16,7 +16,7 @@
 		"count": 5,
 		"bytes": 37,
 		"results": {
-			"AL": { "type": "programming", "bytes": 0, "color": "#3AA2B5" },
+			"Perl": { "type": "programming", "bytes": 0, "color": "#0298c3" },
 			"JavaScript": { "type": "programming", "bytes": 22, "color": "#f1e05a" },
 			"Text": { "type": "prose", "bytes": 0 },
 			"C++": { "type": "programming", "bytes": 15, "color": "#f34b7d" },

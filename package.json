@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "2.5.0",
+	"version": "2.5.1",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
@@ -40,7 +40,7 @@
 	"homepage": "https://github.com/Nixinova/Linguist#readme",
 	"dependencies": {
 		"binary-extensions": "^2.2.0",
-		"commander": "^9.2.0",
+		"commander": "^9.3.0",
 		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.1.5",
 		"ignore": "^5.2.0",
@@ -49,10 +49,9 @@
 		"node-cache": "^5.1.2"
 	},
 	"devDependencies": {
-		"@types/glob-to-regexp": "ts4.6",
-		"@types/js-yaml": "ts4.6",
-		"@types/node": "ts4.6",
+		"@types/js-yaml": "^4.0.5",
+		"@types/node": "ts4.7",
 		"deep-object-diff": "^1.1.7",
-		"typescript": "~4.6.4"
+		"typescript": "~4.7.4"
 	}
 }

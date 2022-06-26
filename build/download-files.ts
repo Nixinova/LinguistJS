@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 
 import loadFile from '../src/helpers/load-data';
@@ -9,7 +9,7 @@ async function writeFile(filename: string) {
 	const filePath = path.resolve('ext', filename);
 	const fileData = await loadFile(filename, false);
 	const fileContent = fileData.replace(/(\s+|^)#.*/g, '').replace(/\s+\n/g, '');
-	fs.writeFile(filePath, fileContent)
+	fs.promises.writeFile(filePath, fileContent)
 		.then(() => console.log(`Successfully wrote ${filename}.`))
 		.catch(() => console.log(`Failed to write ${filename}.`))
 }

@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 import fetch from 'cross-fetch';
 import Cache from 'node-cache';
@@ -18,7 +18,7 @@ async function loadWebFile(file: string): Promise<string> {
 
 async function loadLocalFile(file: string): Promise<string> {
 	const filePath = path.resolve(__dirname, '../../ext', file);
-	return fs.readFile(filePath).then(buffer => buffer.toString());
+	return fs.promises.readFile(filePath).then(buffer => buffer.toString());
 }
 
 /** Load a data file from github-linguist. */
