@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed heuristics not being applied to files.
+
 ## 2.5.0
 *2021-05-14*
 - Added boolean option `offline` to allow the use of pre-packaged metadata files instead of having them fetched from GitHub at runtime.
