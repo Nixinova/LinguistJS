@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed heuristics not being applied to files.
+- Fixed heuristics with multiple rules not being parsed.
 
 ## 2.5.0
 *2021-05-14*

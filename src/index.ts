@@ -274,6 +274,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());
 				if (heuristic.pattern) normalise(heuristic.pattern);
 				if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
+				if (heuristic.and) patterns.push(...heuristic.and.map(val => val.pattern ?? []).flat());
 				// Check file contents and apply heuristic patterns
 				const fileContent = opts.fileContent?.length ? opts.fileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
 				if (fileContent === null) continue;
