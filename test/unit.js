@@ -40,6 +40,9 @@ async function unitTest() {
 	await test(['Dockerfile'], ['files', 'Dockerfile']);
 	await test(['CMakeLists.txt'], ['files', 'CMake']);
 	await test(['tsconfig.json'], ['files', 'JSON with Comments']);
+	await test(['index.tsx'], ['files', 'TSX'])
+	await test(['file.antlers.php'], ['files', 'Antlers'])
+	await test(['file.other.php', '<?php?>'], ['files', 'PHP'])
 	desc('shebangs');
 	await test(['node_js', '#!/usr/bin/env node'], ['files', 'JavaScript']);
 	await test(['rake_ruby', '#!/usr/bin/env rake'], ['files', 'Ruby']);

@@ -215,20 +215,30 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Search each language
 		let skipExts = false;
+		// Check if filename is a match
 		for (const lang in langData) {
-			// Check if filename is a match
 			const matchesName = langData[lang].filenames?.some(name => paths.basename(file.toLowerCase()) === name.toLowerCase());
 			if (matchesName) {
 				addResult(file, lang);
 				skipExts = true;
 			}
 		}
+		// Check if extension is a match
+		const possibleExts: { ext: string, lang: T.Language }[] = [];
 		if (!skipExts) for (const lang in langData) {
-			// Check if extension is a match
-			const matchesExt = langData[lang].extensions?.some(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
-			if (matchesExt) {
-				addResult(file, lang);
+			const extMatches = langData[lang].extensions?.filter(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
+			if (extMatches?.length) {
+				for (const ext of extMatches)
+					possibleExts.push({ ext, lang });
 			}
+		}
+		// Apply more specific extension if available
+		const isComplexExt = (ext: string) => /\..+\./.test(ext);
+		const hasComplexExt = possibleExts.some(data => isComplexExt(data.ext));
+		for (const { ext, lang } of possibleExts) {
+			if (hasComplexExt && !isComplexExt(ext)) continue;
+			if (!hasComplexExt && isComplexExt(ext)) continue;
+			addResult(file, lang);
 		}
 		// Fallback to null if no language matches
 		if (!fileAssociations[file]) {

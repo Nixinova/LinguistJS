@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed file extensions with multiple delimiters not being prioritised over basic extensions.
+
 ## 2.5.1
 *2022-06-26*
 - Fixed heuristics not being applied to files.
