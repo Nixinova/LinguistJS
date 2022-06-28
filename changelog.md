@@ -3,6 +3,7 @@
 ## Next
 - Fixed file extensions with multiple delimiters not being prioritised over basic extensions.
 - Fixed modeline checking not trimming comments from the first line.
+- Fixed modeline checking being applied to the first line even when it does not contain a modeline.
 
 ## 2.5.1
 *2022-06-26*

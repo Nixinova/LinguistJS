@@ -183,16 +183,18 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			for (const [lang, data] of Object.entries(langData)) {
 				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*]|-\*-)`;
 				// Check for interpreter match
-				const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
+				if (opts.checkShebang) {
+					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
+					if (matchesInterpretor)
+						matches.push(lang);
+				}
 				// Check modeline declaration
-				const modelineText = firstLine!.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
-				const matchesLang = modelineText.match(langMatcher(lang));
-				const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
-				// Add language
-				const interpretorCheck = opts.checkShebang && matchesInterpretor;
-				const modelineCheck = opts.checkModeline && (matchesLang || matchesAlias);
-				if (interpretorCheck || modelineCheck) {
-					matches.push(lang);
+				if (opts.checkModeline && firstLine!.includes('-*-')) {
+					const modelineText = firstLine!.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
+					const matchesLang = modelineText.match(langMatcher(lang));
+					const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
+					if (matchesLang || matchesAlias)
+						matches.push(lang);
 				}
 			}
 			if (matches.length) {
