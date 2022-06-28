@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "2.5.1",
+	"version": "2.5.2",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
@@ -11,7 +11,7 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"download-files": "npx tsx build/download-files",
+		"download-files": "npx tsx@2 build/download-files",
 		"prepare": "npm run download-files && npm test && npm run perf",
 		"perf": "tsc && node test/perf",
 		"test": "tsc && node test/folder && echo --- && node test/unit"

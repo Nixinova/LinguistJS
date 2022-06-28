@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.5.2
+*2022-06-28*
 - Fixed file extensions with multiple delimiters not being prioritised over basic extensions.
 - Fixed modeline checking not trimming comments from the first line.
 - Fixed modeline checking being applied to the first line even when it does not contain a modeline.
@@ -12,42 +13,42 @@
 - Fixed heuristics with multiple rules not being parsed.
 
 ## 2.5.0
-*2021-05-14*
+*2022-05-14*
 - Added boolean option `offline` to allow the use of pre-packaged metadata files instead of having them fetched from GitHub at runtime.
 - Added `linguist-js` as an alias of the `linguist` executable.
 
 ## 2.4.2
-*2021-03-20*
+*2022-03-20*
 - Fixed a crash occurring because of outdated file caches.
 - Fixed heuristics not being applied when using raw file input.
 
 ## 2.4.1
-*2021-02-24*
+*2022-02-24*
 - Fixed parsing of gitignore statements not matching its specification.
 - Fixed generated file names being applied case-sensitively.
 - Fixed generated files not being excluded from the input when using raw file mode.
 - Fixed modeline language selection not working for languages containing non-alphanumeric characters.
 
 ## 2.4.0
-*2021-02-19*
+*2022-02-19*
 - Added boolean option `checkModeline` (defaults to `true`) to check the modeline of files for explicit classification.
 - Fixed shebang statements not taking priority over other methods of disambiguation.
 
 ## 2.3.2
-*2021-02-18*
+*2022-02-18*
 - Changed vendored checking to include paths marked as documentation.
 - Fixed array input not being parsed properly when used with `fileContent`.
 - Fixed vendor patterns being erroneously applied to parent folders.
 - Fixed vendor patterns made for relative paths not being applied.
 
 ## 2.3.1
-*2021-02-16*
+*2022-02-16*
 - Fixed a crash occurring when parsing heuristics containing atomic groups.
 - Fixed option `fileContent` being ignored if set to an empty string.
 - Fixed file extensions being treated as case sensitive.
 
 ## 2.3.0
-*2021-02-13*
+*2022-02-13*
 - Added option `fileContent` to provide manual file content to analyse instead of reading from a folder on disk.
 
 ## 2.2.1

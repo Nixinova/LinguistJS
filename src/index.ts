@@ -184,13 +184,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			for (const [lang, data] of Object.entries(langData)) {
 				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*]|-\*-)`;
 				// Check for interpreter match
-				if (opts.checkShebang) {
+				if (opts.checkShebang && hasShebang) {
 					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
 					if (matchesInterpretor)
 						matches.push(lang);
 				}
 				// Check modeline declaration
-				if (opts.checkModeline && firstLine!.includes('-*-')) {
+				if (opts.checkModeline && hasModeline) {
 					const modelineText = firstLine!.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
 					const matchesLang = modelineText.match(langMatcher(lang));
 					const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
