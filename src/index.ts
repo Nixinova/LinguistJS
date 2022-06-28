@@ -185,8 +185,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				// Check for interpreter match
 				const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
 				// Check modeline declaration
-				const matchesLang = firstLine!.toLowerCase().match(langMatcher(lang));
-				const matchesAlias = data.aliases?.some(lang => firstLine!.toLowerCase().match(langMatcher(lang)));
+				const modelineText = firstLine!.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
+				const matchesLang = modelineText.match(langMatcher(lang));
+				const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
 				// Add language
 				const interpretorCheck = opts.checkShebang && matchesInterpretor;
 				const modelineCheck = opts.checkModeline && (matchesLang || matchesAlias);

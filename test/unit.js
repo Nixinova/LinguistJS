@@ -52,6 +52,7 @@ async function unitTest() {
 	await test(['emacs_cs', '# -*- c# -*-'], ['files', 'C#']);
 	await test(['vim_sh', '# vim: filetype=sh'], ['files', 'Shell']);
 	await test(['vim_ruby', '# vim: syntax = ruby'], ['files', 'Ruby']);
+	await test(['XCompose', '# for Emacs: -*- coding: utf-8 -*-'], ['files', 'XCompose'])
 	desc('heuristics');
 	await test(['c-sharp.cs', 'namespace example {} // empty'], ['files', 'C#']);
 	await test(['smalltalk.cs', '!interface methodsFor: instance'], ['files', 'Smalltalk']);
