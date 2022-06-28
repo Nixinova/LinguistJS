@@ -30,7 +30,6 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Setup main variables
 	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
-	const definiteness: Record<T.FilePath, true | undefined> = {};
 	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.LanguageResult> = {};
 	const results: T.Results = {
@@ -164,6 +163,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	};
 	const overridesArray = Object.entries(overrides);
 	// List all languages that could be associated with a given file
+	const definiteness: Record<T.FilePath, true | undefined> = {};
+	const fromShebang: Record<T.FilePath, true | undefined> = {};
 	for (const file of files) {
 		let firstLine: string | null;
 		if (useRawContent) {
@@ -197,11 +198,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 						matches.push(lang);
 				}
 			}
+			// Add identified language(s)
 			if (matches.length) {
-				// Add explicitly-identified language
-				const forcedLang = matches[0];
-				addResult(file, forcedLang);
-				definiteness[file] = true;
+				for (const match of matches)
+					addResult(file, match);
+				if (matches.length === 1)
+					definiteness[file] = true;
+				fromShebang[file] = true;
 				continue;
 			}
 		}
@@ -268,9 +271,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Parse heuristics if applicable
 		if (opts.checkHeuristics) for (const heuristics of heuristicsData.disambiguations) {
 			// Make sure the extension matches the current file
-			if (!heuristics.extensions.includes(extensions[file])) {
+			if (!fromShebang[file] && !heuristics.extensions.includes(extensions[file]))
 				continue;
-			}
 			// Load heuristic rules
 			for (const heuristic of heuristics.rules) {
 				// Make sure the language is not an array
@@ -281,7 +283,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const languageGroup = langData[heuristic.language]?.group;
 				const matchesLang = fileAssociations[file].includes(heuristic.language);
 				const matchesParent = languageGroup && fileAssociations[file].includes(languageGroup);
-				if (!matchesLang && !matchesParent) continue;
+				if (!matchesLang && !matchesParent)
+					continue;
 				// Normalise heuristic data
 				const patterns: string[] = [];
 				const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());

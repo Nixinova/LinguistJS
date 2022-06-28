@@ -60,6 +60,7 @@ async function unitTest() {
 	await test(['ecl.ecl', 'var:=val'], ['files', 'ECL']);
 	await test(['frege.fr', 'import package'], ['files', 'Frege']);
 	await test(['forth.fr', 'new-device 1'], ['files', 'Forth']);
+	await test(['raku','#!/usr/bin/env perl6\n module'], ['files', 'Raku']);
 	desc('vendored');
 	await test(['gradlew'], ['files', undefined]);
 	await test(['decl.d.ts'], ['files', undefined]);
