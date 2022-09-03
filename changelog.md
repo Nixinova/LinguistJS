@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+# 2.5.3
+*2022-09-03*
 - Fixed a crash occurring when parsing heuristics for `.txt` files ([#16](https://github.com/Nixinova/LinguistJS/issues/16)).
 
 ## 2.5.2

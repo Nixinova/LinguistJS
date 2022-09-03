@@ -16,6 +16,8 @@ async function writeFile(filename: string) {
 
 async function downloadFiles() {
 	const files = ['languages.yml', 'vendor.yml', 'documentation.yml', 'heuristics.yml', 'generated.rb'];
+	if (!fs.existsSync('ext'))
+		fs.mkdirSync('ext');
 	files.forEach(file => writeFile(file));
 }
 
