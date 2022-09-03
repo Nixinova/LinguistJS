@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed a crash occurring when parsing heuristics for `.txt` files ([#16](https://github.com/Nixinova/LinguistJS/issues/16)).
+
 ## 2.5.2
 *2022-06-28*
 - Fixed file extensions with multiple delimiters not being prioritised over basic extensions.
