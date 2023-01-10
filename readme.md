@@ -52,7 +52,8 @@ Running LinguistJS on this folder will return the following JSON:
       "/src/cli.js": "JavaScript",
       "/readme.md": "Markdown",
       "/no-lang": null,
-    }
+    },
+	"unsure": {},
   },
   "languages": {
     "count": 3,
