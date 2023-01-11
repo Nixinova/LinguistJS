@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "2.5.3",
+	"version": "2.5.4",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
@@ -12,8 +12,8 @@
 	},
 	"scripts": {
 		"download-files": "npx tsx@2 build/download-files",
-		"prepare": "npm run download-files && npm test && npm run perf",
-		"perf": "tsc && node test/perf",
+		"pre-publish": "npm run download-files && npm test && npm run test:perf",
+		"test:perf": "tsc && node test/perf",
 		"test": "tsc && node test/folder && echo --- && node test/unit"
 	},
 	"files": [
@@ -40,18 +40,18 @@
 	"homepage": "https://github.com/Nixinova/Linguist#readme",
 	"dependencies": {
 		"binary-extensions": "^2.2.0",
-		"commander": "^9.4.0",
+		"commander": "^9.5.0",
 		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.1.5",
-		"ignore": "^5.2.0",
-		"isbinaryfile": "^4.0.8",
+		"ignore": "^5.2.4",
+		"isbinaryfile": "^4.0.8 <5",
 		"js-yaml": "^4.1.0",
 		"node-cache": "^5.1.2"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.5",
-		"@types/node": "ts4.8",
-		"deep-object-diff": "^1.1.7",
-		"typescript": "~4.8.2"
+		"@types/node": "ts4.9",
+		"deep-object-diff": "^1.1.9",
+		"typescript": "~4.9.4"
 	}
 }

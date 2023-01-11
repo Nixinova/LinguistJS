@@ -8,7 +8,7 @@ import loadFile from '../src/helpers/load-data';
 async function writeFile(filename: string) {
 	const filePath = path.resolve('ext', filename);
 	const fileData = await loadFile(filename, false);
-	const fileContent = fileData.replace(/(\s+|^)#.*/g, '').replace(/\s+\n/g, '');
+	const fileContent = fileData.replace(/(\s+|^)#.*/g, '').replace(/\s+$/g, '');
 	fs.promises.writeFile(filePath, fileContent)
 		.then(() => console.log(`Successfully wrote ${filename}.`))
 		.catch(() => console.log(`Failed to write ${filename}.`))

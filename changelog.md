@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.4
+*2023-01-11*
+- Fixed gitattributes wildcards not being applied into subfolders.
+
 # 2.5.3
 *2022-09-03*
 - Fixed a crash occurring when parsing heuristics for `.txt` files ([#16](https://github.com/Nixinova/LinguistJS/issues/16)).
