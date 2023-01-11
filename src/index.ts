@@ -132,7 +132,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 							forcedLang = overrideLang[0];
 						}
 					}
-					const fullPath = relPath(folder) + '/' + path;
+					const fullPath = paths.join(relPath(folder), path);
 					overrides[fullPath] = forcedLang;
 				}
 			}

@@ -1,7 +1,7 @@
 {
 	"files": {
-		"count": 7,
-		"bytes": 46,
+		"count": 8,
+		"bytes": 47,
 		"results": {
 			"~/al.al": "Perl",
 			"~/file.txt": "JavaScript",
@@ -14,10 +14,10 @@
 	},
 	"languages": {
 		"count": 5,
-		"bytes": 37,
+		"bytes": 38,
 		"results": {
 			"Perl": { "type": "programming", "bytes": 0, "color": "#0298c3" },
-			"JavaScript": { "type": "programming", "bytes": 22, "color": "#f1e05a" },
+			"JavaScript": { "type": "programming", "bytes": 23, "color": "#f1e05a" },
 			"Text": { "type": "prose", "bytes": 0 },
 			"C++": { "type": "programming", "bytes": 15, "color": "#f34b7d" },
 			"TOML": { "type": "data", "bytes": 0, "color": "#9c4221" }
