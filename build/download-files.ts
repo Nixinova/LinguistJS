@@ -8,8 +8,12 @@ import loadFile from '../src/helpers/load-data';
 async function writeFile(filename: string) {
 	const filePath = path.resolve('ext', filename);
 	const fileData = await loadFile(filename, false);
-	const fileContent = fileData.replace(/(\s+|^)#.*/g, '').replace(/\s+$/g, '');
-	fs.promises.writeFile(filePath, fileContent)
+	const fileDataMin = fileData
+		// Convert /x flag
+		.replace(/(\s+|^)#.*/g, '') // remove comments
+		.replace(/: \|.*\n((\s+).+\n(\2.+\n)+)/g, (_, content) => `: '${content.replace(/^\s+|\s+$|\r?\n/gm, '')}'\n`) // flatten multi-line data
+		.replace('(?x)', '')
+	fs.promises.writeFile(filePath, fileDataMin)
 		.then(() => console.log(`Successfully wrote ${filename}.`))
 		.catch(() => console.log(`Failed to write ${filename}.`))
 }
