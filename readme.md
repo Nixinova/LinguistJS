@@ -53,7 +53,7 @@ Running LinguistJS on this folder will return the following JSON:
       "/readme.md": "Markdown",
       "/no-lang": null,
     },
-	"unsure": {},
+	"alternatives": {},
   },
   "languages": {
     "count": 3,

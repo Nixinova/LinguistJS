@@ -13,7 +13,7 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 		'files': actual.files.results[filename],
 		'size': actual.files.bytes,
 		'count': actual.files.count,
-		'unsure_count': Object.entries(actual.files.unsure).length,
+		'alternatives_count': Object.entries(actual.files.alternatives).length,
 	}[type];
 	const result = testContent === testVal;
 	i = `${+i + 1}`.padStart(2, '0');
@@ -37,7 +37,7 @@ async function unitTest() {
 	await test(['x.cpp'], ['files', 'C++']);
 	await test(['x.c'], ['files', 'C']);
 	await test(['x.R'], ['files', 'R']);
-	await test(['.m'], ['unsure_count', 1])
+	await test(['.m'], ['alternatives_count', 1])
 	desc('filenames');
 	await test(['Dockerfile'], ['files', 'Dockerfile']);
 	await test(['CMakeLists.txt'], ['files', 'CMake']);

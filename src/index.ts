@@ -33,7 +33,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.LanguageResult> = {};
 	const results: T.Results = {
-		files: { count: 0, bytes: 0, results: {}, unsure: {} },
+		files: { count: 0, bytes: 0, results: {}, alternatives: {} },
 		languages: { count: 0, bytes: 0, results: {} },
 		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
 	};
@@ -308,9 +308,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// If no heuristics, assign a language
 		if (!results.files.results[file]) {
 			const possibleLangs = fileAssociations[file];
+			// Assign first language as a default option
 			results.files.results[file] = possibleLangs[0];
+			// List alternative languages if there are any
 			if (possibleLangs.length > 1)
-				results.files.unsure[file] = possibleLangs;
+				results.files.alternatives[file] = possibleLangs;
 		}
 	}
 
