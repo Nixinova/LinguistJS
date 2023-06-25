@@ -38,6 +38,7 @@ As an example, take the following file structure:
 | | index.ts 2kB
 | readme.md 3kB
 | no-lang 10B
+| x.pluginspec 10B
 ```
 
 Running LinguistJS on this folder will return the following JSON:
@@ -45,23 +46,27 @@ Running LinguistJS on this folder will return the following JSON:
 ```json
 {
   "files": {
-    "count": 4,
-    "bytes": 6010,
+    "count": 5,
+    "bytes": 6020,
     "results": {
       "/src/index.ts": "TypeScript",
       "/src/cli.js": "JavaScript",
       "/readme.md": "Markdown",
       "/no-lang": null,
+      "/x.pluginspec": "Ruby",
     },
-	"alternatives": {},
+    "alternatives": {
+        ".pluginspec": ["Ruby", "XML"],
+    },
   },
   "languages": {
     "count": 3,
-    "bytes": 6000,
+    "bytes": 6010,
     "results": {
-      "JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
-      "TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
-      "Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" },
+        "JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
+        "Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" },
+        "Ruby": { "type": "programming", "bytes": 10, "color": "#701516" },
+        "TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
     },
   },
   "unknown": {

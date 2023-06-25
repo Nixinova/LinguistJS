@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Add `alternatives` key to list all possible other language matches for files.
+
 ## 2.5.5
 *2023-06-25*
 - Fixed a crash occurring when parsing heuristics with negative inline PCRE flags.
