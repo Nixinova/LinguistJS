@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed a crash occurring when parsing heuristics with negative inline PCRE flags.
+
 ## 2.5.4
 *2023-01-11*
 - Fixed gitattributes wildcards not being applied into subfolders.
