@@ -1,11 +1,13 @@
 # Changelog
 
-## Next
+## 2.5.5
+*2023-06-25*
 - Fixed a crash occurring when parsing heuristics with negative inline PCRE flags.
+- Changed cached data files to be compressed when packaged.
 
 ## 2.5.4
 *2023-01-11*
-- Fixed gitattributes wildcards not being applied into subfolders.
+- Fixed gitattributes wildcards not being applied into subfolders ([#17](https://github.com/Nixinova/LinguistJS/issues/17)).
 
 # 2.5.3
 *2022-09-03*
