@@ -146,8 +146,9 @@ linguist --help
   Analyse the language of all files found in a folder.
   - `<folders...>`:
     The folders to analyse (defaults to `./`).
-  - `--ignoredFiles <paths...>`:
-    A list of space-delimited file path globs to ignore.
+  - `--ignoredFiles <glob1> [[--ignoredFiles] <glob2> ...]`:
+    A list of file path globs to ignore.
+    When specifying more than one glob, this option can either be called with multiple values given (e.g., `--ignoredFiles *.txt *.json`) or be called multiple times (e.g., `--ignoredFiles *.txt --ignoredFiles *.json`). Both ways are equivalent.
   - `--ignoredLanguages`:
     A list of languages to ignore.
   - `--categories <categories...>`:
