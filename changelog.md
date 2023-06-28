@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed cached data files having formatting issues.
+
 ## 2.5.5
 *2023-06-25*
 - Fixed a crash occurring when parsing heuristics with negative inline PCRE flags.
