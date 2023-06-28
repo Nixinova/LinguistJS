@@ -11,7 +11,8 @@ async function loadWebFile(file: string): Promise<string> {
 	if (cachedContent) return cachedContent;
 	// Otherwise cache the request
 	const dataUrl = (file: string): string => `https://raw.githubusercontent.com/github/linguist/HEAD/lib/linguist/${file}`;
-	const fileContent = await fetch(dataUrl(file)).then(data => data.text());
+	// Load file content, falling back to the local file if the request fails
+	const fileContent = await fetch(dataUrl(file)).then(data => data.text()).catch(async () => await loadLocalFile(file));
 	cache.set(file, fileContent);
 	return fileContent;
 }

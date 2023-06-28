@@ -1,7 +1,8 @@
 # Changelog
 
 ## Next
-- Fixed cached data files having formatting issues.
+- Changed fetching of data files to fallback to using the packaged files if the fetch request fails.
+- Fixed packaged data files having formatting issues.
 
 ## 2.5.5
 *2023-06-25*
