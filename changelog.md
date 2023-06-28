@@ -3,6 +3,11 @@
 ## Next
 - Add `alternatives` key to list all possible other language matches for files.
 
+## 2.5.6
+*2023-06-28*
+- Changed fetching of data files to fallback to using the packaged files if the fetch request fails ([#21](https://github.com/Nixinova/LinguistJS/issues/21)).
+- Fixed packaged data files having formatting issues.
+
 ## 2.5.5
 *2023-06-25*
 - Fixed a crash occurring when parsing heuristics with negative inline PCRE flags.
