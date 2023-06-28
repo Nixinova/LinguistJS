@@ -1,6 +1,6 @@
 import fs from 'fs';
 import paths from 'path';
-import yaml from 'yaml';
+import yaml from 'js-yaml';
 import ignore from 'ignore';
 import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
@@ -21,11 +21,10 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	opts.fileContent = [opts.fileContent ?? []].flat();
 
 	// Load data from github-linguist web repo
-	const yamlParse = (doc: string) => yaml.parse(doc);
-	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(yamlParse);
-	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(yamlParse);
-	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(yamlParse);
-	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(yamlParse);
+	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(yaml.load);
+	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(yaml.load);
+	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(yaml.load);
+	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(yaml.load);
 	const generatedData = await loadFile('generated.rb', opts.offline).then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []);
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
