@@ -13,7 +13,7 @@
 			"~/unknown": null
 		},
 		"alternatives": {
-		  "~/alternatives.asc": [ "AGS Script", "AsciiDoc", "Public Key" ]
+		  "~/alternatives.asc": [ "AsciiDoc", "Public Key" ]
 		}
 	},
 	"languages": {

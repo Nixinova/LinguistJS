@@ -1,7 +1,7 @@
 # Changelog
 
 ## Next
-- Add `alternatives` key to list all possible other language matches for files.
+- Add `alternatives` key to list all possible language matches for files that do not have a definite match.
 
 ## 2.5.6
 *2023-06-28*

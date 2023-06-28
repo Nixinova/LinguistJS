@@ -310,10 +310,12 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		if (!results.files.results[file]) {
 			const possibleLangs = fileAssociations[file];
 			// Assign first language as a default option
-			results.files.results[file] = possibleLangs[0];
+			const defaultLang = possibleLangs[0];
+			const alternativeLangs = possibleLangs.slice(1)
+			results.files.results[file] = defaultLang;
 			// List alternative languages if there are any
-			if (possibleLangs.length > 1)
-				results.files.alternatives[file] = possibleLangs;
+			if (alternativeLangs.length > 0)
+				results.files.alternatives[file] = alternativeLangs;
 		}
 	}
 
