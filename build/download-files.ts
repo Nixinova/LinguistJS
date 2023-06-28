@@ -11,7 +11,7 @@ async function writeFile(filename: string) {
 	const fileDataMin = fileData
 		// Convert /x flag
 		.replace(/(\s+|^)#.*/g, '') // remove comments
-		.replace(/(pattern: )\|.*\n((\s+).+\n(\2.+\n)+)/g, (_, pref, content) => `${pref}'${content.replace(/^\s+|\s+$|\r?\n/gm, '')}'\n`) // flatten multi-line data
+		.replace(/(pattern: )\|.*\n((\s+).+\n(\3.+\n)+)/g, (_, pref, content) => `${pref}'${content.replace(/^\s+|\s+$|\r?\n/gm, '')}'\n`) // flatten multi-line data
 		.replace('(?x)', '')
 	fs.promises.writeFile(filePath, fileDataMin)
 		.then(() => console.log(`Successfully wrote ${filename}.`))
