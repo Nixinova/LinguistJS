@@ -18,11 +18,11 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 	const result = testContent === testVal;
 	i = `${+i + 1}`.padStart(2, '0');
 	if (result) {
-		console.info(`- #${i} passed: '${filename}': ${testVal}`);
+		console.info(`- #${i} passed: '${filename}' is ${testVal}`);
 	}
 	else {
 		errors++;
-		console.error(`- #${i} failed: '${filename}': ${testContent} instead of ${testVal}`);
+		console.error(`- #${i} failed: '${filename}' is ${testContent} instead of ${testVal}`);
 	}
 }
 

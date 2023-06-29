@@ -1,7 +1,8 @@
 # Changelog
 
-## Next
-- Add `alternatives` key to list all possible language matches for files that do not have a definite match.
+## 2.6.0
+*2023-06-29*
+- Add `alternatives` key to list all possible alternative language classifications for files that do not have a definite match ([#15](https://github.com/Nixinova/LinguistJS/issues/15), [#19](https://github.com/Nixinova/LinguistJS/pull/19)).
 
 ## 2.5.6
 *2023-06-28*
