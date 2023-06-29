@@ -56,7 +56,7 @@ Running LinguistJS on this folder will return the following JSON:
       "/x.pluginspec": "Ruby",
     },
     "alternatives": {
-        ".pluginspec": ["Ruby", "XML"],
+        ".pluginspec": ["XML"],
     },
   },
   "languages": {
