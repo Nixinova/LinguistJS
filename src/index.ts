@@ -7,7 +7,7 @@ import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
 import walk from './helpers/walk-tree';
-import loadFile from './helpers/load-data';
+import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
 import readFile from './helpers/read-file';
 import pcre from './helpers/convert-pcre';
 import * as T from './types';
@@ -25,7 +25,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(yaml.load);
 	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(yaml.load);
 	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(yaml.load);
-	const generatedData = await loadFile('generated.rb', opts.offline).then(text => text.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []);
+	const generatedData = <string[]>await loadFile('generated.rb', opts.offline).then(parseGeneratedDataFile);
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
 	// Setup main variables

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import fetch from 'cross-fetch';
 import Cache from 'node-cache';
+import yaml from 'js-yaml';
 
 const cache = new Cache({});
 
@@ -20,6 +21,11 @@ async function loadWebFile(file: string): Promise<string> {
 async function loadLocalFile(file: string): Promise<string> {
 	const filePath = path.resolve(__dirname, '../../ext', file);
 	return fs.promises.readFile(filePath).then(buffer => buffer.toString());
+}
+
+/** Nukes unused `generated.rb` file content. */
+export async function parseGeneratedDataFile(fileContent: string): Promise<string[]> {
+	return [...fileContent.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []];
 }
 
 /** Load a data file from github-linguist. */
