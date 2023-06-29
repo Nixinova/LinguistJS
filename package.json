@@ -13,7 +13,7 @@
 	"scripts": {
 		"download-files": "npx tsx@3 build/download-files",
 		"pre-publish": "npm run download-files && npm test && npm run test:perf",
-		"test:perf": "tsc && node test/perf",
+		"perf": "tsc && node test/perf",
 		"test": "tsc && node test/folder && echo --- && node test/unit"
 	},
 	"files": [

@@ -33,7 +33,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const extensions: Record<T.FilePath, string> = {};
 	const overrides: Record<T.FilePath, T.LanguageResult> = {};
 	const results: T.Results = {
-		files: { count: 0, bytes: 0, results: {} },
+		files: { count: 0, bytes: 0, results: {}, alternatives: {} },
 		languages: { count: 0, bytes: 0, results: {} },
 		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
 	};
@@ -157,8 +157,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			fileAssociations[file] = [];
 			extensions[file] = '';
 		}
-		const parent = !opts.childLanguages && result && langData[result].group || false;
-		fileAssociations[file].push(parent || result);
+		// Set parent to result group if it is present
+		// Is nullish if either `opts.childLanguages` is set or if there is no group
+		const finalResult = !opts.childLanguages && result && langData[result].group || result;
+		if (!fileAssociations[file].includes(finalResult))
+			fileAssociations[file].push(finalResult);
 		extensions[file] = paths.extname(file).toLowerCase();
 	};
 	const overridesArray = Object.entries(overrides);
@@ -279,12 +282,14 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				if (Array.isArray(heuristic.language)) {
 					heuristic.language = heuristic.language[0];
 				}
+
 				// Make sure the results includes this language
 				const languageGroup = langData[heuristic.language]?.group;
 				const matchesLang = fileAssociations[file].includes(heuristic.language);
 				const matchesParent = languageGroup && fileAssociations[file].includes(languageGroup);
 				if (!matchesLang && !matchesParent)
 					continue;
+
 				// Normalise heuristic data
 				const patterns: string[] = [];
 				const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());
@@ -296,9 +301,12 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 						if (data.named_pattern) normalise(heuristicsData.named_patterns[data.named_pattern]);
 					}
 				}
+
 				// Check file contents and apply heuristic patterns
 				const fileContent = opts.fileContent?.length ? opts.fileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
+				// Skip if file read errors
 				if (fileContent === null) continue;
+				// Apply heuristics
 				if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
 					results.files.results[file] = heuristic.language;
 					break;
@@ -306,7 +314,16 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			}
 		}
 		// If no heuristics, assign a language
-		results.files.results[file] ??= fileAssociations[file][0];
+		if (!results.files.results[file]) {
+			const possibleLangs = fileAssociations[file];
+			// Assign first language as a default option
+			const defaultLang = possibleLangs[0];
+			const alternativeLangs = possibleLangs.slice(1)
+			results.files.results[file] = defaultLang;
+			// List alternative languages if there are any
+			if (alternativeLangs.length > 0)
+				results.files.alternatives[file] = alternativeLangs;
+		}
 	}
 
 	// Skip specified categories

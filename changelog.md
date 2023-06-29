@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Add `alternatives` key to list all possible language matches for files that do not have a definite match.
+
 ## 2.5.6
 *2023-06-28*
 - Changed fetching of data files to fallback to using the packaged files if the fetch request fails ([#21](https://github.com/Nixinova/LinguistJS/issues/21)).
