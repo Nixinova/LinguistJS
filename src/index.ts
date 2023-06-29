@@ -157,8 +157,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			fileAssociations[file] = [];
 			extensions[file] = '';
 		}
-		const parent = !opts.childLanguages && result && langData[result].group || false;
-		fileAssociations[file].push(parent || result);
+		// Set parent to result group if it is present
+		// Is nullish if either `opts.childLanguages` is set or if there is no group
+		const finalResult = !opts.childLanguages && result && langData[result].group || result;
+		if (!fileAssociations[file].includes(finalResult))
+			fileAssociations[file].push(finalResult);
 		extensions[file] = paths.extname(file).toLowerCase();
 	};
 	const overridesArray = Object.entries(overrides);
@@ -279,12 +282,14 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				if (Array.isArray(heuristic.language)) {
 					heuristic.language = heuristic.language[0];
 				}
+
 				// Make sure the results includes this language
 				const languageGroup = langData[heuristic.language]?.group;
 				const matchesLang = fileAssociations[file].includes(heuristic.language);
 				const matchesParent = languageGroup && fileAssociations[file].includes(languageGroup);
 				if (!matchesLang && !matchesParent)
 					continue;
+
 				// Normalise heuristic data
 				const patterns: string[] = [];
 				const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());
@@ -296,9 +301,12 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 						if (data.named_pattern) normalise(heuristicsData.named_patterns[data.named_pattern]);
 					}
 				}
+
 				// Check file contents and apply heuristic patterns
 				const fileContent = opts.fileContent?.length ? opts.fileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
+				// Skip if file read errors
 				if (fileContent === null) continue;
+				// Apply heuristics
 				if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
 					results.files.results[file] = heuristic.language;
 					break;
