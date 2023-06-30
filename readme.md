@@ -4,13 +4,14 @@
 
 # LinguistJS
 
-Analyses the languages of all files in a given folder and collates the results.
+Analyses the languages of all files in a given folder or folders and collates the results.
 
 Powered by [github-linguist](https://github.com/github/linguist), although it doesn't need to be installed.
 
 ## Install
 
-[Node.js](https://nodejs.org) must be installed to be able to use this.
+[Node.js](https://nodejs.org) must be installed to be able to use LinguistJS.
+
 LinguistJS is available [on npm](https://npmjs.com/package/linguist-js) as `linguist-js`.
 
 Install locally using `npm install linguist-js` and import it into your code like so:
@@ -19,15 +20,16 @@ Install locally using `npm install linguist-js` and import it into your code lik
 const linguist = require('linguist-js');
 ```
 
-Or install globally using `npm install -g linguist-js` and run using the CLI command `linguist`.
+Or install globally using `npm install -g linguist-js` and run using the CLI command `linguist` or `linguist-js`.
 
 ```
 linguist --help
+linguist-js --help
 ```
 
 ## Usage
 
-LinguistJS contains one function which analyses a given folder.
+LinguistJS contains one function which analyses a given folder or folders.
 
 As an example, take the following file structure:
 
@@ -56,7 +58,7 @@ Running LinguistJS on this folder will return the following JSON:
       "/x.pluginspec": "Ruby",
     },
     "alternatives": {
-        ".pluginspec": ["XML"],
+        "/x.pluginspec": ["XML"],
     },
   },
   "languages": {
@@ -99,7 +101,7 @@ const { files, languages, unknown } = linguist(folder, options);
 ```
 
 - `linguist(entry?, opts?)` (default export):
-  Analyse the language of all files found in a folder.
+  Analyse the language of all files found in a folder or folders.
   - `entry` (optional; string or string array):
     The folder(s) to analyse (defaults to `./`).
   - `opts` (optional; object):
@@ -143,50 +145,56 @@ const { files, languages, unknown } = linguist(folder, options);
 ### Command-line
 
 ```
-linguist --analyze [<folder>] [<...options>]
+linguist --analyze [<folders...>] [<options...>]
 linguist --help
+linguist --version
 ```
 
 - `--analyze`:
-  Analyse the language of all files found in a folder.
-  - `<folders...>`:
+  Analyse the language of all files found in a folder or folders.
+  - `[<folders...>]`:
     The folders to analyse (defaults to `./`).
-  - `--ignoredFiles <glob1> [[--ignoredFiles] <glob2> ...]`:
+  - `--ignoredFiles <globs...>`:
     A list of file path globs to ignore.
-    When specifying more than one glob, this option can either be called with multiple values given (e.g., `--ignoredFiles *.txt *.json`) or be called multiple times (e.g., `--ignoredFiles *.txt --ignoredFiles *.json`). Both ways are equivalent.
-  - `--ignoredLanguages`:
-    A list of languages to ignore.
+  - `--ignoredLanguages <languages...>`:
+    A list of languages to exclude from the output.
   - `--categories <categories...>`:
-    A list of space-delimited categories that should be displayed in the output.
+    A list of language categories that should be displayed in the output.
+	Must be one or more of `data`, `prose`, `programming`, `markup`.
   - `--childLanguages`:
-    Whether to display sub-languages instead of their parents, when possible.
+    Display sub-languages instead of their parents, when possible.
   - `--json`:
     Display the outputted language data as JSON.
   - `--tree <traversal>`:
     A dot-delimited traversal to the nested object that should be logged to the console instead of the entire output.
     Requires `--json` to be specified.
   - `--quick`:
-    Whether to skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
+    Skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false --checkModeline=false`.
   - `--offline`:
     Use pre-packaged metadata files instead of fetching them from GitHub at runtime.
   - `--keepVendored`:
-    Whether to include vendored files (auto-generated files, dependencies folder, etc).
+    Include vendored files (auto-generated files, dependencies folder, etc) in the output.
   - `--keepBinary`:
-    Whether binary files should be excluded from the output.
+    Include binary files in the output.
   - `--relativePaths`:
     Change the absolute file paths in the output to be relative to the current working directory.
   - `--checkAttributes`:
-    Force the checking of `.gitatributes` files (use alongside `--quick` to overwrite).
+    Force the checking of `.gitatributes` files.
+    Use alongside `--quick` to override it disabling this option.
   - `--checkIgnored`:
-    Force the checking of `.gitignore` files (use alongside `--quick` to overwrite).
+    Force the checking of `.gitignore` files.
+    Use alongside `--quick` to override it disabling this option.
   - `--checkHeuristics`:
-    Apply heuristics to ambiguous languages (use alongside `--quick` to overwrite).
+    Apply heuristics to ambiguous languages.
+    Use alongside `--quick` to override it disabling this option.
   - `--checkShebang`:
-    Check shebang (`#!`) lines for explicit classification (use alongside `--quick` to overwrite).
+    Check shebang (`#!`) lines for explicit classification.
+    Use alongside `--quick` to override it disabling this option.
   - `--checkModeline`:
-    Check modelines for explicit classification (use alongside `--quick` to overwrite).
+    Check modelines for explicit classification.
+    Use alongside `--quick` to override it disabling this option.
 - `--help`:
-  Display a help message.
+  Display the help message.
 - `--version`:
-  Display the current version of linguist-js.
+  Display the current installed version of LinguistJS.

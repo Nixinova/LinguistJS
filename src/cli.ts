@@ -9,7 +9,7 @@ const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), pars
 
 program
 	.name('linguist')
-	.usage('--analyze [<folder>] [<options...>]')
+	.usage('--analyze [<folders...>] [<options...>]')
 
 	.option('-a|--analyze|--analyse [folders...]', 'Analyse the languages of all files in a folder')
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
