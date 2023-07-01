@@ -41,7 +41,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Prepare list of ignored files
 	const gitignores = ignore();
 	const regexIgnores: RegExp[] = [];
-	gitignores.add('/.git');
+	gitignores.add('.git');
 	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
 	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed the `.git` folder not being ignored when analysing multiple folders ([#25](https://github.com/Nixinova/LinguistJS/issues/25)).
+
 ## 2.6.0
 *2023-06-29*
 - Add `alternatives` key to list all possible alternative language classifications for files that do not have a definite match ([#15](https://github.com/Nixinova/LinguistJS/issues/15), [#19](https://github.com/Nixinova/LinguistJS/pull/19)).
