@@ -46,7 +46,8 @@
 		"ignore": "^5.2.4",
 		"isbinaryfile": "^4.0.10 <5",
 		"js-yaml": "^4.1.0",
-		"node-cache": "^5.1.2"
+		"node-cache": "^5.1.2",
+		"walk-file-tree": "^1.0.38"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.5",

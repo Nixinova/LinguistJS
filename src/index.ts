@@ -6,7 +6,7 @@ import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
-import walk from './helpers/walk-tree';
+import { walk } from 'walk-file-tree';
 import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
 import readFile from './helpers/read-file';
 import pcre from './helpers/convert-pcre';
@@ -46,23 +46,40 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
-	const resolvedInput = input.map(path => paths.resolve(path).replace(/\\/g, '/'));
-	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const relPath = (file: string) => paths.relative(commonRoot, file).replace(/\\/g, '/');
-	const unRelPath = (file: string) => paths.resolve(commonRoot, file).replace(/\\/g, '/');
+	const normedPath = (file: string) => file.replace(/\\/g, '/');
+	const resolvedInput = input.map(path => normedPath(paths.resolve(path)));
+	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : normedPath(resolvedInput[0]));
+	const relPath = (file: string) => normedPath(paths.relative(commonRoot, file));
+	const unRelPath = (file: string) => normedPath(paths.resolve(commonRoot, file));
 
 	// Load file paths and folders
-	let files, folders;
+	let files: string[] = [];
+	let folders = new Set<string>();
 	if (useRawContent) {
 		// Uses raw file content
 		files = input;
-		folders = [''];
+		folders.add('');
 	}
 	else {
 		// Uses directory on disc
-		const data = walk(true, commonRoot, input, gitignores, regexIgnores);
-		files = data.files;
-		folders = data.folders;
+		const walkOpts = {
+			ignores(file: string) {
+				file = normedPath(file);
+				const isGitIgnored = relPath(file) ? gitignores.test(relPath(file)).ignored : false;
+				const isRegexIgnored = !!regexIgnores.find(match => file.replace('./', '').match(match));
+				return (isRegexIgnored || isGitIgnored);
+			}
+		};
+		for (const input of resolvedInput) {
+			for await (let file of walk({ ...walkOpts, directory: input })) {
+				file = normedPath(file);
+				const stat = await fs.promises.stat(file);
+				if (stat.isFile()) {
+					files.push(file);
+					folders.add(file === commonRoot ? commonRoot : file.replace(/\/[^\/]+$/, ''));
+				}
+			}
+		}
 	}
 
 	// Apply aliases
@@ -147,7 +164,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			files = files.filter(file => !regexIgnores.find(match => match.test(file)));
 		}
 		else {
-			files = gitignores.filter(files.map(relPath)).map(unRelPath);
+			const relFiles = files.map(relPath).filter(path => path.length > 0);
+			files = gitignores.filter(relFiles).map(unRelPath);
 		}
 	}
 
