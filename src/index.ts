@@ -46,10 +46,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
-	const resolvedInput = input.map(path => paths.resolve(path).replace(/\\/g, '/'));
+	const normPath = (file: string) => file.replace(/\\/g, '/');
+	const resolvedInput = input.map(path => normPath(paths.resolve(path)));
 	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const relPath = (file: string) => paths.relative(commonRoot, file).replace(/\\/g, '/');
-	const unRelPath = (file: string) => paths.resolve(commonRoot, file).replace(/\\/g, '/');
+	const localRoot = (folder: string) => folder.replace(commonRoot, '').replace(/^\//, '');
+	const relPath = (file: string) => normPath(paths.relative(commonRoot, file));
+	const unRelPath = (file: string) => normPath(paths.resolve(commonRoot, file));
+	const localPath = (file: string) => localRoot(unRelPath(file));
 
 	// Load file paths and folders
 	let files, folders;
@@ -60,7 +63,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 	else {
 		// Uses directory on disc
-		const data = walk(true, commonRoot, input, gitignores, regexIgnores);
+		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, gitignores, regexIgnores });
 		files = data.files;
 		folders = data.folders;
 	}
@@ -90,6 +93,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const customText = ignore();
 	if (!useRawContent && opts.checkAttributes) {
 		for (const folder of folders) {
+			// TODO FIX: this is absolute when only 1 path given
+			const localFilePath = (path: string) => localRoot(folder) ? localRoot(folder) + '/' + localPath(path) : path;
 
 			// Skip if folder is marked in gitattributes
 			if (relPath(folder) && gitignores.ignores(relPath(folder))) {
@@ -100,7 +105,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			const ignoresFile = paths.join(folder, '.gitignore');
 			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
 				const ignoresData = await readFile(ignoresFile);
-				gitignores.add(ignoresData);
+				const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(folder) + '/');
+				gitignores.add(localIgnoresData);
 			}
 
 			// Parse gitattributes
@@ -111,16 +117,16 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)(?!=auto)/gm);
 				for (const [_line, path, type] of contentTypeMatches) {
 					if (['text', '-binary'].includes(type)) {
-						customText.add(path);
+						customText.add(localFilePath(path));
 					}
 					if (['-text', 'binary'].includes(type)) {
-						customBinary.add(path);
+						customBinary.add(localFilePath(path));
 					}
 				}
 				// Custom vendor options
 				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
 				for (const [_line, path] of vendorMatches) {
-					gitignores.add(path);
+					gitignores.add(localFilePath(path));
 				}
 				// Custom file associations
 				const customLangMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
@@ -147,7 +153,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			files = files.filter(file => !regexIgnores.find(match => match.test(file)));
 		}
 		else {
-			files = gitignores.filter(files.map(relPath)).map(unRelPath);
+			files = gitignores.filter(files.map(localPath)).map(unRelPath);
 		}
 	}
 

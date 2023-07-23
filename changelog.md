@@ -1,7 +1,7 @@
 # Changelog
 
 ## Next
-- Fixed the `.git` folder not being ignored when analysing multiple folders ([#25](https://github.com/Nixinova/LinguistJS/issues/25)).
+- Fixed file paths not resolving properly when analysing multiple folders ([#25](https://github.com/Nixinova/LinguistJS/issues/25)).
 
 ## 2.6.0
 *2023-06-29*
@@ -21,7 +21,7 @@
 *2023-01-11*
 - Fixed gitattributes wildcards not being applied into subfolders ([#17](https://github.com/Nixinova/LinguistJS/issues/17)).
 
-# 2.5.3
+## 2.5.3
 *2022-09-03*
 - Fixed a crash occurring when parsing heuristics for `.txt` files ([#16](https://github.com/Nixinova/LinguistJS/issues/16)).
 
