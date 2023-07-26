@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added CLI option `--listFiles` to list each matching file under each language result.
+
 ## 2.6.1
 *2023-07-24*
 - Fixed file paths not resolving properly when analysing multiple folders ([#25](https://github.com/Nixinova/LinguistJS/issues/25)).

@@ -122,7 +122,7 @@ const { files, languages, unknown } = linguist(folder, options);
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
     - `offline` (boolean):
       Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
-	- `keepVendored` (boolean):
+  - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
       Does nothing when `fileContent` is set.
     - `keepBinary` (boolean):
@@ -160,14 +160,20 @@ linguist --version
     A list of languages to exclude from the output.
   - `--categories <categories...>`:
     A list of language categories that should be displayed in the output.
-	Must be one or more of `data`, `prose`, `programming`, `markup`.
+    Must be one or more of `data`, `prose`, `programming`, `markup`.
   - `--childLanguages`:
     Display sub-languages instead of their parents, when possible.
   - `--json`:
+    Only affects the CLI output.
     Display the outputted language data as JSON.
   - `--tree <traversal>`:
+    Only affects the CLI output.
     A dot-delimited traversal to the nested object that should be logged to the console instead of the entire output.
     Requires `--json` to be specified.
+  - `--listFiles`:
+    Only affects the visual CLI output.
+    List each matching file and its size under each outputted language result.
+    Does nothing if `--json` is specified.
   - `--quick`:
     Skip the checking of `.gitattributes` and `.gitignore` files for manual language classifications.
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false --checkModeline=false`.
