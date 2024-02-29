@@ -165,7 +165,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 		// Set parent to result group if it is present
 		// Is nullish if either `opts.childLanguages` is set or if there is no group
-		const finalResult = !opts.childLanguages && result && langData[result].group || result;
+		const finalResult = !opts.childLanguages && result && langData[result] && langData[result].group || result;
 		if (!fileAssociations[file].includes(finalResult))
 			fileAssociations[file].push(finalResult);
 		extensions[file] = paths.extname(file).toLowerCase();
