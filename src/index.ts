@@ -129,15 +129,24 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		const overriddenExcludedFiles = excludedFiles.filter(file => vendorOverrides.ignores(relPath(file)));
 		files.push(...overriddenExcludedFiles);
 		// Remove files explicitly marked as vendored in gitattributes
+		// TODO change globs.includes(file) to parse the glob using ignore()
 		files = files.filter(file => !vendorTrueGlobs.includes(relPath(file)));
 	}
 
 	// Filter out binary files
-	// TODO FIX doesnt work
 	if (!opts.keepBinary) {
+		// Filter out files that are binary by default
+		files = files.filter(file => !binaryData.some(ext => file.endsWith('.' + ext)));
+		// Filter out manually specified binary files
 		const binaryIgnored = ignore();
 		binaryIgnored.add(getFlaggedGlobs('binary', true));
 		files = binaryIgnored.filter(files.map(relPath)).map(unRelPath);
+		// Re-add files manually marked not as binary
+		const binaryUnignored = ignore();
+		binaryUnignored.add(getFlaggedGlobs('binary', false));
+		// TODO parse the globs using ignore()
+		const unignoredList = binaryUnignored.filter(files.map(relPath)).map(unRelPath);
+		files.push(...unignoredList);
 	}
 
 	// Ignore specific languages
@@ -278,6 +287,11 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			continue;
 		}
 
+		// Skip binary files
+		if (!useRawContent && !opts.keepBinary) {
+			if (await isBinaryFile(file)) continue;
+		}
+
 		// Parse heuristics if applicable
 		if (opts.checkHeuristics) for (const heuristics of heuristicsData.disambiguations) {
 			// Make sure the extension matches the current file
@@ -311,8 +325,10 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 				// Check file contents and apply heuristic patterns
 				const fileContent = opts.fileContent?.length ? opts.fileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
+
 				// Skip if file read errors
 				if (fileContent === null) continue;
+
 				// Apply heuristics
 				if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
 					results.files.results[file] = heuristic.language;
