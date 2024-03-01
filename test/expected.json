@@ -6,6 +6,7 @@
 			"~/al.al": "Perl",
 			"~/alternatives.asc": "AGS Script",
 			"~/file.txt": "JavaScript",
+			"~/folder/file.txt": "JavaScript",
 			"~/folder/sub.txt": "Text",
 			"~/hashbang": "JavaScript",
 			"~/modeline.txt": "C++",

@@ -19,7 +19,17 @@ async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
 async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
 	const useRawContent = opts.fileContent !== undefined;
 	input = [input ?? []].flat();
-	opts.fileContent = [opts.fileContent ?? []].flat();
+
+	// Normalise input option arguments
+	opts = {
+		checkIgnored: !opts.quick,
+		checkAttributes: !opts.quick,
+		checkHeuristics: !opts.quick,
+		checkShebang: !opts.quick,
+		checkModeline: !opts.quick,
+		fileContent: [opts.fileContent ?? []].flat(),
+		...opts,
+	};
 
 	// Load data from github-linguist web repo
 	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(yaml.load);
@@ -123,21 +133,12 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 
 	// Filter out binary files
+	// TODO FIX doesnt work
 	if (!opts.keepBinary) {
 		const binaryIgnored = ignore();
 		binaryIgnored.add(getFlaggedGlobs('binary', true));
 		files = binaryIgnored.filter(files.map(relPath)).map(unRelPath);
 	}
-
-	// Apply aliases
-	opts = {
-		checkIgnored: !opts.quick,
-		checkAttributes: !opts.quick,
-		checkHeuristics: !opts.quick,
-		checkShebang: !opts.quick,
-		checkModeline: !opts.quick,
-		...opts,
-	};
 
 	// Ignore specific languages
 	for (const lang of opts.ignoredLanguages ?? []) {
@@ -148,8 +149,6 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			}
 		}
 	}
-
-	// TODO: FIX linguist-language=
 
 	// Establish language overrides taken from gitattributes
 	const forcedLangs = Object.entries(manualAttributes).filter(([, attrs]) => attrs.language);
@@ -182,11 +181,19 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			fileAssociations[file].push(finalResult);
 		extensions[file] = paths.extname(file).toLowerCase();
 	};
-	const overridesArray = Object.entries(overrides);
+
 	// List all languages that could be associated with a given file
 	const definiteness: Record<T.FilePath, true | undefined> = {};
 	const fromShebang: Record<T.FilePath, true | undefined> = {};
 	for (const file of files) {
+		// Check manual override
+		if (file in overrides) {
+			addResult(file, overrides[file]);
+			definiteness[file] = true;
+			continue;
+		}
+
+		// Check first line for readability
 		let firstLine: string | null;
 		if (useRawContent) {
 			firstLine = opts.fileContent?.[files.indexOf(file)]?.split('\n')[0] ?? null;
@@ -195,8 +202,10 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 			firstLine = await readFile(file, true).catch(() => null);
 		}
 		else continue;
+
 		// Skip if file is unreadable
 		if (firstLine === null) continue;
+
 		// Check first line for explicit classification
 		const hasShebang = opts.checkShebang && /^#!/.test(firstLine);
 		const hasModeline = opts.checkModeline && /-\*-|(syntax|filetype|ft)\s*=/.test(firstLine);
@@ -226,17 +235,6 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				if (matches.length === 1)
 					definiteness[file] = true;
 				fromShebang[file] = true;
-				continue;
-			}
-		}
-		// Check override for manual language classification
-		if (!useRawContent && !opts.quick && opts.checkAttributes) {
-			const isOverridden = (path: string) => ignore().add(path).ignores(relPath(file));
-			const match = overridesArray.find(item => isOverridden(item[0]));
-			if (match) {
-				const forcedLang = match[1];
-				addResult(file, forcedLang);
-				definiteness[file] = true;
 				continue;
 			}
 		}
