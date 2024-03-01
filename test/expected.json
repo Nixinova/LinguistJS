@@ -1,7 +1,7 @@
 {
 	"files": {
-		"count": 9,
-		"bytes": 61,
+		"count": 10,
+		"bytes": 65,
 		"results": {
 			"~/al.al": "Perl",
 			"~/alternatives.asc": "AGS Script",
@@ -10,6 +10,7 @@
 			"~/folder/sub.txt": "Text",
 			"~/hashbang": "JavaScript",
 			"~/modeline.txt": "C++",
+			"~/package-lock.json": "JSON",
 			"~/Pipfile": "TOML",
 			"~/unknown": null
 		},
@@ -18,12 +19,17 @@
 		}
 	},
 	"languages": {
-		"count": 6,
-		"bytes": 52,
+		"count": 7,
+		"bytes": 56,
 		"results": {
 			"Perl": { "type": "programming", "bytes": 0, "color": "#0298c3" },
 			"AGS Script": { "type": "programming", "bytes": 14, "color": "#B9D9FF" },
 			"JavaScript": { "type": "programming", "bytes": 23, "color": "#f1e05a" },
+			"JSON": {
+				"type": "data",
+				"bytes": 4,
+				"color": "#292929"
+			},
 			"Text": { "type": "prose", "bytes": 0 },
 			"C++": { "type": "programming", "bytes": 15, "color": "#f34b7d" },
 			"TOML": { "type": "data", "bytes": 0, "color": "#9c4221" }
