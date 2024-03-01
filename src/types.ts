@@ -5,6 +5,11 @@ export type FilePath = string
 export type Bytes = Integer
 export type Integer = number
 
+export type RelFile = string & {}
+export type AbsFile = string & {}
+export type AbsFolder = string & {}
+export type FileGlob = string & {}
+
 export interface Options {
 	fileContent?: string | string[]
 	ignoredFiles?: string[]

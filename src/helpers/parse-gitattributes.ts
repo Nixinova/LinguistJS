@@ -11,7 +11,7 @@ export type FlagAttributes = {
 };
 
 export type ParsedGitattributes = Array<{
-	glob: string,
+	glob: T.FileGlob,
 	attrs: FlagAttributes,
 }>;
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import paths from 'path';
 import yaml from 'js-yaml';
-import ignore from 'ignore';
+import ignore, { Ignore } from 'ignore';
 import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
@@ -40,27 +40,29 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
 	// Setup main variables
-	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
-	const extensions: Record<T.FilePath, string> = {};
-	const globOverrides: Record<T.FilePath, T.LanguageResult> = {};
+	const fileAssociations: Record<T.AbsFile, T.LanguageResult[]> = {};
+	const extensions: Record<T.AbsFile, string> = {};
+	const globOverrides: Record<T.AbsFile, T.LanguageResult> = {};
 	const results: T.Results = {
 		files: { count: 0, bytes: 0, results: {}, alternatives: {} },
 		languages: { count: 0, bytes: 0, results: {} },
 		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
 	};
 
-	//*PREPARE FILES AND DATA*//
-
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
 	const normPath = (file: string) => file.replace(/\\/g, '/');
 	const resolvedInput = input.map(path => normPath(paths.resolve(path)));
 	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const localRoot = (folder: string) => folder.replace(commonRoot, '').replace(/^\//, '');
-	const relPath = (file: string) => normPath(paths.relative(commonRoot, file));
-	const unRelPath = (file: string) => normPath(paths.resolve(commonRoot, file));
-	const localPath = (file: string) => localRoot(unRelPath(file));
+	const localRoot = (folder: T.AbsFile): T.RelFile => folder.replace(commonRoot, '').replace(/^\//, '');
+	const relPath = (file: T.AbsFile): T.RelFile => normPath(paths.relative(commonRoot, file));
+	const unRelPath = (file: T.RelFile): T.AbsFile => normPath(paths.resolve(commonRoot, file));
+	const localPath = (file: T.RelFile): T.RelFile => localRoot(unRelPath(file));
 
-	const fileMatchesGlobs = (file: string, ...globs: string[]) => ignore().add(globs).ignores(relPath(file));
+	// Other helper functions
+	const fileMatchesGlobs = (file: T.AbsFile, ...globs: T.FileGlob[]) => ignore().add(globs).ignores(relPath(file));
+	const filterOutIgnored = (files: T.AbsFile[], ignored: Ignore): T.AbsFile[] => ignored.filter(files.map(relPath)).map(unRelPath);
+
+	//*PREPARE FILES AND DATA*//
 
 	// Prepare list of ignored files
 	const ignored = ignore();
@@ -70,8 +72,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
 
 	// Load file paths and folders
-	let files: string[];
-	let folders: string[];
+	let files: T.AbsFile[];
+	let folders: T.AbsFolder[];
 	if (useRawContent) {
 		// Uses raw file content
 		files = input;
@@ -86,6 +88,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Load gitignore data and apply ignores rules
 	if (!useRawContent) {
+		// TODO switch to be like the gitattributes code
 		for (const folder of folders) {
 			// Parse gitignores
 			const ignoresFile = paths.join(folder, '.gitignore');
@@ -93,13 +96,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				const ignoresData = await readFile(ignoresFile);
 				const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(folder) + '/');
 				ignored.add(localIgnoresData);
-				files = ignored.filter(files.map(relPath)).map(unRelPath);
+				files = filterOutIgnored(files, ignored);
 			}
 		}
 	}
 
 	// Fetch and normalise gitattributes data of all subfolders and save to metadata
-	const manualAttributes: Record<T.FilePath, FlagAttributes> = {}; // Maps file globs to gitattribute boolean flags
+	const manualAttributes: Record<T.FileGlob, FlagAttributes> = {}; // Maps file globs to gitattribute boolean flags
 	const getFlaggedGlobs = (attr: keyof FlagAttributes, val: boolean) => {
 		return Object.entries(manualAttributes).filter(([, attrs]) => attrs[attr] === val).map(([glob,]) => glob)
 	};
@@ -122,8 +125,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		const vendorTrueGlobs = [...getFlaggedGlobs('vendored', true), ...getFlaggedGlobs('generated', true), ...getFlaggedGlobs('documentation', true)];
 		const vendorFalseGlobs = [...getFlaggedGlobs('vendored', false), ...getFlaggedGlobs('generated', false), ...getFlaggedGlobs('documentation', false)];
 		// Set up glob ignore object to use for expanding globs to match files
-		const vendorOverrides = ignore();
-		vendorOverrides.add(vendorFalseGlobs);
+		const vendorOverrides = ignore().add(vendorFalseGlobs);
 		// Remove all files marked as vendored by default
 		const excludedFiles = files.filter(file => vendorPaths.some(vPath => RegExp(vPath).test(relPath(file))));
 		files = files.filter(file => !excludedFiles.includes(file));
@@ -140,14 +142,12 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Filter out files that are binary by default
 		files = files.filter(file => !binaryData.some(ext => file.endsWith('.' + ext)));
 		// Filter out manually specified binary files
-		const binaryIgnored = ignore();
-		binaryIgnored.add(getFlaggedGlobs('binary', true));
-		files = binaryIgnored.filter(files.map(relPath)).map(unRelPath);
+		const binaryIgnored = ignore().add(getFlaggedGlobs('binary', true));
+		files = filterOutIgnored(files, binaryIgnored);
 		// Re-add files manually marked not as binary
-		const binaryUnignored = ignore();
-		binaryUnignored.add(getFlaggedGlobs('binary', false));
+		const binaryUnignored = ignore().add(getFlaggedGlobs('binary', false));
 		// TODO parse the globs using ignore()
-		const unignoredList = binaryUnignored.filter(files.map(relPath)).map(unRelPath);
+		const unignoredList = filterOutIgnored(files, binaryUnignored);
 		files.push(...unignoredList);
 	}
 
@@ -163,7 +163,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Establish language overrides taken from gitattributes
 	const forcedLangs = Object.entries(manualAttributes).filter(([, attrs]) => attrs.language);
-	for (const [path, attrs] of forcedLangs) {
+	for (const [globPath, attrs] of forcedLangs) {
 		let forcedLang = attrs.language;
 		if (!forcedLang) continue;
 
@@ -174,13 +174,13 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				forcedLang = overrideLang[0];
 			}
 		}
-		globOverrides[path] = forcedLang;
+		globOverrides[globPath] = forcedLang;
 	}
 
 	//*PARSE LANGUAGES*//
 
 	// Load all files and parse languages
-	const addResult = (file: string, result: T.LanguageResult) => {
+	const addResult = (file: T.AbsFile, result: T.LanguageResult) => {
 		if (!fileAssociations[file]) {
 			fileAssociations[file] = [];
 			extensions[file] = '';
@@ -188,19 +188,19 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Set parent to result group if it is present
 		// Is nullish if either `opts.childLanguages` is set or if there is no group
 		const finalResult = !opts.childLanguages && result && langData[result] && langData[result].group || result;
-		if (!fileAssociations[file].includes(finalResult))
+		if (!fileAssociations[file].includes(finalResult)) {
 			fileAssociations[file].push(finalResult);
+		}
 		extensions[file] = paths.extname(file).toLowerCase();
 	};
 
 	// List all languages that could be associated with a given file
-	const definiteness: Record<T.FilePath, true | undefined> = {};
-	const fromShebang: Record<T.FilePath, true | undefined> = {};
+	const definiteness: Record<T.AbsFile, true | undefined> = {};
+	const fromShebang: Record<T.AbsFile, true | undefined> = {};
 	fileLoop:
 	for (const file of files) {
 		// Check manual override
 		for (const globMatch in globOverrides) {
-			// TODO apply this logic (gitattributes lines being globs not relative file paths) to rest of code
 			if (!fileMatchesGlobs(file, globMatch)) continue;
 
 			// If the given file matches the glob, apply the override to the file
@@ -381,7 +381,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	// Convert paths to relative
 	if (!useRawContent && opts.relativePaths) {
-		const newMap: Record<T.FilePath, T.LanguageResult> = {};
+		const newMap: Record<T.RelFile, T.LanguageResult> = {};
 		for (const [file, lang] of Object.entries(results.files.results)) {
 			let relPath = paths.relative(process.cwd(), file).replace(/\\/g, '/');
 			if (!relPath.startsWith('../')) {
