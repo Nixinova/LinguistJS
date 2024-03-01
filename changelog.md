@@ -1,9 +1,9 @@
 # Changelog
 
-## Next
+### 2.7.0-pre
 - Added CLI option `--listFiles` to list each matching file under each language result.
-- TODO
-- Fixed files that are by default marked vendored being removed even when marked as not vendored in gitattributes.
+- Fixed files that are by default marked vendored being removed even when marked as not vendored in gitattributes ([#26](https://github.com/Nixinova/LinguistJS/issues/26)).
+- Fixed a crash occurring when applying some language parents ([#27](https://github.com/Nixinova/LinguistJS/issues/27)).
 - Fixed gitattributes rules from parent folders being erroneously applied.
 
 ## 2.6.1
