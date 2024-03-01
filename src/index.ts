@@ -9,6 +9,7 @@ import { isBinaryFile } from 'isbinaryfile';
 import walk from './helpers/walk-tree';
 import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
 import readFile from './helpers/read-file';
+import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes';
 import pcre from './helpers/convert-pcre';
 import * as T from './types';
 import * as S from './schema';
@@ -38,12 +39,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
 	};
 
-	// Prepare list of ignored files
-	const gitignores = ignore();
-	const regexIgnores: RegExp[] = [];
-	gitignores.add('.git');
-	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
-	if (opts.ignoredFiles) gitignores.add(opts.ignoredFiles);
+	//*PREPARE FILES AND DATA*//
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
 	const normPath = (file: string) => file.replace(/\\/g, '/');
@@ -54,8 +50,16 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const unRelPath = (file: string) => normPath(paths.resolve(commonRoot, file));
 	const localPath = (file: string) => localRoot(unRelPath(file));
 
+	// Prepare list of ignored files
+	const ignored = ignore();
+	ignored.add('.git/');
+	ignored.add(opts.ignoredFiles ?? []);
+	const regexIgnores: RegExp[] = [];
+	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
+
 	// Load file paths and folders
-	let files, folders;
+	let files: string[];
+	let folders: string[];
 	if (useRawContent) {
 		// Uses raw file content
 		files = input;
@@ -63,9 +67,66 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	}
 	else {
 		// Uses directory on disc
-		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, gitignores, regexIgnores });
+		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
 		files = data.files;
 		folders = data.folders;
+	}
+
+	// Load gitignore data and apply ignores rules
+	if (!useRawContent) {
+		for (const folder of folders) {
+			// Parse gitignores
+			const ignoresFile = paths.join(folder, '.gitignore');
+			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
+				const ignoresData = await readFile(ignoresFile);
+				const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(folder) + '/');
+				ignored.add(localIgnoresData);
+				files = ignored.filter(files.map(relPath)).map(unRelPath);
+			}
+		}
+	}
+
+	// Fetch and normalise gitattributes data of all subfolders and save to metadata
+	const manualAttributes: Record<T.FilePath, FlagAttributes> = {}; // Maps file globs to gitattribute boolean flags
+	const getFlaggedGlobs = (attr: keyof FlagAttributes, val: boolean) => {
+		return Object.entries(manualAttributes).filter(([, attrs]) => attrs[attr] === val).map(([glob,]) => glob)
+	};
+	if (!useRawContent && opts.checkAttributes) {
+		const nestedAttrFiles = files.filter(file => file.endsWith('.gitattributes'));
+		for (const attrFile of nestedAttrFiles) {
+			const relAttrFile = relPath(attrFile);
+			const relAttrFolder = paths.dirname(relAttrFile);
+			const contents = await readFile(attrFile);
+			const parsed = parseAttributes(contents, relAttrFolder);
+			for (const { glob, attrs } of parsed) {
+				manualAttributes[glob] = attrs;
+			}
+		}
+	}
+
+	// Apply vendor file path matches and filter out vendored files
+	if (!opts.keepVendored) {
+		// Get data of files that have been manually marked with metadata
+		const vendorTrueGlobs = [...getFlaggedGlobs('vendored', true), ...getFlaggedGlobs('generated', true), ...getFlaggedGlobs('documentation', true)];
+		const vendorFalseGlobs = [...getFlaggedGlobs('vendored', false), ...getFlaggedGlobs('generated', false), ...getFlaggedGlobs('documentation', false)];
+		// Set up glob ignore object to use for expanding globs to match files
+		const vendorOverrides = ignore();
+		vendorOverrides.add(vendorFalseGlobs);
+		// Remove all files marked as vendored by default
+		const excludedFiles = files.filter(file => vendorPaths.some(vPath => RegExp(vPath).test(relPath(file))));
+		files = files.filter(file => !excludedFiles.includes(file));
+		// Re-add removed files that are overridden manually in gitattributes
+		const overriddenExcludedFiles = excludedFiles.filter(file => vendorOverrides.ignores(relPath(file)));
+		files.push(...overriddenExcludedFiles);
+		// Remove files explicitly marked as vendored in gitattributes
+		files = files.filter(file => !vendorTrueGlobs.includes(relPath(file)));
+	}
+
+	// Filter out binary files
+	if (!opts.keepBinary) {
+		const binaryIgnored = ignore();
+		binaryIgnored.add(getFlaggedGlobs('binary', true));
+		files = binaryIgnored.filter(files.map(relPath)).map(unRelPath);
 	}
 
 	// Apply aliases
@@ -75,7 +136,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		checkHeuristics: !opts.quick,
 		checkShebang: !opts.quick,
 		checkModeline: !opts.quick,
-		...opts
+		...opts,
 	};
 
 	// Ignore specific languages
@@ -88,74 +149,25 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		}
 	}
 
-	// Load gitignores and gitattributes
-	const customBinary = ignore();
-	const customText = ignore();
-	if (!useRawContent && opts.checkAttributes) {
-		for (const folder of folders) {
-			// TODO FIX: this is absolute when only 1 path given
-			const localFilePath = (path: string) => localRoot(folder) ? localRoot(folder) + '/' + localPath(path) : path;
+	// TODO: FIX linguist-language=
 
-			// Skip if folder is marked in gitattributes
-			if (relPath(folder) && gitignores.ignores(relPath(folder))) {
-				continue;
+	// Establish language overrides taken from gitattributes
+	const forcedLangs = Object.entries(manualAttributes).filter(([, attrs]) => attrs.language);
+	for (const [path, attrs] of forcedLangs) {
+		let forcedLang = attrs.language;
+		if (!forcedLang) continue;
+
+		// If specified language is an alias, associate it with its full name
+		if (!langData[forcedLang]) {
+			const overrideLang = Object.entries(langData).find(entry => entry[1].aliases?.includes(forcedLang!.toLowerCase()));
+			if (overrideLang) {
+				forcedLang = overrideLang[0];
 			}
-
-			// Parse gitignores
-			const ignoresFile = paths.join(folder, '.gitignore');
-			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
-				const ignoresData = await readFile(ignoresFile);
-				const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(folder) + '/');
-				gitignores.add(localIgnoresData);
-			}
-
-			// Parse gitattributes
-			const attributesFile = paths.join(folder, '.gitattributes');
-			if (opts.checkAttributes && fs.existsSync(attributesFile)) {
-				const attributesData = await readFile(attributesFile);
-				// Explicit text/binary associations
-				const contentTypeMatches = attributesData.matchAll(/^(\S+).*?(-?binary|-?text)(?!=auto)/gm);
-				for (const [_line, path, type] of contentTypeMatches) {
-					if (['text', '-binary'].includes(type)) {
-						customText.add(localFilePath(path));
-					}
-					if (['-text', 'binary'].includes(type)) {
-						customBinary.add(localFilePath(path));
-					}
-				}
-				// Custom vendor options
-				const vendorMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-(vendored|generated|documentation)(?!=false)/gm);
-				for (const [_line, path] of vendorMatches) {
-					gitignores.add(localFilePath(path));
-				}
-				// Custom file associations
-				const customLangMatches = attributesData.matchAll(/^(\S+).*[^-]linguist-language=(\S+)/gm);
-				for (let [_line, path, forcedLang] of customLangMatches) {
-					// If specified language is an alias, associate it with its full name
-					if (!langData[forcedLang]) {
-						const overrideLang = Object.entries(langData).find(entry => entry[1].aliases?.includes(forcedLang.toLowerCase()));
-						if (overrideLang) {
-							forcedLang = overrideLang[0];
-						}
-					}
-					const fullPath = paths.join(relPath(folder), path);
-					overrides[fullPath] = forcedLang;
-				}
-			}
-
 		}
+		overrides[unRelPath(path)] = forcedLang;
 	}
-	// Check vendored files
-	if (!opts.keepVendored) {
-		// Filter out any files that match a vendor file path
-		if (useRawContent) {
-			files = gitignores.filter(files);
-			files = files.filter(file => !regexIgnores.find(match => match.test(file)));
-		}
-		else {
-			files = gitignores.filter(files.map(localPath)).map(unRelPath);
-		}
-	}
+
+	//*PARSE LANGUAGES*//
 
 	// Load all files and parse languages
 	const addResult = (file: string, result: T.LanguageResult) => {
@@ -266,15 +278,6 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		if (definiteness[file]) {
 			results.files.results[file] = fileAssociations[file][0];
 			continue;
-		}
-		// Skip binary files
-		if (!useRawContent && !opts.keepBinary) {
-			const isCustomText = customText.ignores(relPath(file));
-			const isCustomBinary = customBinary.ignores(relPath(file));
-			const isBinaryExt = binaryData.some(ext => file.endsWith('.' + ext));
-			if (!isCustomText && (isCustomBinary || isBinaryExt || await isBinaryFile(file))) {
-				continue;
-			}
 		}
 
 		// Parse heuristics if applicable

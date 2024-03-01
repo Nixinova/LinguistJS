@@ -2,6 +2,9 @@
 
 ## Next
 - Added CLI option `--listFiles` to list each matching file under each language result.
+- TODO
+- Fixed files that are by default marked vendored being removed even when marked as not vendored in gitattributes.
+- Fixed gitattributes rules from parent folders being erroneously applied.
 
 ## 2.6.1
 *2023-07-24*
