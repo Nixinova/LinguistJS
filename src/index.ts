@@ -126,7 +126,7 @@ async function analyse(rawInput?: string | string[], opts: T.Options = {}): Prom
 		// Set up glob ignore object to use for expanding globs to match files
 		const vendorOverrides = ignore().add(vendorFalseGlobs);
 		// Remove all files marked as vendored by default
-		const excludedFiles = files.filter(file => vendorPaths.some(vPath => RegExp(vPath).test(relPath(file))));
+		const excludedFiles = files.filter(file => vendorPaths.some(pathPtn => RegExp(pathPtn, 'i').test(relPath(file))));
 		files = files.filter(file => !excludedFiles.includes(file));
 		// Re-add removed files that are overridden manually in gitattributes
 		const overriddenExcludedFiles = excludedFiles.filter(file => vendorOverrides.ignores(relPath(file)));
