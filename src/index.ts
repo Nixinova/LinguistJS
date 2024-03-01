@@ -16,9 +16,10 @@ import * as S from './schema';
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
-async function analyse(input?: string | string[], opts: T.Options = {}): Promise<T.Results> {
+async function analyse(rawInput?: string | string[], opts: T.Options = {}): Promise<T.Results> {
 	const useRawContent = opts.fileContent !== undefined;
-	input = [input ?? []].flat();
+	const input = [rawInput ?? []].flat();
+	const manualFileContent = [opts.fileContent ?? []].flat();
 
 	// Normalise input option arguments
 	opts = {
@@ -27,7 +28,6 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		checkHeuristics: !opts.quick,
 		checkShebang: !opts.quick,
 		checkModeline: !opts.quick,
-		fileContent: [opts.fileContent ?? []].flat(),
 		...opts,
 	};
 
@@ -54,9 +54,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const resolvedInput = input.map(path => normPath(paths.resolve(path)));
 	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
 	const localRoot = (folder: T.AbsFile): T.RelFile => folder.replace(commonRoot, '').replace(/^\//, '');
-	const relPath = (file: T.AbsFile): T.RelFile => normPath(paths.relative(commonRoot, file));
-	const unRelPath = (file: T.RelFile): T.AbsFile => normPath(paths.resolve(commonRoot, file));
-	const localPath = (file: T.RelFile): T.RelFile => localRoot(unRelPath(file));
+	const relPath = (file: T.AbsFile): T.RelFile => useRawContent ? file : normPath(paths.relative(commonRoot, file));
+	const unRelPath = (file: T.RelFile): T.AbsFile => useRawContent ? file : normPath(paths.resolve(commonRoot, file));
 
 	// Other helper functions
 	const fileMatchesGlobs = (file: T.AbsFile, ...globs: T.FileGlob[]) => ignore().add(globs).ignores(relPath(file));
@@ -179,7 +178,6 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 
 	//*PARSE LANGUAGES*//
 
-	// Load all files and parse languages
 	const addResult = (file: T.AbsFile, result: T.LanguageResult) => {
 		if (!fileAssociations[file]) {
 			fileAssociations[file] = [];
@@ -194,9 +192,9 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		extensions[file] = paths.extname(file).toLowerCase();
 	};
 
-	// List all languages that could be associated with a given file
 	const definiteness: Record<T.AbsFile, true | undefined> = {};
 	const fromShebang: Record<T.AbsFile, true | undefined> = {};
+
 	fileLoop:
 	for (const file of files) {
 		// Check manual override
@@ -213,14 +211,14 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 		// Check first line for readability
 		let firstLine: string | null;
 		if (useRawContent) {
-			firstLine = opts.fileContent?.[files.indexOf(file)]?.split('\n')[0] ?? null;
+			firstLine = manualFileContent[files.indexOf(file)]?.split('\n')[0] ?? null;
 		}
 		else if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()) {
 			firstLine = await readFile(file, true).catch(() => null);
 		}
 		else continue;
 
-		// Skip if file is unreadable
+		// Skip if file is unreadable or blank
 		if (firstLine === null) continue;
 
 		// Check first line for explicit classification
@@ -332,7 +330,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				}
 
 				// Check file contents and apply heuristic patterns
-				const fileContent = opts.fileContent?.length ? opts.fileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
+				const fileContent = opts.fileContent ? manualFileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
 
 				// Skip if file read errors
 				if (fileContent === null) continue;
@@ -395,7 +393,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
-		const fileSize = opts.fileContent?.[files.indexOf(file)]?.length ?? fs.statSync(file).size;
+		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? fs.statSync(file).size;
 		results.files.bytes += fileSize;
 		// If no language found, add extension in other section
 		if (!lang) {
