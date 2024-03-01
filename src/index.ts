@@ -42,7 +42,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// Setup main variables
 	const fileAssociations: Record<T.FilePath, T.LanguageResult[]> = {};
 	const extensions: Record<T.FilePath, string> = {};
-	const overrides: Record<T.FilePath, T.LanguageResult> = {};
+	const globOverrides: Record<T.FilePath, T.LanguageResult> = {};
 	const results: T.Results = {
 		files: { count: 0, bytes: 0, results: {}, alternatives: {} },
 		languages: { count: 0, bytes: 0, results: {} },
@@ -59,6 +59,8 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	const relPath = (file: string) => normPath(paths.relative(commonRoot, file));
 	const unRelPath = (file: string) => normPath(paths.resolve(commonRoot, file));
 	const localPath = (file: string) => localRoot(unRelPath(file));
+
+	const fileMatchesGlobs = (file: string, ...globs: string[]) => ignore().add(globs).ignores(relPath(file));
 
 	// Prepare list of ignored files
 	const ignored = ignore();
@@ -172,7 +174,7 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 				forcedLang = overrideLang[0];
 			}
 		}
-		overrides[unRelPath(path)] = forcedLang;
+		globOverrides[path] = forcedLang;
 	}
 
 	//*PARSE LANGUAGES*//
@@ -194,12 +196,18 @@ async function analyse(input?: string | string[], opts: T.Options = {}): Promise
 	// List all languages that could be associated with a given file
 	const definiteness: Record<T.FilePath, true | undefined> = {};
 	const fromShebang: Record<T.FilePath, true | undefined> = {};
+	fileLoop:
 	for (const file of files) {
 		// Check manual override
-		if (file in overrides) {
-			addResult(file, overrides[file]);
+		for (const globMatch in globOverrides) {
+			// TODO apply this logic (gitattributes lines being globs not relative file paths) to rest of code
+			if (!fileMatchesGlobs(file, globMatch)) continue;
+
+			// If the given file matches the glob, apply the override to the file
+			const forcedLang = globOverrides[globMatch];
+			addResult(file, forcedLang);
 			definiteness[file] = true;
-			continue;
+			continue fileLoop; // no need to check other heuristics, the classified language has been found
 		}
 
 		// Check first line for readability
