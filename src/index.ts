@@ -92,8 +92,13 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			const relFile = relPath(ignoresFile);
 			const relFolder = paths.dirname(relFile);
 			// Parse gitignores
-			const ignoresData = await readFile(ignoresFile);
-			const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(relFolder) + '/');
+			const ignoresDataRaw = await readFile(ignoresFile);
+			const ignoresData = ignoresDataRaw.replace(/#.+|\s+$/gm, '');
+			const localIgnoresData = ignoresData
+				// '.file' -> '/root/*/.file'
+				.replace(/^(?=[^\s\/\\])/gm, localRoot(relFolder) + '/*/')
+				// '/folder' -> '/root/folder'
+				.replace(/^[\/\\]/gm, localRoot(relFolder) + '/')
 			ignored.add(localIgnoresData);
 			files = filterOutIgnored(files, ignored);
 		}

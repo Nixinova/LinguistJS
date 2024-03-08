@@ -1,7 +1,9 @@
 # Changelog
 
 ## Next
+*From pre-release:*
 - Fixed gitattributes comments being parsed as attributes data.
+- Fixed gitignores data being parsed root-relative instead of relative to the folder the file is in.
 
 ### 2.7.0-pre
 - Added CLI option `--listFiles` to list each matching file under each language result.
