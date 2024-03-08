@@ -21,7 +21,8 @@ export type ParsedGitattributes = Array<{
 export default function parseAttributes(content: string, folderRoot: string = '.'): ParsedGitattributes {
 	const output: ParsedGitattributes = [];
 
-	for (const line of content.split('\n')) {
+	for (const rawLine of content.split('\n')) {
+		const line = rawLine.replace(/#.*$/, '').trim();
 		if (!line) continue;
 
 		const parts = line.split(/\s+/g);

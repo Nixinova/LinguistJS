@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed gitattributes comments being parsed as attributes data.
+
 ### 2.7.0-pre
 - Added CLI option `--listFiles` to list each matching file under each language result.
 - Fixed files that are by default marked vendored being removed even when marked as not vendored in gitattributes ([#26](https://github.com/Nixinova/LinguistJS/issues/26)).
