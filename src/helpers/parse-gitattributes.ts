@@ -22,7 +22,7 @@ export default function parseAttributes(content: string, folderRoot: string = '.
 	const output: ParsedGitattributes = [];
 
 	for (const rawLine of content.split('\n')) {
-		const line = rawLine.replace(/#.*$/, '').trim();
+		const line = rawLine.replace(/#.*/, '').trim();
 		if (!line) continue;
 
 		const parts = line.split(/\s+/g);
