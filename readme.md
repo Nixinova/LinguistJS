@@ -95,9 +95,17 @@ Running LinguistJS on this folder will return the following JSON:
 
 ```js
 const linguist = require('linguist-js');
-let folder = './src';
-let options = { keepVendored: false, quick: false };
-const { files, languages, unknown } = linguist(folder, options);
+
+// Analyse folder on disc
+const folder = './src';
+const options = { keepVendored: false, quick: false };
+const { files, languages, unknown } = await linguist(folder, options);
+
+// Analyse file content from raw input
+const fileNames = ['file1.ts', 'file2.ts', 'ignoreme.js'];
+const fileContent = ['#!/usr/bin/env node', 'console.log("Example");', '"ignored"'];
+const options = { ignoredFiles: ['ignore*'] };
+const { files, languages, unknown } = await linguist(fileNames, { fileContent, ...options });
 ```
 
 - `linguist(entry?, opts?)` (default export):
@@ -122,7 +130,7 @@ const { files, languages, unknown } = linguist(folder, options);
       Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
     - `offline` (boolean):
       Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
-  - `keepVendored` (boolean):
+    - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
       Does nothing when `fileContent` is set.
     - `keepBinary` (boolean):
