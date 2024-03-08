@@ -1,11 +1,14 @@
 # Changelog
 
-## Next
-*From pre-release:*
+## 2.7.0
+
+### 2.7.0 (RC)
+*2024-03-09*
 - Fixed gitattributes comments being parsed as attributes data.
 - Fixed gitignores data being parsed root-relative instead of relative to the folder the file is in.
 
 ### 2.7.0-pre
+*2024-03-02*
 - Added CLI option `--listFiles` to list each matching file under each language result.
 - Fixed files that are by default marked vendored being removed even when marked as not vendored in gitattributes ([#26](https://github.com/Nixinova/LinguistJS/issues/26)).
 - Fixed a crash occurring when applying some language parents ([#27](https://github.com/Nixinova/LinguistJS/issues/27)).
