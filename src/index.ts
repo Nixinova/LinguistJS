@@ -89,17 +89,17 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	if (!useRawContent && opts.checkIgnored) {
 		const nestedIgnoreFiles = files.filter(file => file.endsWith('.gitignore'));
 		for (const ignoresFile of nestedIgnoreFiles) {
-			const relFile = relPath(ignoresFile);
-			const relFolder = paths.dirname(relFile);
+			const relIgnoresFile = relPath(ignoresFile);
+			const relIgnoresFolder = paths.dirname(relIgnoresFile);
 			// Parse gitignores
 			const ignoresDataRaw = await readFile(ignoresFile);
 			const ignoresData = ignoresDataRaw.replace(/#.+|\s+$/gm, '');
-			const localIgnoresData = ignoresData
-				// '.file' -> '/root/*/.file'
-				.replace(/^(?=[^\s\/\\])/gm, localRoot(relFolder) + '/*/')
-				// '/folder' -> '/root/folder'
-				.replace(/^[\/\\]/gm, localRoot(relFolder) + '/')
-			ignored.add(localIgnoresData);
+			const absoluteIgnoresData = ignoresData
+				// '.file' -> 'root/*/.file'
+				.replace(/^(?=[^\s\/\\])/gm, localRoot(relIgnoresFolder) + '/*/')
+				// '/folder' -> 'root/folder'
+				.replace(/^[\/\\]/gm, localRoot(relIgnoresFolder) + '/')
+			ignored.add(absoluteIgnoresData);
 			files = filterOutIgnored(files, ignored);
 		}
 	}
