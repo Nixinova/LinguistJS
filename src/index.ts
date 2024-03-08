@@ -16,9 +16,9 @@ import * as S from './schema';
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
-async function analyse(rawInput?: string | string[], opts: T.Options = {}): Promise<T.Results> {
+async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Promise<T.Results> {
 	const useRawContent = opts.fileContent !== undefined;
-	const input = [rawInput ?? []].flat();
+	const input = [rawPaths ?? []].flat();
 	const manualFileContent = [opts.fileContent ?? []].flat();
 
 	// Normalise input option arguments
@@ -123,16 +123,16 @@ async function analyse(rawInput?: string | string[], opts: T.Options = {}): Prom
 		const vendorTrueGlobs = [...getFlaggedGlobs('vendored', true), ...getFlaggedGlobs('generated', true), ...getFlaggedGlobs('documentation', true)];
 		const vendorFalseGlobs = [...getFlaggedGlobs('vendored', false), ...getFlaggedGlobs('generated', false), ...getFlaggedGlobs('documentation', false)];
 		// Set up glob ignore object to use for expanding globs to match files
-		const vendorOverrides = ignore().add(vendorFalseGlobs);
+		const vendorTrueIgnore = ignore().add(vendorTrueGlobs);
+		const vendorFalseIgnore = ignore().add(vendorFalseGlobs);
 		// Remove all files marked as vendored by default
 		const excludedFiles = files.filter(file => vendorPaths.some(pathPtn => RegExp(pathPtn, 'i').test(relPath(file))));
 		files = files.filter(file => !excludedFiles.includes(file));
 		// Re-add removed files that are overridden manually in gitattributes
-		const overriddenExcludedFiles = excludedFiles.filter(file => vendorOverrides.ignores(relPath(file)));
+		const overriddenExcludedFiles = excludedFiles.filter(file => vendorFalseIgnore.ignores(relPath(file)));
 		files.push(...overriddenExcludedFiles);
 		// Remove files explicitly marked as vendored in gitattributes
-		// TODO change globs.includes(file) to parse the glob using ignore()
-		files = files.filter(file => !vendorTrueGlobs.includes(relPath(file)));
+		files = files.filter(file => !vendorTrueIgnore.ignores(relPath(file)));
 	}
 
 	// Filter out binary files
@@ -144,7 +144,6 @@ async function analyse(rawInput?: string | string[], opts: T.Options = {}): Prom
 		files = filterOutIgnored(files, binaryIgnored);
 		// Re-add files manually marked not as binary
 		const binaryUnignored = ignore().add(getFlaggedGlobs('binary', false));
-		// TODO parse the globs using ignore()
 		const unignoredList = filterOutIgnored(files, binaryUnignored);
 		files.push(...unignoredList);
 	}
