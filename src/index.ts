@@ -86,17 +86,16 @@ async function analyse(rawInput?: string | string[], opts: T.Options = {}): Prom
 	}
 
 	// Load gitignore data and apply ignores rules
-	if (!useRawContent) {
-		// TODO switch to be like the gitattributes code
-		for (const folder of folders) {
+	if (!useRawContent && opts.checkIgnored) {
+		const nestedIgnoreFiles = files.filter(file => file.endsWith('.gitignore'));
+		for (const ignoresFile of nestedIgnoreFiles) {
+			const relFile = relPath(ignoresFile);
+			const relFolder = paths.dirname(relFile);
 			// Parse gitignores
-			const ignoresFile = paths.join(folder, '.gitignore');
-			if (opts.checkIgnored && fs.existsSync(ignoresFile)) {
-				const ignoresData = await readFile(ignoresFile);
-				const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(folder) + '/');
-				ignored.add(localIgnoresData);
-				files = filterOutIgnored(files, ignored);
-			}
+			const ignoresData = await readFile(ignoresFile);
+			const localIgnoresData = ignoresData.replace(/^[\/\\]/g, localRoot(relFolder) + '/');
+			ignored.add(localIgnoresData);
+			files = filterOutIgnored(files, ignored);
 		}
 	}
 
