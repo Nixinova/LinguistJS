@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Fixed gitignore file reading not pertaining exactly to spec.
+- Improved performance by filtering out gitignored files during folder traversal.
+
 ## 2.7.0
 
 ### 2.7.0 (RC)

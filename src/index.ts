@@ -72,36 +72,14 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 
 	// Load file paths and folders
 	let files: T.AbsFile[];
-	let folders: T.AbsFolder[];
 	if (useRawContent) {
 		// Uses raw file content
 		files = input;
-		folders = [''];
 	}
 	else {
 		// Uses directory on disc
 		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
 		files = data.files;
-		folders = data.folders;
-	}
-
-	// Load gitignore data and apply ignores rules
-	if (!useRawContent && opts.checkIgnored) {
-		const nestedIgnoreFiles = files.filter(file => file.endsWith('.gitignore'));
-		for (const ignoresFile of nestedIgnoreFiles) {
-			const relIgnoresFile = relPath(ignoresFile);
-			const relIgnoresFolder = paths.dirname(relIgnoresFile);
-			// Parse gitignores
-			const ignoresDataRaw = await readFile(ignoresFile);
-			const ignoresData = ignoresDataRaw.replace(/#.+|\s+$/gm, '');
-			const absoluteIgnoresData = ignoresData
-				// '.file' -> 'root/*/.file'
-				.replace(/^(?=[^\s\/\\])/gm, localRoot(relIgnoresFolder) + '/*/')
-				// '/folder' -> 'root/folder'
-				.replace(/^[\/\\]/gm, localRoot(relIgnoresFolder) + '/')
-			ignored.add(absoluteIgnoresData);
-			files = filterOutIgnored(files, ignored);
-		}
 	}
 
 	// Fetch and normalise gitattributes data of all subfolders and save to metadata

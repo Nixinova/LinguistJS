@@ -1,6 +1,7 @@
 import fs from 'fs';
 import paths from 'path';
 import ignore, { Ignore } from 'ignore';
+import parseGitignore from './parse-gitignore';
 
 let allFiles: Set<string>;
 let allFolders: Set<string>;
@@ -37,6 +38,7 @@ export default function walk(data: WalkInput): WalkOutput {
 	if (folders.length === 1) {
 		const folder = folders[0];
 		const localRoot = folderRoots[0].replace(commonRoot, '').replace(/^\//, '');
+
 		// Get list of files and folders inside this folder
 		const files = fs.readdirSync(folder).map(file => {
 			// Create path relative to root
@@ -45,6 +47,15 @@ export default function walk(data: WalkInput): WalkOutput {
 			const isDir = fs.lstatSync(paths.resolve(commonRoot, base)).isDirectory();
 			return isDir ? `${base}/` : base;
 		});
+
+		// Read and apply gitignores
+		const gitignoreFilename = paths.join(folder, '.gitignore');
+		if (fs.existsSync(gitignoreFilename)) {
+			const gitignoreContents = fs.readFileSync(gitignoreFilename, 'utf-8');
+			const ignoredPaths = parseGitignore(gitignoreContents);
+			ignored.add(ignoredPaths);
+		}
+
 		// Loop through files and folders
 		for (const file of files) {
 			// Create absolute path for disc operations
