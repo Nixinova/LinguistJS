@@ -67,8 +67,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	const ignored = ignore();
 	ignored.add('.git/');
 	ignored.add(opts.ignoredFiles ?? []);
-	const regexIgnores: RegExp[] = [];
-	if (!opts.keepVendored) regexIgnores.push(...vendorPaths.map(path => RegExp(path, 'i')));
+	const regexIgnores: RegExp[] = opts.keepVendored ? [] : vendorPaths.map(path => RegExp(path, 'i'));
 
 	// Load file paths and folders
 	let files: T.AbsFile[];
@@ -78,7 +77,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	}
 	else {
 		// Uses directory on disc
-		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
+		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored, regexIgnores });
 		files = data.files;
 	}
 

@@ -17,6 +17,8 @@ interface WalkInput {
 	folders: string[],
 	/** An instantiated Ignore object listing ignored files */
 	ignored: Ignore,
+	/** A list of regexes to ignore */
+	regexIgnores: RegExp[],
 };
 
 interface WalkOutput {
@@ -26,7 +28,7 @@ interface WalkOutput {
 
 /** Generate list of files in a directory. */
 export default function walk(data: WalkInput): WalkOutput {
-	const { init, commonRoot, folderRoots, folders, ignored } = data;
+	const { init, commonRoot, folderRoots, folders, ignored, regexIgnores } = data;
 
 	// Initialise files and folders lists
 	if (init) {
@@ -67,7 +69,8 @@ export default function walk(data: WalkInput): WalkOutput {
 			if (nonExistant) continue;
 			// Skip if marked as ignored
 			const isIgnored = ignored.test(localPath).ignored;
-			if (isIgnored) continue;
+			const isRegexIgnored = regexIgnores.some(pattern => pattern.test(localPath));
+			if (isIgnored || isRegexIgnored) continue;
 
 			// Add absolute folder path to list
 			allFolders.add(paths.resolve(folder).replace(/\\/g, '/'));
@@ -75,7 +78,7 @@ export default function walk(data: WalkInput): WalkOutput {
 			if (file.endsWith('/')) {
 				// Recurse into subfolders
 				allFolders.add(path);
-				walk({ init: false, commonRoot, folderRoots, folders: [path], ignored });
+				walk({ init: false, commonRoot, folderRoots, folders: [path], ignored, regexIgnores });
 			}
 			else {
 				// Add file path to list
@@ -86,7 +89,7 @@ export default function walk(data: WalkInput): WalkOutput {
 	// Recurse into all folders
 	else {
 		for (const i in folders) {
-			walk({ init: false, commonRoot, folderRoots: [folderRoots[i]], folders: [folders[i]], ignored });
+			walk({ init: false, commonRoot, folderRoots: [folderRoots[i]], folders: [folders[i]], ignored, regexIgnores });
 		}
 	}
 	// Return absolute files and folders lists
