@@ -58,6 +58,12 @@ export default function walk(data: WalkInput): WalkOutput {
 			ignored.add(ignoredPaths);
 		}
 
+		// Add gitattributes if present
+		const gitattributesPath = paths.join(folder, '.gitattributes');
+		if (fs.existsSync(gitattributesPath)) {
+			allFiles.add(gitattributesPath);
+		}
+
 		// Loop through files and folders
 		for (const file of files) {
 			// Create absolute path for disc operations
