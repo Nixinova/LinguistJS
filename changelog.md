@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 2.7.1
+*2024-05-08*
 - Fixed gitignore file reading not pertaining exactly to spec.
 - Improved performance by filtering out gitignored files during folder traversal.
 

@@ -1,6 +1,6 @@
 # ISC License
 
-Copyright &copy; Nixinova 2021&ndash;2022
+Copyright &copy; Nixinova 2021&ndash;2024
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

@@ -27,7 +27,7 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 }
 
 async function unitTest() {
-	console.info('Unit tests\n' + '-'.repeat(10));
+	console.info('-'.repeat(10) + '\nUnit tests\n' + '-'.repeat(10));
 	desc('metadata');
 	await test(['file_size', '0123456789'], ['size', 10]);
 	await test(['empty', ''], ['size', 0]);

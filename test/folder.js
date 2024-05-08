@@ -3,7 +3,7 @@ const linguist = require('..');
 const { updatedDiff } = require('deep-object-diff');
 
 async function testFolder() {
-	console.info('Folder test\n' + '-'.repeat(11));
+	console.info('-'.repeat(11) + '\nFolder test\n' + '-'.repeat(11));
 	const samplesFolder = __dirname.replace(/\\/g, '/') + '/samples';
 	const expectedJson = fs.readFileSync(__dirname + '/expected.json', { encoding: 'utf8' });
 	const expected = JSON.parse(expectedJson.replace(/~/g, samplesFolder));
