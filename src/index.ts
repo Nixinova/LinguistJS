@@ -11,6 +11,7 @@ import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
 import readFile from './helpers/read-file';
 import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes';
 import pcre from './helpers/convert-pcre';
+import { normPath } from './helpers/norm-path';
 import * as T from './types';
 import * as S from './schema';
 
@@ -50,10 +51,8 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	};
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
-	const normPath = (file: string) => file.replace(/\\/g, '/');
 	const resolvedInput = input.map(path => normPath(paths.resolve(path)));
 	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const localRoot = (folder: T.AbsFile): T.RelFile => folder.replace(commonRoot, '').replace(/^\//, '');
 	const relPath = (file: T.AbsFile): T.RelFile => useRawContent ? file : normPath(paths.relative(commonRoot, file));
 	const unRelPath = (file: T.RelFile): T.AbsFile => useRawContent ? file : normPath(paths.resolve(commonRoot, file));
 
@@ -77,7 +76,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	}
 	else {
 		// Uses directory on disc
-		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored, regexIgnores });
+		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
 		files = data.files;
 	}
 
@@ -86,6 +85,22 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	const getFlaggedGlobs = (attr: keyof FlagAttributes, val: boolean) => {
 		return Object.entries(manualAttributes).filter(([, attrs]) => attrs[attr] === val).map(([glob,]) => glob)
 	};
+	const findAttrsForPath = (filePath: string): FlagAttributes | null => {
+		const resultAttrs: Record<string, string | boolean | null> = {};
+		for (const glob in manualAttributes) {
+			if (ignore().add(glob).ignores(relPath(filePath))) {
+				const matchingAttrs = manualAttributes[glob];
+				for (const [attr, val] of Object.entries(matchingAttrs)) {
+					if (val !== null) resultAttrs[attr] = val;
+				}
+			}
+		}
+
+		if (!JSON.stringify(resultAttrs)) {
+			return null;
+		}
+		return resultAttrs as FlagAttributes;
+	}
 	if (!useRawContent && opts.checkAttributes) {
 		const nestedAttrFiles = files.filter(file => file.endsWith('.gitattributes'));
 		for (const attrFile of nestedAttrFiles) {
@@ -98,6 +113,27 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			}
 		}
 	}
+
+	// Remove files that are linguist-ignored via regex by default unless explicitly unignored in gitattributes
+	const filesToIgnore: T.AbsFile[] = [];
+	for (const file of files) {
+		const relFile = relPath(file);
+
+		const isRegexIgnored = regexIgnores.some(pattern => pattern.test(relFile));
+		if (!isRegexIgnored) {
+			// Checking overrides is moot if file is not even marked as ignored by default
+			continue;
+		}
+
+		const fileAttrs = findAttrsForPath(file);
+		if (fileAttrs?.generated === false || fileAttrs?.vendored === false) {
+			// File is explicitly marked as *not* to be ignored
+			// do nothing
+		} else {
+			filesToIgnore.push(file);
+		}
+	}
+	files = files.filter(file => !filesToIgnore.includes(file));
 
 	// Apply vendor file path matches and filter out vendored files
 	if (!opts.keepVendored) {
@@ -361,7 +397,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	if (!useRawContent && opts.relativePaths) {
 		const newMap: Record<T.RelFile, T.LanguageResult> = {};
 		for (const [file, lang] of Object.entries(results.files.results)) {
-			let relPath = paths.relative(process.cwd(), file).replace(/\\/g, '/');
+			let relPath = normPath(paths.relative(process.cwd(), file));
 			if (!relPath.startsWith('../')) {
 				relPath = './' + relPath;
 			}

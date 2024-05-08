@@ -5,6 +5,7 @@ import path from 'path';
 import { program } from 'commander';
 
 import linguist from './index';
+import { normPath } from './helpers/norm-path';
 
 const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
 const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
@@ -91,7 +92,7 @@ if (args.analyze) (async () => {
 			if (args.listFiles) {
 				console.log(); // padding
 				for (const file of filesPerLanguage[lang]) {
-					let relFile = path.relative(path.resolve('.'), file).replace(/\\/g, '/');
+					let relFile = normPath(path.relative(path.resolve('.'), file));
 					if (!relFile.startsWith('../')) relFile = './' + relFile;
 					const bytes = (await fs.promises.stat(file)).size;
 					const fmtd2 = {

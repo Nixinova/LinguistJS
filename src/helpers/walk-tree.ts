@@ -2,6 +2,7 @@ import fs from 'fs';
 import paths from 'path';
 import ignore, { Ignore } from 'ignore';
 import parseGitignore from './parse-gitignore';
+import { normPath, normAbsPath } from './norm-path';
 
 let allFiles: Set<string>;
 let allFolders: Set<string>;
@@ -17,8 +18,6 @@ interface WalkInput {
 	folders: string[],
 	/** An instantiated Ignore object listing ignored files */
 	ignored: Ignore,
-	/** A list of regexes to ignore */
-	regexIgnores: RegExp[],
 };
 
 interface WalkOutput {
@@ -28,7 +27,7 @@ interface WalkOutput {
 
 /** Generate list of files in a directory. */
 export default function walk(data: WalkInput): WalkOutput {
-	const { init, commonRoot, folderRoots, folders, ignored, regexIgnores } = data;
+	const { init, commonRoot, folderRoots, folders, ignored } = data;
 
 	// Initialise files and folders lists
 	if (init) {
@@ -44,14 +43,14 @@ export default function walk(data: WalkInput): WalkOutput {
 		// Get list of files and folders inside this folder
 		const files = fs.readdirSync(folder).map(file => {
 			// Create path relative to root
-			const base = paths.resolve(folder, file).replace(/\\/g, '/').replace(commonRoot, '.');
+			const base = normAbsPath(folder, file).replace(commonRoot, '.');
 			// Add trailing slash to mark directories
 			const isDir = fs.lstatSync(paths.resolve(commonRoot, base)).isDirectory();
 			return isDir ? `${base}/` : base;
 		});
 
 		// Read and apply gitignores
-		const gitignoreFilename = paths.join(folder, '.gitignore');
+		const gitignoreFilename = normPath(folder, '.gitignore');
 		if (fs.existsSync(gitignoreFilename)) {
 			const gitignoreContents = fs.readFileSync(gitignoreFilename, 'utf-8');
 			const ignoredPaths = parseGitignore(gitignoreContents);
@@ -59,7 +58,7 @@ export default function walk(data: WalkInput): WalkOutput {
 		}
 
 		// Add gitattributes if present
-		const gitattributesPath = paths.join(folder, '.gitattributes');
+		const gitattributesPath = normPath(folder, '.gitattributes');
 		if (fs.existsSync(gitattributesPath)) {
 			allFiles.add(gitattributesPath);
 		}
@@ -67,24 +66,23 @@ export default function walk(data: WalkInput): WalkOutput {
 		// Loop through files and folders
 		for (const file of files) {
 			// Create absolute path for disc operations
-			const path = paths.resolve(commonRoot, file).replace(/\\/g, '/');
+			const path = normAbsPath(commonRoot, file);
 			const localPath = localRoot ? file.replace(`./${localRoot}/`, '') : file.replace('./', '');
 
 			// Skip if nonexistant
 			const nonExistant = !fs.existsSync(path);
 			if (nonExistant) continue;
-			// Skip if marked as ignored
+			// Skip if marked in gitignore
 			const isIgnored = ignored.test(localPath).ignored;
-			const isRegexIgnored = regexIgnores.some(pattern => pattern.test(localPath));
-			if (isIgnored || isRegexIgnored) continue;
+			if (isIgnored) continue;
 
 			// Add absolute folder path to list
-			allFolders.add(paths.resolve(folder).replace(/\\/g, '/'));
+			allFolders.add(normAbsPath(folder));
 			// Check if this is a folder or file
 			if (file.endsWith('/')) {
 				// Recurse into subfolders
 				allFolders.add(path);
-				walk({ init: false, commonRoot, folderRoots, folders: [path], ignored, regexIgnores });
+				walk({ init: false, commonRoot, folderRoots, folders: [path], ignored });
 			}
 			else {
 				// Add file path to list
@@ -95,7 +93,7 @@ export default function walk(data: WalkInput): WalkOutput {
 	// Recurse into all folders
 	else {
 		for (const i in folders) {
-			walk({ init: false, commonRoot, folderRoots: [folderRoots[i]], folders: [folders[i]], ignored, regexIgnores });
+			walk({ init: false, commonRoot, folderRoots: [folderRoots[i]], folders: [folders[i]], ignored });
 		}
 	}
 	// Return absolute files and folders lists

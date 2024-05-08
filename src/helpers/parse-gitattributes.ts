@@ -1,6 +1,5 @@
-import path from 'path';
-
 import * as T from '../types';
+import { normPath } from './norm-path';
 
 export type FlagAttributes = {
 	'vendored': boolean | null,
@@ -27,7 +26,7 @@ export default function parseAttributes(content: string, folderRoot: string = '.
 
 		const parts = line.split(/\s+/g);
 		const fileGlob = parts[0];
-		const relFileGlob = path.join(folderRoot, fileGlob).replace(/\\/g, '/');
+		const relFileGlob = normPath(folderRoot, fileGlob);
 		const attrParts = parts.slice(1);
 		const isTrue = (str: string) => !str.startsWith('-') && !str.endsWith('=false');
 		const isFalse = (str: string) => str.startsWith('-') || str.endsWith('=false');
