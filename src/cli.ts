@@ -24,6 +24,7 @@ program
 	.option('-F|--listFiles [bool]', 'Whether to list every matching file under the language results', false)
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
 	.option('-o|--offline [bool]', 'Use packaged data files instead of fetching latest from GitHub', false)
+	.option('-L|--calculateLines [bool]', 'Calculate lines of code totals', true)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
 	.option('-r|--relativePaths [bool]', 'Convert absolute file paths to relative', false)
@@ -78,16 +79,17 @@ if (args.analyze) (async () => {
 			}
 		}
 		// List parsed results
-		for (const [lang, { bytes, color }] of sortedEntries) {
+		for (const [lang, { bytes, lines, color }] of sortedEntries) {
 			const percent = (bytes: number) => bytes / (totalBytes || 1) * 100;
 			const fmtd = {
 				index: (++count).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
 				percent: percent(bytes).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
+				loc: lines.code.toLocaleString().padStart(10, ' '),
 				icon: colouredMsg(hexToRgb(color ?? '#ededed'), '\u2588'),
 			};
-			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
+			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B ${fmtd.loc} LOC`);
 
 			// If using `listFiles` option, list all files tagged as this language
 			if (args.listFiles) {

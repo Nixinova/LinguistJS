@@ -2,7 +2,9 @@
 
 ## Next
 - Added application of GitHub-Linguist override rule `linguist-detectable`.
+- Added line of code calculation to the output.
 - Added option `checkDetected` to control the application of `linguist-detectable` overrides.
+- Added option `calculateLines` (defaults to true) to control whether LOC calculations are performed.
 
 ## 2.7.1
 *2024-05-08*

@@ -8,7 +8,7 @@ import { isBinaryFile } from 'isbinaryfile';
 
 import walk from './helpers/walk-tree';
 import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
-import readFile from './helpers/read-file';
+import readFileChunk from './helpers/read-file';
 import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes';
 import pcre from './helpers/convert-pcre';
 import { normPath } from './helpers/norm-path';
@@ -24,6 +24,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 
 	// Normalise input option arguments
 	opts = {
+		calculateLines: opts.calculateLines ?? true, // default to true if unset
 		checkIgnored: !opts.quick,
 		checkDetected: !opts.quick,
 		checkAttributes: !opts.quick,
@@ -46,9 +47,9 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	const extensions: Record<T.AbsFile, string> = {};
 	const globOverrides: Record<T.AbsFile, T.LanguageResult> = {};
 	const results: T.Results = {
-		files: { count: 0, bytes: 0, results: {}, alternatives: {} },
-		languages: { count: 0, bytes: 0, results: {} },
-		unknown: { count: 0, bytes: 0, extensions: {}, filenames: {} },
+		files: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {}, alternatives: {} },
+		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {} },
+		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, extensions: {}, filenames: {} },
 	};
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
@@ -107,7 +108,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		for (const attrFile of nestedAttrFiles) {
 			const relAttrFile = relPath(attrFile);
 			const relAttrFolder = paths.dirname(relAttrFile);
-			const contents = await readFile(attrFile);
+			const contents = await readFileChunk(attrFile);
 			const parsed = parseAttributes(contents, relAttrFolder);
 			for (const { glob, attrs } of parsed) {
 				manualAttributes[glob] = attrs;
@@ -231,7 +232,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			firstLine = manualFileContent[files.indexOf(file)]?.split('\n')[0] ?? null;
 		}
 		else if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()) {
-			firstLine = await readFile(file, true).catch(() => null);
+			firstLine = await readFileChunk(file, true).catch(() => null);
 		}
 		else continue;
 
@@ -347,7 +348,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				}
 
 				// Check file contents and apply heuristic patterns
-				const fileContent = opts.fileContent ? manualFileContent[files.indexOf(file)] : await readFile(file).catch(() => null);
+				const fileContent = opts.fileContent ? manualFileContent[files.indexOf(file)] : await readFileChunk(file).catch(() => null);
 
 				// Skip if file read errors
 				if (fileContent === null) continue;
@@ -373,7 +374,6 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	}
 
 	// Skip specified categories
-	// todo linguist-detectable
 	if (opts.categories?.length) {
 		const categories: T.Category[] = ['data', 'markup', 'programming', 'prose'];
 		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
@@ -417,8 +417,21 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	// Load language bytes size
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
+		// Calculate file size
 		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? fs.statSync(file).size;
-		results.files.bytes += fileSize;
+		// Calculate lines of code
+		const loc = { total: 0, content: 0, code: 0 };
+		if (opts.calculateLines) {
+			// TODO: catch error?
+			const fileContent = (manualFileContent[files.indexOf(file)] ?? fs.readFileSync(file).toString()) ?? '';
+			const allLines = fileContent.split(/\r?\n/gm);
+			loc.total = allLines.length;
+			loc.content = allLines.filter(line => line.trim().length > 0).length;
+			const codeLines = fileContent
+				.replace(/^\s*(\/\/|# |;|--).+/gm, '')
+				.replace(/\/\*.+\*\/|<!--.+-->/sg, '')
+			loc.code = codeLines.split(/\r?\n/gm).filter(line => line.trim().length > 0).length;
+		}
 		// If no language found, add extension in other section
 		if (!lang) {
 			const ext = paths.extname(file);
@@ -427,16 +440,36 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			results.unknown[unknownType][name] ??= 0;
 			results.unknown[unknownType][name] += fileSize;
 			results.unknown.bytes += fileSize;
+			results.unknown.lines.total += loc.total;
+			results.unknown.lines.content += loc.content;
+			results.unknown.lines.code += loc.code;
 			continue;
 		}
 		// Add language and bytes data to corresponding section
 		const { type } = langData[lang];
-		results.languages.results[lang] ??= { type, bytes: 0, color: langData[lang].color };
+		results.languages.results[lang] ??= { type, bytes: 0, lines: { total: 0, content: 0, code: 0 }, color: langData[lang].color };
 		if (opts.childLanguages) {
 			results.languages.results[lang].parent = langData[lang].group;
 		}
+		// apply file sizes
+		results.files.bytes += fileSize;
 		results.languages.results[lang].bytes += fileSize;
 		results.languages.bytes += fileSize;
+		// apply LOC calculations
+		results.files.lines.total += loc.total;
+		results.files.lines.content += loc.content;
+		results.files.lines.code += loc.code;
+		results.languages.results[lang].lines.total += loc.total;
+		results.languages.results[lang].lines.content += loc.content;
+		results.languages.results[lang].lines.code += loc.code;
+		results.languages.lines.total += loc.total;
+		results.languages.lines.content += loc.content;
+		results.languages.lines.code += loc.code;
+	}
+
+	// Set lines output to NaN when line calculation is disabled
+	if (opts.calculateLines === false) {
+		results.files.lines = { total: NaN, content: NaN, code: NaN }
 	}
 
 	// Set counts
