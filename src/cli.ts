@@ -29,6 +29,7 @@ program
 	.option('-r|--relativePaths [bool]', 'Convert absolute file paths to relative', false)
 	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files', true)
 	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files', true)
+	.option('-D|--checkDetected [bool]', 'Force files marked with linguist-detectable to always appear in output', true)
 	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages', true)
 	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification', true)
 	.option('-M|--checkModeline [bool]', 'Check modelines for explicit classification', true)

@@ -22,6 +22,7 @@ export interface Options {
 	quick?: boolean
 	offline?: boolean
 	checkIgnored?: boolean
+	checkDetected?: boolean
 	checkAttributes?: boolean
 	checkHeuristics?: boolean
 	checkShebang?: boolean

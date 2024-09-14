@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Added application of GitHub-Linguist override rule `linguist-detectable`.
+- Added option `checkDetected` to control the application of `linguist-detectable` overrides.
+
 ## 2.7.1
 *2024-05-08*
 - Fixed gitignore file reading not pertaining exactly to spec.

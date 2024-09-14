@@ -127,7 +127,7 @@ const { files, languages, unknown } = await linguist(fileNames, { fileContent, .
       Whether to display sub-languages instead of their parents when possible (defaults to `false`).
     - `quick` (boolean):
       Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
-      Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
+      Alias for `checkAttributes:false, checkIgnored:false, checkDetected:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
     - `offline` (boolean):
       Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
     - `keepVendored` (boolean):
@@ -143,6 +143,8 @@ const { files, languages, unknown } = await linguist(fileNames, { fileContent, .
     - `checkIgnored` (boolean):
       Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
       Does nothing when `fileContent` is set.
+    - `checkDetected` (boolean):
+      Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `categories`.
     - `checkHeuristics` (boolean):
       Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
     - `checkShebang` (boolean):
@@ -198,6 +200,9 @@ linguist --version
     Use alongside `--quick` to override it disabling this option.
   - `--checkIgnored`:
     Force the checking of `.gitignore` files.
+    Use alongside `--quick` to override it disabling this option.
+  - `--checkDetected`:
+    Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `--categories`.
     Use alongside `--quick` to override it disabling this option.
   - `--checkHeuristics`:
     Apply heuristics to ambiguous languages.

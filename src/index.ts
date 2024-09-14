@@ -25,6 +25,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	// Normalise input option arguments
 	opts = {
 		checkIgnored: !opts.quick,
+		checkDetected: !opts.quick,
 		checkAttributes: !opts.quick,
 		checkHeuristics: !opts.quick,
 		checkShebang: !opts.quick,
@@ -372,17 +373,24 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	}
 
 	// Skip specified categories
+	// todo linguist-detectable
 	if (opts.categories?.length) {
 		const categories: T.Category[] = ['data', 'markup', 'programming', 'prose'];
 		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
 		for (const [file, lang] of Object.entries(results.files.results)) {
-			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat)) {
+			// Skip if language is not hidden
+			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat))
 				continue;
+			// Skip if language is forced as detectable
+			if (opts.checkDetected) {
+				const detectable = ignore().add(getFlaggedGlobs('detectable', true));
+				if (detectable.ignores(relPath(file)))
+					continue;
 			}
+			// Delete result otherwise
 			delete results.files.results[file];
-			if (lang) {
+			if (lang)
 				delete results.languages.results[lang];
-			}
 		}
 		for (const category of hiddenCategories) {
 			for (const [lang, { type }] of Object.entries(results.languages.results)) {
