@@ -422,7 +422,6 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		// Calculate lines of code
 		const loc = { total: 0, content: 0, code: 0 };
 		if (opts.calculateLines) {
-			// TODO: catch error?
 			const fileContent = (manualFileContent[files.indexOf(file)] ?? fs.readFileSync(file).toString()) ?? '';
 			const allLines = fileContent.split(/\r?\n/gm);
 			loc.total = allLines.length;
