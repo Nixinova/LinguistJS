@@ -431,8 +431,30 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				.replace(/\/\*.+\*\/|<!--.+-->/sg, '')
 			loc.code = codeLines.split(/\r?\n/gm).filter(line => line.trim().length > 0).length;
 		}
-		// If no language found, add extension in other section
-		if (!lang) {
+		// Apply to files totals
+		results.files.bytes += fileSize;
+		results.files.lines.total += loc.total;
+		results.files.lines.content += loc.content;
+		results.files.lines.code += loc.code;
+		// Add results to 'languages' section if language match found, or 'unknown' section otherwise
+		if (lang) {
+			// Add language and bytes data to corresponding section
+			const { type } = langData[lang];
+			results.languages.results[lang] ??= { type, bytes: 0, lines: { total: 0, content: 0, code: 0 }, color: langData[lang].color };
+			if (opts.childLanguages) {
+				results.languages.results[lang].parent = langData[lang].group;
+			}
+			results.languages.results[lang].bytes += fileSize;
+			results.languages.bytes += fileSize;
+			// apply LOC calculations
+			results.languages.results[lang].lines.total += loc.total;
+			results.languages.results[lang].lines.content += loc.content;
+			results.languages.results[lang].lines.code += loc.code;
+			results.languages.lines.total += loc.total;
+			results.languages.lines.content += loc.content;
+			results.languages.lines.code += loc.code;
+		}
+		else {
 			const ext = paths.extname(file);
 			const unknownType = ext === '' ? 'filenames' : 'extensions';
 			const name = ext === '' ? paths.basename(file) : ext;
@@ -442,28 +464,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			results.unknown.lines.total += loc.total;
 			results.unknown.lines.content += loc.content;
 			results.unknown.lines.code += loc.code;
-			continue;
 		}
-		// Add language and bytes data to corresponding section
-		const { type } = langData[lang];
-		results.languages.results[lang] ??= { type, bytes: 0, lines: { total: 0, content: 0, code: 0 }, color: langData[lang].color };
-		if (opts.childLanguages) {
-			results.languages.results[lang].parent = langData[lang].group;
-		}
-		// apply file sizes
-		results.files.bytes += fileSize;
-		results.languages.results[lang].bytes += fileSize;
-		results.languages.bytes += fileSize;
-		// apply LOC calculations
-		results.files.lines.total += loc.total;
-		results.files.lines.content += loc.content;
-		results.files.lines.code += loc.code;
-		results.languages.results[lang].lines.total += loc.total;
-		results.languages.results[lang].lines.content += loc.content;
-		results.languages.results[lang].lines.code += loc.code;
-		results.languages.lines.total += loc.total;
-		results.languages.lines.content += loc.content;
-		results.languages.lines.code += loc.code;
 	}
 
 	// Set lines output to NaN when line calculation is disabled
