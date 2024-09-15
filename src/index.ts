@@ -438,15 +438,15 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		results.files.lines.code += loc.code;
 		// Add results to 'languages' section if language match found, or 'unknown' section otherwise
 		if (lang) {
-			// Add language and bytes data to corresponding section
 			const { type } = langData[lang];
+			// set default if unset
 			results.languages.results[lang] ??= { type, bytes: 0, lines: { total: 0, content: 0, code: 0 }, color: langData[lang].color };
+			// apply results to 'languages' section
 			if (opts.childLanguages) {
 				results.languages.results[lang].parent = langData[lang].group;
 			}
 			results.languages.results[lang].bytes += fileSize;
 			results.languages.bytes += fileSize;
-			// apply LOC calculations
 			results.languages.results[lang].lines.total += loc.total;
 			results.languages.results[lang].lines.content += loc.content;
 			results.languages.results[lang].lines.code += loc.code;
@@ -456,8 +456,9 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		}
 		else {
 			const ext = paths.extname(file);
-			const unknownType = ext === '' ? 'filenames' : 'extensions';
-			const name = ext === '' ? paths.basename(file) : ext;
+			const unknownType = ext ? 'extensions' : 'filenames';
+			const name = ext || paths.basename(file);
+			// apply results to 'unknown' section
 			results.unknown[unknownType][name] ??= 0;
 			results.unknown[unknownType][name] += fileSize;
 			results.unknown.bytes += fileSize;

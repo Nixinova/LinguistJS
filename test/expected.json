@@ -1,8 +1,8 @@
 {
 	"files": {
 		"count": 12,
-		"bytes": 190,
-		"lines": { "total": 25, "content": 15, "code": 10 },
+		"bytes": 199,
+		"lines": { "total": 27, "content": 16, "code": 11 },
 		"results": {
 			"~/al.al": "Perl",
 			"~/alternatives.asc": "AGS Script",
