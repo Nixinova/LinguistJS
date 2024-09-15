@@ -18,7 +18,7 @@ export type ParsedGitattributes = Array<{
 /**
  * Parses a gitattributes file.
  */
-export default function parseAttributes(content: string, folderRoot: string = '.'): ParsedGitattributes {
+export default function parseAttributes(content: string, folderRoot: T.RelFile = '.' as T.RelFile): ParsedGitattributes {
 	const output: ParsedGitattributes = [];
 
 	for (const rawLine of content.split('\n')) {
@@ -26,7 +26,7 @@ export default function parseAttributes(content: string, folderRoot: string = '.
 		if (!line) continue;
 
 		const parts = line.split(/\s+/g);
-		const fileGlob = parts[0];
+		const fileGlob = parts[0] as T.RelFile;
 		const relFileGlob = normPath(folderRoot, fileGlob);
 		const attrParts = parts.slice(1);
 		const isTrue = (str: string) => !str.startsWith('-') && !str.endsWith('=false');

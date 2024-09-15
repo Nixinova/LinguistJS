@@ -5,10 +5,12 @@ export type FilePath = string
 export type Bytes = Integer
 export type Integer = number
 
-export type RelFile = string & {}
-export type AbsFile = string & {}
-export type AbsFolder = string & {}
-export type FileGlob = string & {}
+declare const _tag: unique symbol
+type Tag<T, TTag> = T & { [_tag]: TTag }
+export type RelFile = Tag<string, 'RelFile'>
+export type AbsFile = Tag<string, 'AbsFile'>
+export type AbsFolder = Tag<string, 'AbsFolder'>
+export type FileGlob = Tag<string, 'FileGlob'>
 
 export interface Options {
 	fileContent?: string | string[]

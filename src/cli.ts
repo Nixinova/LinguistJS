@@ -1,11 +1,11 @@
 const VERSION = require('../package.json').version;
 
 import fs from 'fs';
-import path from 'path';
 import { program } from 'commander';
 
+import * as T from './types';
 import linguist from './index';
-import { normPath } from './helpers/norm-path';
+import { normPath, pathResolve, pathRelative } from './helpers/norm-path';
 
 const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
 const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
@@ -95,8 +95,9 @@ if (args.analyze) (async () => {
 			if (args.listFiles) {
 				console.log(); // padding
 				for (const file of filesPerLanguage[lang]) {
-					let relFile = normPath(path.relative(path.resolve('.'), file));
-					if (!relFile.startsWith('../')) relFile = './' + relFile;
+					let relFile = normPath(pathRelative(pathResolve('.'), file));
+					if (!relFile.startsWith('../'))
+						relFile = './' + relFile as T.RelFile;
 					const bytes = (await fs.promises.stat(file)).size;
 					const fmtd2 = {
 						file: relFile.padEnd(42, ' '),
