@@ -6,14 +6,14 @@ import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
-import walk from './helpers/walk-tree';
-import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
-import readFileChunk from './helpers/read-file';
-import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes';
-import pcre from './helpers/convert-pcre';
-import { normPath } from './helpers/norm-path';
-import * as T from './types';
-import * as S from './schema';
+import walk from './helpers/walk-tree.ts';
+import loadFile, { parseGeneratedDataFile } from './helpers/load-data.ts';
+import readFileChunk from './helpers/read-file.ts';
+import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes.ts';
+import pcre from './helpers/convert-pcre.ts';
+import { normPath } from './helpers/norm-path.ts';
+import * as T from './types.ts';
+import * as S from './schema.ts';
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
@@ -481,4 +481,4 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	// Return
 	return results;
 }
-export = analyse;
+export default analyse;

@@ -1,4 +1,4 @@
-import { Category, Language } from './types'
+import { Category, Language } from './types.ts'
 
 export interface LanguagesScema {
 	[name: string]: {

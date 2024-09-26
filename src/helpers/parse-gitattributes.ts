@@ -1,5 +1,5 @@
-import * as T from '../types';
-import { normPath } from './norm-path';
+import * as T from '../types.ts';
+import { normPath } from './norm-path.ts';
 
 export type FlagAttributes = {
 	'vendored': boolean | null,
