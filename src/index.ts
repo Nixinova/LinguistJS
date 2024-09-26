@@ -1,6 +1,6 @@
-import fs from 'fs';
-import paths from 'path';
-import yaml from 'js-yaml';
+import FS from 'node:fs';
+import Path from 'node:path';
+import YAML from 'js-yaml';
 import ignore, { Ignore } from 'ignore';
 import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
@@ -35,10 +35,10 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	};
 
 	// Load data from github-linguist web repo
-	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(yaml.load);
-	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(yaml.load);
-	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(yaml.load);
-	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(yaml.load);
+	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(YAML.load);
+	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(YAML.load);
+	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(YAML.load);
+	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(YAML.load);
 	const generatedData = <string[]>await loadFile('generated.rb', opts.offline).then(parseGeneratedDataFile);
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
@@ -53,10 +53,10 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	};
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
-	const resolvedInput = input.map(path => normPath(paths.resolve(path)));
+	const resolvedInput = input.map(path => normPath(Path.resolve(path)));
 	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const relPath = (file: T.AbsFile): T.RelFile => useRawContent ? file : normPath(paths.relative(commonRoot, file));
-	const unRelPath = (file: T.RelFile): T.AbsFile => useRawContent ? file : normPath(paths.resolve(commonRoot, file));
+	const relPath = (file: T.AbsFile): T.RelFile => useRawContent ? file : normPath(Path.relative(commonRoot, file));
+	const unRelPath = (file: T.RelFile): T.AbsFile => useRawContent ? file : normPath(Path.resolve(commonRoot, file));
 
 	// Other helper functions
 	const fileMatchesGlobs = (file: T.AbsFile, ...globs: T.FileGlob[]) => ignore().add(globs).ignores(relPath(file));
@@ -107,7 +107,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		const nestedAttrFiles = files.filter(file => file.endsWith('.gitattributes'));
 		for (const attrFile of nestedAttrFiles) {
 			const relAttrFile = relPath(attrFile);
-			const relAttrFolder = paths.dirname(relAttrFile);
+			const relAttrFolder = Path.dirname(relAttrFile);
 			const contents = await readFileChunk(attrFile);
 			const parsed = parseAttributes(contents, relAttrFolder);
 			for (const { glob, attrs } of parsed) {
@@ -207,7 +207,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		if (!fileAssociations[file].includes(finalResult)) {
 			fileAssociations[file].push(finalResult);
 		}
-		extensions[file] = paths.extname(file).toLowerCase();
+		extensions[file] = Path.extname(file).toLowerCase();
 	};
 
 	const definiteness: Record<T.AbsFile, true | undefined> = {};
@@ -231,7 +231,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		if (useRawContent) {
 			firstLine = manualFileContent[files.indexOf(file)]?.split('\n')[0] ?? null;
 		}
-		else if (fs.existsSync(file) && !fs.lstatSync(file).isDirectory()) {
+		else if (FS.existsSync(file) && !FS.lstatSync(file).isDirectory()) {
 			firstLine = await readFileChunk(file, true).catch(() => null);
 		}
 		else continue;
@@ -275,7 +275,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		let skipExts = false;
 		// Check if filename is a match
 		for (const lang in langData) {
-			const matchesName = langData[lang].filenames?.some(name => paths.basename(file.toLowerCase()) === name.toLowerCase());
+			const matchesName = langData[lang].filenames?.some(name => Path.basename(file.toLowerCase()) === name.toLowerCase());
 			if (matchesName) {
 				addResult(file, lang);
 				skipExts = true;
@@ -405,7 +405,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	if (!useRawContent && opts.relativePaths) {
 		const newMap: Record<T.RelFile, T.LanguageResult> = {};
 		for (const [file, lang] of Object.entries(results.files.results)) {
-			let relPath = normPath(paths.relative(process.cwd(), file));
+			let relPath = normPath(Path.relative(process.cwd(), file));
 			if (!relPath.startsWith('../')) {
 				relPath = './' + relPath;
 			}
@@ -418,11 +418,11 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
 		// Calculate file size
-		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? fs.statSync(file).size;
+		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? FS.statSync(file).size;
 		// Calculate lines of code
 		const loc = { total: 0, content: 0, code: 0 };
 		if (opts.calculateLines) {
-			const fileContent = (manualFileContent[files.indexOf(file)] ?? fs.readFileSync(file).toString()) ?? '';
+			const fileContent = (manualFileContent[files.indexOf(file)] ?? FS.readFileSync(file).toString()) ?? '';
 			const allLines = fileContent.split(/\r?\n/gm);
 			loc.total = allLines.length;
 			loc.content = allLines.filter(line => line.trim().length > 0).length;
@@ -455,9 +455,9 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			results.languages.lines.code += loc.code;
 		}
 		else {
-			const ext = paths.extname(file);
+			const ext = Path.extname(file);
 			const unknownType = ext ? 'extensions' : 'filenames';
-			const name = ext || paths.basename(file);
+			const name = ext || Path.basename(file);
 			// apply results to 'unknown' section
 			results.unknown[unknownType][name] ??= 0;
 			results.unknown[unknownType][name] += fileSize;

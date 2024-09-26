@@ -1,7 +1,7 @@
 const VERSION = require('../package.json').version;
 
-import fs from 'fs';
-import path from 'path';
+import FS from 'node:fs';
+import Path from 'node:path';
 import { program } from 'commander';
 
 import linguist from './index';
@@ -95,9 +95,9 @@ if (args.analyze) (async () => {
 			if (args.listFiles) {
 				console.log(); // padding
 				for (const file of filesPerLanguage[lang]) {
-					let relFile = normPath(path.relative(path.resolve('.'), file));
+					let relFile = normPath(Path.relative(Path.resolve('.'), file));
 					if (!relFile.startsWith('../')) relFile = './' + relFile;
-					const bytes = (await fs.promises.stat(file)).size;
+					const bytes = (await FS.promises.stat(file)).size;
 					const fmtd2 = {
 						file: relFile.padEnd(42, ' '),
 						percent: percent(bytes).toFixed(2).padStart(5, ' '),

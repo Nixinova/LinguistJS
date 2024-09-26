@@ -1,8 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import FS from 'node:fs';
+import Path from 'node:path';
 import fetch from 'cross-fetch';
 import Cache from 'node-cache';
-import yaml from 'js-yaml';
 
 const cache = new Cache({});
 
@@ -19,16 +18,16 @@ async function loadWebFile(file: string): Promise<string> {
 }
 
 async function loadLocalFile(file: string): Promise<string> {
-	const filePath = path.resolve(__dirname, '../../ext', file);
-	return fs.promises.readFile(filePath).then(buffer => buffer.toString());
+	const filePath = Path.resolve(__dirname, '../../ext', file);
+	return FS.promises.readFile(filePath).then(buffer => buffer.toString());
 }
 
 /** Nukes unused `generated.rb` file content. */
-export async function parseGeneratedDataFile(fileContent: string): Promise<string[]> {
+export function parseGeneratedDataFile(fileContent: string): string[] {
 	return [...fileContent.match(/(?<=name\.match\(\/).+?(?=(?<!\\)\/)/gm) ?? []];
 }
 
 /** Load a data file from github-linguist. */
-export default async function loadFile(file: string, offline: boolean = false): Promise<string> {
+export default function loadFile(file: string, offline: boolean = false): Promise<string> {
 	return offline ? loadLocalFile(file) : loadWebFile(file);
 }

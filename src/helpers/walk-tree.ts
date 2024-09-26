@@ -1,6 +1,6 @@
-import fs from 'fs';
-import paths from 'path';
-import ignore, { Ignore } from 'ignore';
+import FS from 'node:fs';
+import Path from 'node:path';
+import { Ignore } from 'ignore';
 import parseGitignore from './parse-gitignore';
 import { normPath, normAbsPath } from './norm-path';
 
@@ -41,25 +41,25 @@ export default function walk(data: WalkInput): WalkOutput {
 		const localRoot = folderRoots[0].replace(commonRoot, '').replace(/^\//, '');
 
 		// Get list of files and folders inside this folder
-		const files = fs.readdirSync(folder).map(file => {
+		const files = FS.readdirSync(folder).map(file => {
 			// Create path relative to root
 			const base = normAbsPath(folder, file).replace(commonRoot, '.');
 			// Add trailing slash to mark directories
-			const isDir = fs.lstatSync(paths.resolve(commonRoot, base)).isDirectory();
+			const isDir = FS.lstatSync(Path.resolve(commonRoot, base)).isDirectory();
 			return isDir ? `${base}/` : base;
 		});
 
 		// Read and apply gitignores
 		const gitignoreFilename = normPath(folder, '.gitignore');
-		if (fs.existsSync(gitignoreFilename)) {
-			const gitignoreContents = fs.readFileSync(gitignoreFilename, 'utf-8');
+		if (FS.existsSync(gitignoreFilename)) {
+			const gitignoreContents = FS.readFileSync(gitignoreFilename, 'utf-8');
 			const ignoredPaths = parseGitignore(gitignoreContents);
 			ignored.add(ignoredPaths);
 		}
 
 		// Add gitattributes if present
 		const gitattributesPath = normPath(folder, '.gitattributes');
-		if (fs.existsSync(gitattributesPath)) {
+		if (FS.existsSync(gitattributesPath)) {
 			allFiles.add(gitattributesPath);
 		}
 
@@ -70,7 +70,7 @@ export default function walk(data: WalkInput): WalkOutput {
 			const localPath = localRoot ? file.replace(`./${localRoot}/`, '') : file.replace('./', '');
 
 			// Skip if nonexistant
-			const nonExistant = !fs.existsSync(path);
+			const nonExistant = !FS.existsSync(path);
 			if (nonExistant) continue;
 			// Skip if marked in gitignore
 			const isIgnored = ignored.test(localPath).ignored;

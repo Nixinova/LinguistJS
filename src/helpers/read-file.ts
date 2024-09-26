@@ -1,4 +1,4 @@
-import fs from 'fs';
+import FS from 'node:fs';
 
 /**
  * Read part of a file on disc.
@@ -6,7 +6,7 @@ import fs from 'fs';
  */
 export default async function readFileChunk(filename: string, onlyFirstLine: boolean = false): Promise<string> {
 	const chunkSize = 100;
-	const stream = fs.createReadStream(filename, { highWaterMark: chunkSize });
+	const stream = FS.createReadStream(filename, { highWaterMark: chunkSize });
 	let content = '';
 	for await (const data of stream) { // may throw
 		content += data.toString();
