@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
-import FS from 'node:fs';
-import Path from 'node:path';
+import FS from 'fs';
+import Path from 'path';
 import YAML from 'js-yaml';
 
 import loadFile, { parseGeneratedDataFile } from '../src/helpers/load-data';

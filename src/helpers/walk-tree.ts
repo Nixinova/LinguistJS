@@ -1,5 +1,5 @@
-import FS from 'node:fs';
-import Path from 'node:path';
+import FS from 'fs';
+import Path from 'path';
 import { Ignore } from 'ignore';
 import parseGitignore from './parse-gitignore';
 import { normPath, normAbsPath } from './norm-path';

@@ -1,7 +1,7 @@
 const VERSION = require('../package.json').version;
 
-import FS from 'node:fs';
-import Path from 'node:path';
+import FS from 'fs';
+import Path from 'path';
 import { program } from 'commander';
 
 import linguist from './index';

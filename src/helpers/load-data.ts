@@ -1,5 +1,5 @@
-import FS from 'node:fs';
-import Path from 'node:path';
+import FS from 'fs';
+import Path from 'path';
 import fetch from 'cross-fetch';
 import Cache from 'node-cache';
 
