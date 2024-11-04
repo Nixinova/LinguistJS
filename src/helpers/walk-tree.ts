@@ -54,7 +54,13 @@ export default function walk(data: WalkInput): WalkOutput {
 		if (FS.existsSync(gitignoreFilename)) {
 			const gitignoreContents = FS.readFileSync(gitignoreFilename, 'utf-8');
 			const ignoredPaths = parseGitignore(gitignoreContents);
-			ignored.add(ignoredPaths);
+			const rootRelIgnoredPaths = ignoredPaths.map(ignorePath =>
+				// get absolute path of the ignore glob
+				normPath(folder, ignorePath)
+					// convert abs ignore glob to be relative to the root folder
+					.replace(commonRoot + '/', '')
+			);
+			ignored.add(rootRelIgnoredPaths);
 		}
 
 		// Add gitattributes if present

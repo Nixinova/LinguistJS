@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed gitignore paths being applied as root-relative ([#36](https://github.com/Nixinova/LinguistJS/issues/36)).
+
 ## 2.8.0
 *2024-09-15*
 - Added checking of gitattributes override rule `linguist-detectable`.
