@@ -12,6 +12,7 @@ async function writeFile(filename: string) {
 	let fileDataMin = fileData
 		// Convert /x flag
 		.replace(/(\s+|^)#.*/g, '') // remove comments
+		.replace(/^\s*$(?:\r?\n|\r)/gm, '') // Remove empty lines
 		.replace(/(pattern: )\|.*\n((\s+).+\n(\3.+\n)+)/g, (_, pref, content) => `${pref}'${content.replace(/^\s+|\s+$|\r?\n/gm, '')}'\n`) // flatten multi-line data
 		.replace('(?x)', '')
 	// Nuke unused `generated.rb` content
