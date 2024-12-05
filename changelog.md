@@ -1,7 +1,9 @@
 # Changelog
 
-## Next
+## 2.8.1
+*2024-12-05*
 - Fixed gitignore paths being applied as root-relative ([#36](https://github.com/Nixinova/LinguistJS/issues/36)).
+- Fixed bad indentation of a mapping entry from reading heuristic ([#37](https://github.com/Nixinova/LinguistJS/issues/37)).
 
 ## 2.8.0
 *2024-09-15*
