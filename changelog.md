@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added `minSize` CLI option to control a minimum size to return, with results smaller than this threshold put in 'Other' ([#35](https://github.com/Nixinova/LinguistJS/pull/35)).
+
 ## 2.8.1
 *2024-12-05*
 - Fixed gitignore paths being applied as root-relative ([#36](https://github.com/Nixinova/LinguistJS/issues/36)).

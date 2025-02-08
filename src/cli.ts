@@ -22,7 +22,7 @@ program
 	.option('-j|--json [bool]', 'Display the output as JSON', false)
 	.option('-t|--tree <traversal>', 'Which part of the output JSON to display (dot-delimited)')
 	.option('-F|--listFiles [bool]', 'Whether to list every matching file under the language results', false)
-	.option('-m|--minSize <size>', 'Minimum file size to show language results for (must have a unit: b, kb, mb, %)')
+	.option('-m|--minSize <size>', 'Minimum size of file to show language results for (must have a unit: b, kb, mb, %, or loc)')
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
 	.option('-o|--offline [bool]', 'Use packaged data files instead of fetching latest from GitHub', false)
 	.option('-L|--calculateLines [bool]', 'Calculate lines of code totals', true)
@@ -67,17 +67,20 @@ if (args.analyze) (async () => {
 			const totalSize = languages.bytes;
 			const minSizeAmt = parseFloat(args.minSize.replace(/[a-z]+$/i, '')); // '2KB' -> 2
 			const minSizeUnit = args.minSize.replace(/^\d+/, '').toLowerCase(); // '2KB' -> 'kb'
+			const checkBytes = minSizeUnit !== 'loc'; // whether to check bytes or loc
 			const conversionFactors: Record<string, (n: number) => number> = {
 				'b': n => n,
 				'kb': n => n * 1e3,
 				'mb': n => n * 1e6,
 				'%': n => n * totalSize / 100,
+				'loc': n => n,
 			};
 			const minBytesSize = conversionFactors[minSizeUnit](+minSizeAmt);
 			const other = { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
 			// Apply specified minimums: delete language results that do not reach the threshold
 			for (const [lang, data] of Object.entries(languages.results)) {
-				if (data.bytes < minBytesSize) {
+				const checkUnit = checkBytes ? data.bytes : data.lines.code;
+				if (checkUnit < minBytesSize) {
 					// Add to 'other' count
 					other.bytes += data.bytes;
 					other.lines.total += data.lines.total;
@@ -87,7 +90,9 @@ if (args.analyze) (async () => {
 					delete languages.results[lang];
 				}
 			}
-			languages.results['Other'] = { ...other, type: null! };
+			if (other.bytes) {
+				languages.results["Other"] = { ...other, type: null! };
+			}
 		}
 
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => (a[1].bytes < b[1].bytes ? +1 : -1));
