@@ -50,11 +50,11 @@ Running LinguistJS on this folder will return the following JSON:
   "files": {
     "count": 5,
     "bytes": 6020,
-	"lines": {
-		"total": 100,
-		"content": 90,
-		"code": 80,
-	},
+    "lines": {
+        "total": 100,
+        "content": 90,
+        "code": 80,
+    },
     "results": {
       "/src/index.ts": "TypeScript",
       "/src/cli.js": "JavaScript",
@@ -69,26 +69,46 @@ Running LinguistJS on this folder will return the following JSON:
   "languages": {
     "count": 3,
     "bytes": 6010,
-	"lines": {
-		"total": 90,
-		"content": 80,
-		"code": 70,
-	},
+    "lines": {
+        "total": 90,
+        "content": 80,
+        "code": 70,
+    },
     "results": {
-        "JavaScript": { "type": "programming", "bytes": 1000, "lines": { "total": 49, "content": 49, "code": 44 }, "color": "#f1e05a" },
-        "Markdown": { "type": "prose", "bytes": 3000, "lines": { "total": 10, "content": 5, "code": 5 }, "color": "#083fa1" },
-        "Ruby": { "type": "programming", "bytes": 10, "lines": { "total": 1, "content": 1, "code": 1 }, "color": "#701516" },
-        "TypeScript": { "type": "programming", "bytes": 2000, "lines": { "total": 30, "content": 25, "code": 20 }, "color": "#2b7489" },
+       "JavaScript": {
+            "type": "programming",
+            "bytes": 1000,
+            "lines": { "total": 49, "content": 49, "code": 44 },
+            "color": "#f1e05a"
+        },
+        "Markdown": {
+            "type": "prose",
+            "bytes": 3000,
+            "lines": { "total": 10, "content": 5, "code": 5 },
+            "color": "#083fa1"
+        },
+        "Ruby": {
+            "type": "programming",
+            "bytes": 10,
+            "lines": { "total": 1, "content": 1, "code": 1 },
+            "color": "#701516"
+        },
+        "TypeScript": {
+            "type": "programming",
+            "bytes": 2000,
+            "lines": { "total": 30, "content": 25, "code": 20 },
+            "color": "#2b7489"
+        },
     },
   },
   "unknown": {
     "count": 1,
     "bytes": 10,
-	"lines": {
-		"total": 10,
-		"content": 10,
-		"code": 10,
-	},
+    "lines": {
+        "total": 10,
+        "content": 10,
+        "code": 10,
+    },
     "filenames": {
       "no-lang": 10,
     },

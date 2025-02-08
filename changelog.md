@@ -1,7 +1,8 @@
 # Changelog
 
-## Next
-- Added `minSize` CLI option to control a minimum size to return, with results smaller than this threshold put in 'Other' ([#35](https://github.com/Nixinova/LinguistJS/pull/35)).
+## 2.9.0
+*2025-02-09*
+- Added `minSize` CLI option to control a minimum size for results, with languages smaller than this threshold moved into 'Other' ([#32](https://github.com/Nixinova/LinguistJS/issues/32), [#35](https://github.com/Nixinova/LinguistJS/pull/35)).
 
 ## 2.8.1
 *2024-12-05*
