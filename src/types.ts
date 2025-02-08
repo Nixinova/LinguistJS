@@ -21,7 +21,9 @@ export interface Options {
 	childLanguages?: boolean
 	quick?: boolean
 	offline?: boolean
+	calculateLines?: boolean
 	checkIgnored?: boolean
+	checkDetected?: boolean
 	checkAttributes?: boolean
 	checkHeuristics?: boolean
 	checkShebang?: boolean
@@ -32,6 +34,11 @@ export interface Results {
 	files: {
 		count: Integer
 		bytes: Bytes
+		lines: {
+			total: Integer
+			content: Integer
+			code: Integer
+		}
 		/** Note: Results use slashes as delimiters even on Windows. */
 		results: Record<FilePath, LanguageResult>
 		alternatives: Record<FilePath, LanguageResult[]>
@@ -39,8 +46,18 @@ export interface Results {
 	languages: {
 		count: Integer
 		bytes: Bytes
+		lines: {
+			total: Integer
+			content: Integer
+			code: Integer
+		}
 		results: Record<Language, {
 			bytes: Bytes
+			lines: {
+				total: Integer
+				content: Integer
+				code: Integer
+			}
 			type: Category
 			parent?: Language
 			color?: `#${string}`
@@ -49,6 +66,11 @@ export interface Results {
 	unknown: {
 		count: Integer
 		bytes: Bytes
+		lines: {
+			total: Integer
+			content: Integer
+			code: Integer
+		}
 		extensions: Record<string, Bytes>
 		filenames: Record<string, Bytes>
 	}

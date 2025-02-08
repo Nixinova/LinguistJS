@@ -50,6 +50,11 @@ Running LinguistJS on this folder will return the following JSON:
   "files": {
     "count": 5,
     "bytes": 6020,
+	"lines": {
+		"total": 100,
+		"content": 90,
+		"code": 80,
+	},
     "results": {
       "/src/index.ts": "TypeScript",
       "/src/cli.js": "JavaScript",
@@ -64,16 +69,26 @@ Running LinguistJS on this folder will return the following JSON:
   "languages": {
     "count": 3,
     "bytes": 6010,
+	"lines": {
+		"total": 90,
+		"content": 80,
+		"code": 70,
+	},
     "results": {
-        "JavaScript": { "type": "programming", "bytes": 1000, "color": "#f1e05a" },
-        "Markdown": { "type": "prose", "bytes": 3000, "color": "#083fa1" },
-        "Ruby": { "type": "programming", "bytes": 10, "color": "#701516" },
-        "TypeScript": { "type": "programming", "bytes": 2000, "color": "#2b7489" },
+        "JavaScript": { "type": "programming", "bytes": 1000, "lines": { "total": 49, "content": 49, "code": 44 }, "color": "#f1e05a" },
+        "Markdown": { "type": "prose", "bytes": 3000, "lines": { "total": 10, "content": 5, "code": 5 }, "color": "#083fa1" },
+        "Ruby": { "type": "programming", "bytes": 10, "lines": { "total": 1, "content": 1, "code": 1 }, "color": "#701516" },
+        "TypeScript": { "type": "programming", "bytes": 2000, "lines": { "total": 30, "content": 25, "code": 20 }, "color": "#2b7489" },
     },
   },
   "unknown": {
     "count": 1,
     "bytes": 10,
+	"lines": {
+		"total": 10,
+		"content": 10,
+		"code": 10,
+	},
     "filenames": {
       "no-lang": 10,
     },
@@ -127,9 +142,11 @@ const { files, languages, unknown } = await linguist(fileNames, { fileContent, .
       Whether to display sub-languages instead of their parents when possible (defaults to `false`).
     - `quick` (boolean):
       Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
-      Alias for `checkAttributes:false, checkIgnored:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
+      Alias for `checkAttributes:false, checkIgnored:false, checkDetected:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
     - `offline` (boolean):
       Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
+    - `calculateLines` (boolean):
+      Whether to calculate line of code totals (defaults to `true`).
     - `keepVendored` (boolean):
       Whether to keep vendored files (dependencies, etc) (defaults to `false`).
       Does nothing when `fileContent` is set.
@@ -143,6 +160,8 @@ const { files, languages, unknown } = await linguist(fileNames, { fileContent, .
     - `checkIgnored` (boolean):
       Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
       Does nothing when `fileContent` is set.
+    - `checkDetected` (boolean):
+      Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `categories`.
     - `checkHeuristics` (boolean):
       Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
     - `checkShebang` (boolean):
@@ -187,6 +206,8 @@ linguist --version
     Alias for `--checkAttributes=false --checkIgnored=false --checkHeuristics=false --checkShebang=false --checkModeline=false`.
   - `--offline`:
     Use pre-packaged metadata files instead of fetching them from GitHub at runtime.
+  - `--calculateLines`:
+    Calculate line of code totals from files.
   - `--keepVendored`:
     Include vendored files (auto-generated files, dependencies folder, etc) in the output.
   - `--keepBinary`:
@@ -198,6 +219,9 @@ linguist --version
     Use alongside `--quick` to override it disabling this option.
   - `--checkIgnored`:
     Force the checking of `.gitignore` files.
+    Use alongside `--quick` to override it disabling this option.
+  - `--checkDetected`:
+    Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `--categories`.
     Use alongside `--quick` to override it disabling this option.
   - `--checkHeuristics`:
     Apply heuristics to ambiguous languages.

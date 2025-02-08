@@ -1,12 +1,12 @@
-import fs from 'fs';
+import FS from 'fs';
 
 /**
  * Read part of a file on disc.
  * @throws 'EPERM' if the file is not readable.
  */
-export default async function readFile(filename: string, onlyFirstLine: boolean = false): Promise<string> {
+export default async function readFileChunk(filename: string, onlyFirstLine: boolean = false): Promise<string> {
 	const chunkSize = 100;
-	const stream = fs.createReadStream(filename, { highWaterMark: chunkSize });
+	const stream = FS.createReadStream(filename, { highWaterMark: chunkSize });
 	let content = '';
 	for await (const data of stream) { // may throw
 		content += data.toString();

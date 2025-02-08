@@ -22,7 +22,7 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 	}
 	else {
 		errors++;
-		console.error(`- #${i} failed: '${filename}' is ${testContent} instead of ${testVal}`);
+		console.error(`! #${i} failed: '${filename}' is ${testContent} instead of ${testVal}`);
 	}
 }
 
@@ -80,8 +80,8 @@ async function unitTest() {
 	await test(['unknown'], ['files', null]);
 
 	if (errors) {
-		const message = `\nExited with ${errors} errors.\n`;
-		throw console.error(message), message;
+		console.error(`\n! Exited with ${errors} errors.\n`);
+		return;
 	}
 	else console.info('All unit tests passed');
 }

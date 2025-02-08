@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.8.1
+*2024-12-05*
+- Fixed gitignore paths being applied as root-relative ([#36](https://github.com/Nixinova/LinguistJS/issues/36)).
+- Fixed bad indentation of a mapping entry from reading heuristic ([#37](https://github.com/Nixinova/LinguistJS/issues/37)).
+
+## 2.8.0
+*2024-09-15*
+- Added checking of gitattributes override rule `linguist-detectable`.
+- Added lines of code totals to the output.
+- Added option `checkDetected` to control the application of `linguist-detectable` overrides.
+- Added option `calculateLines` (defaults to true) to control whether LOC calculations are performed.
+
 ## 2.7.1
 *2024-05-08*
 - Fixed gitignore file reading not pertaining exactly to spec.

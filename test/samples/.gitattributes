@@ -2,3 +2,4 @@
 file.txt linguist-language=JS
 vendored linguist-vendored
 package-lock.json -linguist-generated
+detected.json linguist-detectable

@@ -5,6 +5,7 @@ export type FlagAttributes = {
 	'vendored': boolean | null,
 	'generated': boolean | null,
 	'documentation': boolean | null,
+	'detectable': boolean | null,
 	'binary': boolean | null,
 	'language': T.LanguageResult;
 };
@@ -34,11 +35,13 @@ export default function parseAttributes(content: string, folderRoot: string = '.
 		const falseParts = (str: string) => attrParts.filter(part => part.includes(str) && isFalse(part));
 		const hasTrueParts = (str: string) => trueParts(str).length > 0;
 		const hasFalseParts = (str: string) => falseParts(str).length > 0;
+		const boolOrNullVal = (str: string) => hasTrueParts(str) ? true : hasFalseParts(str) ? false : null;
 
 		const attrs = {
-			'generated': hasTrueParts('linguist-generated') ? true : hasFalseParts('linguist-generated') ? false : null,
-			'vendored': hasTrueParts('linguist-vendored') ? true : hasFalseParts('linguist-vendored') ? false : null,
-			'documentation': hasTrueParts('linguist-documentation') ? true : hasFalseParts('linguist-documentation') ? false : null,
+			'generated': boolOrNullVal('linguist-generated'),
+			'vendored': boolOrNullVal('linguist-vendored'),
+			'documentation': boolOrNullVal('linguist-documentation'),
+			'detectable': boolOrNullVal('linguist-detectable'),
 			'binary': hasTrueParts('binary') || hasFalseParts('text') ? true : hasFalseParts('binary') || hasTrueParts('text') ? false : null,
 			'language': trueParts('linguist-language').at(-1)?.split('=')[1] ?? null,
 		}

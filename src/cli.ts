@@ -1,7 +1,7 @@
 const VERSION = require('../package.json').version;
 
-import fs from 'fs';
-import path from 'path';
+import FS from 'fs';
+import Path from 'path';
 import { program } from 'commander';
 
 import linguist from './index';
@@ -25,11 +25,13 @@ program
 	.option('-m|--minSize <size>', 'Minimum file size to show language results for (must have a unit: b, kb, mb, %)')
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
 	.option('-o|--offline [bool]', 'Use packaged data files instead of fetching latest from GitHub', false)
+	.option('-L|--calculateLines [bool]', 'Calculate lines of code totals', true)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)
 	.option('-B|--keepBinary [bool]', 'Prevent skipping over binary files', false)
 	.option('-r|--relativePaths [bool]', 'Convert absolute file paths to relative', false)
 	.option('-A|--checkAttributes [bool]', 'Force the checking of gitattributes files', true)
 	.option('-I|--checkIgnored [bool]', 'Force the checking of gitignore files', true)
+	.option('-D|--checkDetected [bool]', 'Force files marked with linguist-detectable to always appear in output', true)
 	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages', true)
 	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification', true)
 	.option('-M|--checkModeline [bool]', 'Check modelines for explicit classification', true)
@@ -104,24 +106,25 @@ if (args.analyze) (async () => {
 			}
 		}
 		// List parsed results
-		for (const [lang, { bytes, color }] of sortedEntries) {
+		for (const [lang, { bytes, lines, color }] of sortedEntries) {
 			const percent = (bytes: number) => bytes / (totalBytes || 1) * 100;
 			const fmtd = {
 				index: (++count).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
 				percent: percent(bytes).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
+				loc: lines.code.toLocaleString().padStart(10, ' '),
 				icon: colouredMsg(hexToRgb(color ?? '#ededed'), '\u2588'),
 			};
-			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B`);
+			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B ${fmtd.loc} LOC`);
 
 			// If using `listFiles` option, list all files tagged as this language
 			if (args.listFiles) {
 				console.log(); // padding
 				for (const file of filesPerLanguage[lang]) {
-					let relFile = normPath(path.relative(path.resolve('.'), file));
+					let relFile = normPath(Path.relative(Path.resolve('.'), file));
 					if (!relFile.startsWith('../')) relFile = './' + relFile;
-					const bytes = (await fs.promises.stat(file)).size;
+					const bytes = (await FS.promises.stat(file)).size;
 					const fmtd2 = {
 						file: relFile.padEnd(42, ' '),
 						percent: percent(bytes).toFixed(2).padStart(5, ' '),

@@ -1,10 +1,10 @@
-import paths from 'path';
+import Path from 'path';
 
 export const normPath = function normalisedPath(...inputPaths: string[]) {
-	return paths.join(...inputPaths).replace(/\\/g, '/');
+	return Path.join(...inputPaths).replace(/\\/g, '/');
 }
 
 export const normAbsPath = function normalisedAbsolutePath(...inputPaths: string[]) {
-	return paths.resolve(...inputPaths).replace(/\\/g, '/');
+	return Path.resolve(...inputPaths).replace(/\\/g, '/');
 }
 
