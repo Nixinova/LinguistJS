@@ -64,27 +64,30 @@ if (args.analyze) (async () => {
 	if (!args.json) {
 		// Ignore languages with a bytes/% size less than the declared min size
 		if (args.minSize) {
-			let otherBytes = 0;
 			const totalSize = languages.bytes;
-			const minSizeAmt = parseFloat(args.minSize.replace(/[a-z]+$/i, "")); // '2KB' -> 2
-			const minSizeUnit = args.minSize.replace(/^\d+/, "").toLowerCase(); // '2KB' -> 'kb'
+			const minSizeAmt = parseFloat(args.minSize.replace(/[a-z]+$/i, '')); // '2KB' -> 2
+			const minSizeUnit = args.minSize.replace(/^\d+/, '').toLowerCase(); // '2KB' -> 'kb'
 			const conversionFactors: Record<string, (n: number) => number> = {
-				b: (n) => n,
-				kb: (n) => n * 1e3,
-				mb: (n) => n * 1e6,
-				"%": (n) => (n * totalSize) / 100,
+				'b': n => n,
+				'kb': n => n * 1e3,
+				'mb': n => n * 1e6,
+				'%': n => n * totalSize / 100,
 			};
 			const minBytesSize = conversionFactors[minSizeUnit](+minSizeAmt);
+			const other = { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
 			// Apply specified minimums: delete language results that do not reach the threshold
 			for (const [lang, data] of Object.entries(languages.results)) {
 				if (data.bytes < minBytesSize) {
-					// Add to other bytes count
-					otherBytes += data.bytes;
+					// Add to 'other' count
+					other.bytes += data.bytes;
+					other.lines.total += data.lines.total;
+					other.lines.content += data.lines.content;
+					other.lines.code += data.lines.code;
 					// Remove language result
 					delete languages.results[lang];
 				}
 			}
-			languages.results['Other'] = { type: null!, bytes: otherBytes, color: undefined };
+			languages.results['Other'] = { ...other, type: null! };
 		}
 
 		const sortedEntries = Object.entries(languages.results).sort((a, b) => (a[1].bytes < b[1].bytes ? +1 : -1));
