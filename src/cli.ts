@@ -60,12 +60,38 @@ if (args.analyze) (async () => {
 	const { files, languages, unknown } = data;
 	// Print output
 	if (!args.json) {
-		const sortedEntries = Object.entries(languages.results).sort((a, b) => a[1].bytes < b[1].bytes ? +1 : -1);
+		// Ignore languages with a bytes/% size less than the declared min size
+		if (args.minSize) {
+			let otherBytes = 0;
+			const totalSize = languages.bytes;
+			const minSizeAmt = parseFloat(args.minSize.replace(/[a-z]+$/i, "")); // '2KB' -> 2
+			const minSizeUnit = args.minSize.replace(/^\d+/, "").toLowerCase(); // '2KB' -> 'kb'
+			const conversionFactors: Record<string, (n: number) => number> = {
+				b: (n) => n,
+				kb: (n) => n * 1e3,
+				mb: (n) => n * 1e6,
+				"%": (n) => (n * totalSize) / 100,
+			};
+			const minBytesSize = conversionFactors[minSizeUnit](+minSizeAmt);
+			// Apply specified minimums: delete language results that do not reach the threshold
+			for (const [lang, data] of Object.entries(languages.results)) {
+				if (data.bytes < minBytesSize) {
+					// Add to other bytes count
+					otherBytes += data.bytes;
+					// Remove language result
+					delete languages.results[lang];
+				}
+			}
+			languages.results['Other'] = { type: null!, bytes: otherBytes, color: undefined };
+		}
+
+		const sortedEntries = Object.entries(languages.results).sort((a, b) => (a[1].bytes < b[1].bytes ? +1 : -1));
 		const totalBytes = languages.bytes;
 		console.log(`\n Analysed ${files.bytes.toLocaleString()} B from ${files.count} files with linguist-js`);
 		console.log(`\n Language analysis results: \n`);
 		let count = 0;
 		if (sortedEntries.length === 0) console.log(`  None`);
+
 		// Collate files per language
 		const filesPerLanguage: Record<string, string[]> = {};
 		if (args.listFiles) {

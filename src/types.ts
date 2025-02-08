@@ -18,7 +18,6 @@ export interface Options {
 	keepVendored?: boolean
 	keepBinary?: boolean
 	relativePaths?: boolean
-	minSize?: `${number}${Lowercase<'B' | 'KB' | 'MB' | '%'>}`
 	childLanguages?: boolean
 	quick?: boolean
 	offline?: boolean
@@ -40,7 +39,7 @@ export interface Results {
 	languages: {
 		count: Integer
 		bytes: Bytes
-		results: Record<Language | 'other', {
+		results: Record<Language, {
 			bytes: Bytes
 			type: Category
 			parent?: Language
