@@ -56,6 +56,13 @@ for (const arg in args) {
 
 // Run Linguist
 if (args.analyze) (async () => {
+	// Check arguments
+	const validCategories = ['data', 'programming', 'prose', 'markup'];
+	if (args.categories?.some((category: string) => !validCategories.includes(category))) {
+		console.log(`Error: '${args.categories.join(', ')}' contains an invalid category. Valid options: ${validCategories.join(', ')}.`);
+		return;
+	}
+
 	// Fetch language data
 	const root = args.analyze === true ? '.' : args.analyze;
 	const data = await linguist(root, args);

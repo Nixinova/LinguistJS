@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Added CLI error message when passing invalid category input.
+
 ## 2.9.0
 *2025-02-09*
 - Added `minSize` CLI option to control a minimum size for results, with languages smaller than this threshold moved into 'Other' ([#32](https://github.com/Nixinova/LinguistJS/issues/32), [#35](https://github.com/Nixinova/LinguistJS/pull/35)).
