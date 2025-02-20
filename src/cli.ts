@@ -66,7 +66,7 @@ if (args.analyze) (async () => {
 	// Fetch language data
 	const root = args.analyze === true ? '.' : args.analyze;
 	const data = await linguist(root, args);
-	const { files, languages, unknown } = data;
+	const { files, languages, unknown, repository } = data;
 	// Print output
 	if (!args.json) {
 		// Ignore languages with a bytes/% size less than the declared min size
@@ -98,7 +98,7 @@ if (args.analyze) (async () => {
 				}
 			}
 			if (other.bytes) {
-				languages.results["Other"] = { ...other, type: null! };
+				languages.results["Other"] = other;
 			}
 		}
 
@@ -121,7 +121,8 @@ if (args.analyze) (async () => {
 			}
 		}
 		// List parsed results
-		for (const [lang, { bytes, lines, color }] of sortedEntries) {
+		for (const [lang, { bytes, lines }] of sortedEntries) {
+			const colour = hexToRgb(repository[lang].color ?? '#ededed');
 			const percent = (bytes: number) => bytes / (totalBytes || 1) * 100;
 			const fmtd = {
 				index: (++count).toString().padStart(2, ' '),
@@ -129,7 +130,7 @@ if (args.analyze) (async () => {
 				percent: percent(bytes).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
 				loc: lines.code.toLocaleString().padStart(10, ' '),
-				icon: colouredMsg(hexToRgb(color ?? '#ededed'), '\u2588'),
+				icon: colouredMsg(colour, '\u2588'),
 			};
 			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B ${fmtd.loc} LOC`);
 

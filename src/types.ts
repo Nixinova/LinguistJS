@@ -30,15 +30,17 @@ export interface Options {
 	checkModeline?: boolean
 }
 
+type LinesOfCode = {
+	total: Integer
+	content: Integer
+	code: Integer
+}
+
 export interface Results {
 	files: {
 		count: Integer
 		bytes: Bytes
-		lines: {
-			total: Integer
-			content: Integer
-			code: Integer
-		}
+		lines: LinesOfCode
 		/** Note: Results use slashes as delimiters even on Windows. */
 		results: Record<FilePath, LanguageResult>
 		alternatives: Record<FilePath, LanguageResult[]>
@@ -46,32 +48,22 @@ export interface Results {
 	languages: {
 		count: Integer
 		bytes: Bytes
-		lines: {
-			total: Integer
-			content: Integer
-			code: Integer
-		}
+		lines: LinesOfCode
 		results: Record<Language, {
 			bytes: Bytes
-			lines: {
-				total: Integer
-				content: Integer
-				code: Integer
-			}
-			type: Category
-			parent?: Language
-			color?: `#${string}`
+			lines: LinesOfCode
 		}>
 	}
 	unknown: {
 		count: Integer
 		bytes: Bytes
-		lines: {
-			total: Integer
-			content: Integer
-			code: Integer
-		}
+		lines: LinesOfCode
 		extensions: Record<string, Bytes>
 		filenames: Record<string, Bytes>
 	}
+	repository: Record<Language, {
+		type: Category
+		parent?: Language
+		color?: `#${string}`
+	}>
 }

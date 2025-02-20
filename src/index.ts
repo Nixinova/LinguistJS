@@ -50,6 +50,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		files: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {}, alternatives: {} },
 		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {} },
 		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, extensions: {}, filenames: {} },
+		repository: {},
 	};
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
@@ -393,7 +394,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				delete results.languages.results[lang];
 		}
 		for (const category of hiddenCategories) {
-			for (const [lang, { type }] of Object.entries(results.languages.results)) {
+			for (const [lang, { type }] of Object.entries(results.repository)) {
 				if (type === category) {
 					delete results.languages.results[lang];
 				}
@@ -438,13 +439,17 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		results.files.lines.code += loc.code;
 		// Add results to 'languages' section if language match found, or 'unknown' section otherwise
 		if (lang) {
-			const { type } = langData[lang];
-			// set default if unset
-			results.languages.results[lang] ??= { type, bytes: 0, lines: { total: 0, content: 0, code: 0 }, color: langData[lang].color };
-			// apply results to 'languages' section
-			if (opts.childLanguages) {
-				results.languages.results[lang].parent = langData[lang].group;
+			// update language in repository if not yet present
+			if (!results.repository[lang]) {
+				const { type, color } = langData[lang];
+				results.repository[lang] = { type, color };
+				if (opts.childLanguages) {
+					results.repository[lang].parent = langData[lang].group;
+				}
 			}
+			// set default if unset
+			results.languages.results[lang] ??= { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
+			// apply results to 'languages' section
 			results.languages.results[lang].bytes += fileSize;
 			results.languages.bytes += fileSize;
 			results.languages.results[lang].lines.total += loc.total;
