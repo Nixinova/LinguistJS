@@ -43,7 +43,6 @@
 		"binary-extensions": "^3.0.0",
 		"commander": "^13.1.0",
 		"common-path-prefix": "^3.0.0",
-		"cross-fetch": "^4.1.0",
 		"ignore": "^7.0.3",
 		"isbinaryfile": "^5.0.4",
 		"js-yaml": "^4.1.0",
