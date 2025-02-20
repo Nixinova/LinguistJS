@@ -3,7 +3,6 @@ const VERSION = require('../package.json').version;
 import FS from 'node:fs';
 import Path from 'node:path';
 import { program } from 'commander';
-
 import linguist from './index.js';
 import { normPath } from './helpers/norm-path.js';
 
@@ -14,7 +13,7 @@ program
 	.name('linguist')
 	.usage('--analyze [<folders...>] [<options...>]')
 
-	.option('-a|--analyze|--analyse [folders...]', 'Analyse the languages of all files in a folder')
+	.option('-a|--analyze [folders...]', 'Analyse the languages of all files in a folder')
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
