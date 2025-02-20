@@ -1,4 +1,4 @@
-import Path from 'path';
+import Path from 'node:path';
 
 export const normPath = function normalisedPath(...inputPaths: string[]) {
 	return Path.join(...inputPaths).replace(/\\/g, '/');

@@ -1,4 +1,4 @@
-const linguist = require('..');
+import linguist from '../dist/index.js';
 
 let i = 0;
 let errors = 0;

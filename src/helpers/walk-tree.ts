@@ -1,8 +1,8 @@
-import FS from 'fs';
-import Path from 'path';
+import FS from 'node:fs';
+import Path from 'node:path';
 import { Ignore } from 'ignore';
-import parseGitignore from './parse-gitignore';
-import { normPath, normAbsPath } from './norm-path';
+import parseGitignore from './parse-gitignore.js';
+import { normPath, normAbsPath } from './norm-path.js';
 
 let allFiles: Set<string>;
 let allFolders: Set<string>;

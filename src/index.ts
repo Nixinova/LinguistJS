@@ -1,19 +1,19 @@
-import FS from 'fs';
-import Path from 'path';
+import FS from 'node:fs';
+import Path from 'node:path';
 import YAML from 'js-yaml';
 import ignore, { Ignore } from 'ignore';
 import commonPrefix from 'common-path-prefix';
 import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
-import walk from './helpers/walk-tree';
-import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
-import readFileChunk from './helpers/read-file';
-import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes';
-import pcre from './helpers/convert-pcre';
-import { normPath } from './helpers/norm-path';
-import * as T from './types';
-import * as S from './schema';
+import walk from './helpers/walk-tree.js';
+import loadFile, { parseGeneratedDataFile } from './helpers/load-data.js';
+import readFileChunk from './helpers/read-file.js';
+import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes.js';
+import pcre from './helpers/convert-pcre.js';
+import { normPath } from './helpers/norm-path.js';
+import * as T from './types.js';
+import * as S from './schema.js';
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
@@ -248,13 +248,13 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*]|-\*-)`;
 				// Check for interpreter match
 				if (opts.checkShebang && hasShebang) {
-					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
+					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine.match(`\\b${interpreter}\\b`));
 					if (matchesInterpretor)
 						matches.push(lang);
 				}
 				// Check modeline declaration
 				if (opts.checkModeline && hasModeline) {
-					const modelineText = firstLine!.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
+					const modelineText = firstLine.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
 					const matchesLang = modelineText.match(langMatcher(lang));
 					const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
 					if (matchesLang || matchesAlias)
@@ -481,4 +481,4 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	// Return
 	return results;
 }
-export = analyse;
+export default analyse;
