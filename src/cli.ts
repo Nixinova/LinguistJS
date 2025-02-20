@@ -1,10 +1,11 @@
-const VERSION = require('../package.json').version;
-
 import FS from 'node:fs';
 import Path from 'node:path';
 import { program } from 'commander';
 import linguist from './index.js';
 import { normPath } from './helpers/norm-path.js';
+
+const packageJson = JSON.parse(FS.readFileSync(new URL('../package.json', import.meta.url), "utf-8"));
+const VERSION = packageJson.version;
 
 const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
 const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];

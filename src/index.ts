@@ -3,7 +3,6 @@ import Path from 'node:path';
 import YAML from 'js-yaml';
 import ignore, { Ignore } from 'ignore';
 import commonPrefix from 'common-path-prefix';
-import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
 import walk from './helpers/walk-tree.js';
@@ -14,6 +13,10 @@ import pcre from './helpers/convert-pcre.js';
 import { normPath } from './helpers/norm-path.js';
 import * as T from './types.js';
 import * as S from './schema.js';
+
+const binaryData = JSON.parse(
+	FS.readFileSync(new URL('../node_modules/binary-extensions/binary-extensions.json', import.meta.url), "utf-8")
+) as string[];
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
