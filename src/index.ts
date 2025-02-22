@@ -244,8 +244,9 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		if (firstLine === null) continue;
 
 		// Check first line for explicit classification
+		const modelineRegex = /-\*-|(?:syntax|filetype|ft)\s*=/;
 		const hasShebang = opts.checkShebang && /^#!/.test(firstLine);
-		const hasModeline = opts.checkModeline && /-\*-|(syntax|filetype|ft)\s*=/.test(firstLine);
+		const hasModeline = opts.checkModeline && modelineRegex.test(firstLine);
 		if (!opts.quick && (hasShebang || hasModeline)) {
 			const matches = [];
 			for (const [lang, data] of Object.entries(langData)) {
@@ -258,7 +259,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				}
 				// Check modeline declaration
 				if (opts.checkModeline && hasModeline) {
-					const modelineText = firstLine.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
+					const modelineText = firstLine.toLowerCase().split(modelineRegex)[1];
 					const matchesLang = modelineText.match(langMatcher(lang));
 					const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
 					if (matchesLang || matchesAlias)
