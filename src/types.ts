@@ -49,6 +49,7 @@ export interface Results {
 		bytes: Bytes
 		lines: LinesOfCode
 		results: Record<Language, {
+			count: Integer
 			bytes: Bytes
 			lines: LinesOfCode
 		}>

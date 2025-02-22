@@ -447,8 +447,9 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				}
 			}
 			// set default if unset
-			results.languages.results[lang] ??= { bytes: 0, lines: { total: 0, content: 0 } };
+			results.languages.results[lang] ??= { count: 0, bytes: 0, lines: { total: 0, content: 0 } };
 			// apply results to 'languages' section
+			results.languages.results[lang].count++;
 			results.languages.results[lang].bytes += fileSize;
 			results.languages.bytes += fileSize;
 			results.languages.results[lang].lines.total += loc.total;

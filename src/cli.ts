@@ -83,12 +83,13 @@ if (args.analyze) (async () => {
 				'loc': n => n,
 			};
 			const minBytesSize = conversionFactors[minSizeUnit](+minSizeAmt);
-			const other = { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
+			const other = { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 } };
 			// Apply specified minimums: delete language results that do not reach the threshold
 			for (const [lang, data] of Object.entries(languages.results)) {
 				const checkUnit = checkBytes ? data.bytes : data.lines.content;
 				if (checkUnit < minBytesSize) {
 					// Add to 'other' count
+					other.count++;
 					other.bytes += data.bytes;
 					other.lines.total += data.lines.total;
 					other.lines.content += data.lines.content;
