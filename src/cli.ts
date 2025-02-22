@@ -86,13 +86,12 @@ if (args.analyze) (async () => {
 			const other = { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
 			// Apply specified minimums: delete language results that do not reach the threshold
 			for (const [lang, data] of Object.entries(languages.results)) {
-				const checkUnit = checkBytes ? data.bytes : data.lines.code;
+				const checkUnit = checkBytes ? data.bytes : data.lines.content;
 				if (checkUnit < minBytesSize) {
 					// Add to 'other' count
 					other.bytes += data.bytes;
 					other.lines.total += data.lines.total;
 					other.lines.content += data.lines.content;
-					other.lines.code += data.lines.code;
 					// Remove language result
 					delete languages.results[lang];
 				}
@@ -129,7 +128,7 @@ if (args.analyze) (async () => {
 				lang: lang.padEnd(24, ' '),
 				percent: percent(bytes).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
-				loc: lines.code.toLocaleString().padStart(10, ' '),
+				loc: lines.content.toLocaleString().padStart(10, ' '),
 				icon: colouredMsg(colour, '\u2588'),
 			};
 			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B ${fmtd.loc} LOC`);

@@ -53,7 +53,6 @@ Running LinguistJS on this folder will return the following JSON:
     "lines": {
       "total": 100,
       "content": 90,
-      "code": 80,
     },
     "results": {
       "/src/index.ts": "TypeScript",
@@ -72,13 +71,12 @@ Running LinguistJS on this folder will return the following JSON:
     "lines": {
       "total": 90,
       "content": 80,
-      "code": 70,
     },
     "results": {
-      "JavaScript": { "bytes": 1000, "lines": { "total": 49, "content": 49, "code": 44 }, },
-      "Markdown": { "bytes": 3000, "lines": { "total": 10, "content": 5, "code": 5 }, },
-      "Ruby": { "bytes": 10, "lines": { "total": 1, "content": 1, "code": 1 }, },
-      "TypeScript": { "bytes": 2000, "lines": { "total": 30, "content": 25, "code": 20 }, },
+      "JavaScript": { "bytes": 1000, "lines": { "total": 49, "content": 49 }, },
+      "Markdown": { "bytes": 3000, "lines": { "total": 10, "content": 5 }, },
+      "Ruby": { "bytes": 10, "lines": { "total": 1, "content": 1 }, },
+      "TypeScript": { "bytes": 2000, "lines": { "total": 30, "content": 25 }, },
     },
   },
   "unknown": {
@@ -87,7 +85,6 @@ Running LinguistJS on this folder will return the following JSON:
     "lines": {
       "total": 10,
       "content": 10,
-      "code": 10,
     },
     "filenames": {
       "no-lang": 10,

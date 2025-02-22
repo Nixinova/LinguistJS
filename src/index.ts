@@ -50,9 +50,9 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	const extensions: Record<T.AbsFile, string> = {};
 	const globOverrides: Record<T.AbsFile, T.LanguageResult> = {};
 	const results: T.Results = {
-		files: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {}, alternatives: {} },
-		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {} },
-		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, extensions: {}, filenames: {} },
+		files: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {}, alternatives: {} },
+		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {} },
+		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, extensions: {}, filenames: {} },
 		repository: {},
 	};
 
@@ -424,22 +424,17 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		// Calculate file size
 		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? FS.statSync(file).size;
 		// Calculate lines of code
-		const loc = { total: 0, content: 0, code: 0 };
+		const loc = { total: 0, content: 0 };
 		if (opts.calculateLines) {
 			const fileContent = (manualFileContent[files.indexOf(file)] ?? FS.readFileSync(file).toString()) ?? '';
 			const allLines = fileContent.split(/\r?\n/gm);
 			loc.total = allLines.length;
 			loc.content = allLines.filter(line => line.trim().length > 0).length;
-			const codeLines = fileContent
-				.replace(/^\s*(\/\/|# |;|--).+/gm, '')
-				.replace(/\/\*.+\*\/|<!--.+-->/sg, '')
-			loc.code = codeLines.split(/\r?\n/gm).filter(line => line.trim().length > 0).length;
 		}
 		// Apply to files totals
 		results.files.bytes += fileSize;
 		results.files.lines.total += loc.total;
 		results.files.lines.content += loc.content;
-		results.files.lines.code += loc.code;
 		// Add results to 'languages' section if language match found, or 'unknown' section otherwise
 		if (lang) {
 			// update language in repository if not yet present
@@ -451,16 +446,14 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				}
 			}
 			// set default if unset
-			results.languages.results[lang] ??= { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
+			results.languages.results[lang] ??= { bytes: 0, lines: { total: 0, content: 0 } };
 			// apply results to 'languages' section
 			results.languages.results[lang].bytes += fileSize;
 			results.languages.bytes += fileSize;
 			results.languages.results[lang].lines.total += loc.total;
 			results.languages.results[lang].lines.content += loc.content;
-			results.languages.results[lang].lines.code += loc.code;
 			results.languages.lines.total += loc.total;
 			results.languages.lines.content += loc.content;
-			results.languages.lines.code += loc.code;
 		}
 		else {
 			const ext = Path.extname(file);
@@ -472,13 +465,12 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			results.unknown.bytes += fileSize;
 			results.unknown.lines.total += loc.total;
 			results.unknown.lines.content += loc.content;
-			results.unknown.lines.code += loc.code;
 		}
 	}
 
 	// Set lines output to NaN when line calculation is disabled
 	if (opts.calculateLines === false) {
-		results.files.lines = { total: NaN, content: NaN, code: NaN }
+		results.files.lines = { total: NaN, content: NaN }
 	}
 
 	// Set counts

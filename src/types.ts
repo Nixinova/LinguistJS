@@ -33,7 +33,6 @@ export interface Options {
 type LinesOfCode = {
 	total: Integer
 	content: Integer
-	code: Integer
 }
 
 export interface Results {
