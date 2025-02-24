@@ -20,10 +20,18 @@ const binaryData = JSON.parse(
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
-async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Promise<T.Results> {
-	const useRawContent = opts.fileContent !== undefined;
-	const input = [rawPaths ?? []].flat();
-	const manualFileContent = [opts.fileContent ?? []].flat();
+async function analyse(content?: Record<string, string>, opts?: T.Options): Promise<T.Results>
+async function analyse(rawInput?: string | string[] | Record<string, string>, opts: T.Options = {}): Promise<T.Results> {
+	const inputs = {
+		path: typeof rawInput === 'string' ? rawInput : null,
+		paths: Array.isArray(rawInput) ? rawInput : null,
+		content: typeof rawInput === 'object' && !Array.isArray(rawInput) ? rawInput : null,
+	};
+	const inputPaths = inputs.paths ?? (inputs.path ? [inputs.path] : null);
+	const inputContent = inputs.content;
+	const useRawContent = inputContent !== null;
+
+	const input = useRawContent ? Object.keys(inputContent) : inputPaths ?? [];
 
 	// Normalise input option arguments
 	opts = {
@@ -233,7 +241,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		// Check first line for readability
 		let firstLine: string | null;
 		if (useRawContent) {
-			firstLine = manualFileContent[files.indexOf(file)]?.split('\n')[0] ?? null;
+			firstLine = inputContent[file]?.split('\n')[0] ?? null;
 		}
 		else if (FS.existsSync(file) && !FS.lstatSync(file).isDirectory()) {
 			firstLine = await readFileChunk(file, true).catch(() => null);
@@ -353,7 +361,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				}
 
 				// Check file contents and apply heuristic patterns
-				const fileContent = opts.fileContent ? manualFileContent[files.indexOf(file)] : await readFileChunk(file).catch(() => null);
+				const fileContent = useRawContent ? inputContent[file] : await readFileChunk(file).catch(() => null);
 
 				// Skip if file read errors
 				if (fileContent === null) continue;
@@ -423,11 +431,11 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
 		// Calculate file size
-		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? FS.statSync(file).size;
+		const fileSize = useRawContent ? inputContent[file]?.length : FS.statSync(file).size;
 		// Calculate lines of code
 		const loc = { total: 0, content: 0 };
 		if (opts.calculateLines) {
-			const fileContent = (manualFileContent[files.indexOf(file)] ?? FS.readFileSync(file).toString()) ?? '';
+			const fileContent = useRawContent ? inputContent[file] : FS.readFileSync(file).toString();
 			const allLines = fileContent.split(/\r?\n/gm);
 			loc.total = allLines.length;
 			loc.content = allLines.filter(line => line.trim().length > 0).length;

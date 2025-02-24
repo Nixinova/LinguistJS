@@ -11,7 +11,6 @@ export type AbsFolder = string & {}
 export type FileGlob = string & {}
 
 export interface Options {
-	fileContent?: string | string[]
 	ignoredFiles?: string[]
 	ignoredLanguages?: Language[]
 	categories?: Category[]

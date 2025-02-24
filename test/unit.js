@@ -8,7 +8,7 @@ function desc(text) {
 }
 
 async function test([filename, fileContent = ''], [type, testVal]) {
-	const actual = await linguist(filename, { fileContent, childLanguages: true });
+	const actual = await linguist({ [filename]: fileContent }, { childLanguages: true });
 	const testContent = {
 		'files': actual.files.results[filename],
 		'size': actual.files.bytes,
