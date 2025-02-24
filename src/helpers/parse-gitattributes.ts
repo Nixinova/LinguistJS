@@ -1,5 +1,5 @@
-import * as T from '../types';
-import { normPath } from './norm-path';
+import * as T from '../types.js';
+import { normPath } from './norm-path.js';
 
 export type FlagAttributes = {
 	'vendored': boolean | null,

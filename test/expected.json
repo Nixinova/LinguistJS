@@ -2,7 +2,7 @@
 	"files": {
 		"count": 12,
 		"bytes": 199,
-		"lines": { "total": 27, "content": 16, "code": 11 },
+		"lines": { "total": 27, "content": 16 },
 		"results": {
 			"~/al.al": "Perl",
 			"~/alternatives.asc": "AGS Script",
@@ -18,27 +18,74 @@
 			"~/unknown": null
 		},
 		"alternatives": {
-		  "~/alternatives.asc": [ "AsciiDoc", "Public Key" ]
+			"~/alternatives.asc": ["AsciiDoc", "Public Key"]
 		}
 	},
 	"languages": {
 		"count": 8,
 		"bytes": 190,
 		"results": {
-			"Perl": { "type": "programming", "bytes": 0, "lines": { "total": 1, "content": 0, "code": 0 },"color": "#0298c3" },
-			"AGS Script": { "type": "programming", "bytes": 14, "lines": { "total": 2, "content": 1, "code": 1 },"color": "#B9D9FF" },
-			"JSON": { "type": "data", "bytes": 8, "lines": { "total": 4, "content": 2, "code": 2 },"color": "#292929"},
-			"JavaScript": { "type": "programming", "bytes": 23, "lines": { "total": 4, "content": 3, "code": 3 },"color": "#f1e05a" },
-			"Text": { "type": "prose", "bytes": 0, "lines": { "total": 1, "content": 0, "code": 0 } },
-			"C": { "type": "programming", "bytes": 130, "lines": { "total": 10, "content": 8, "code": 4 }, "color": "#555555"},
-			"C++": { "type": "programming", "bytes": 15, "lines": { "total": 2, "content": 1, "code": 0 }, "color": "#f34b7d" },
-			"TOML": { "type": "data", "bytes": 0, "lines": { "total": 1, "content": 0, "code": 0 }, "color": "#9c4221" }
+			"Perl": {
+				"count": 1,
+				"type": "programming",
+				"bytes": 0,
+				"lines": { "total": 1, "content": 0 },
+				"color": "#0298c3"
+			},
+			"AGS Script": {
+				"count": 1,
+				"type": "programming",
+				"bytes": 14,
+				"lines": { "total": 2, "content": 1 },
+				"color": "#B9D9FF"
+			},
+			"JSON": {
+				"count": 2,
+				"type": "data",
+				"bytes": 8,
+				"lines": { "total": 4, "content": 2 },
+				"color": "#292929"
+			},
+			"JavaScript": {
+				"count": 3,
+				"type": "programming",
+				"bytes": 23,
+				"lines": { "total": 4, "content": 3 },
+				"color": "#f1e05a"
+			},
+			"Text": {
+				"count": 1,
+				"type": "prose",
+				"bytes": 0,
+				"lines": { "total": 1, "content": 0 }
+			},
+			"C": {
+				"count": 1,
+				"type": "programming",
+				"bytes": 130,
+				"lines": { "total": 10, "content": 8 },
+				"color": "#555555"
+			},
+			"C++": {
+				"count": 1,
+				"type": "programming",
+				"bytes": 15,
+				"lines": { "total": 2, "content": 1 },
+				"color": "#f34b7d"
+			},
+			"TOML": {
+				"count": 1,
+				"type": "data",
+				"bytes": 0,
+				"lines": { "total": 1, "content": 0 },
+				"color": "#9c4221"
+			}
 		}
 	},
 	"unknown": {
 		"count": 1,
 		"bytes": 9,
-		"lines": { "total": 2, "content": 1, "code": 1 },
+		"lines": { "total": 2, "content": 1 },
 		"extensions": {},
 		"filenames": {
 			"unknown": 9

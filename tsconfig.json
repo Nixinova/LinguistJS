@@ -9,9 +9,9 @@
     /* Examples: https://github.com/tsconfig/bases */
 
     /* Basic Options */
-    "target": "es2019", // Node 12
-    "module": "commonjs",
-    "lib": ["es2020"],
+    "target": "ES2023",
+    "module": "NodeNext",
+    "lib": ["ESNext"],
     //"allowJs": true,
     //"checkJs": true,
     //"jsx": "preserve",
@@ -46,7 +46,7 @@
     //"noPropertyAccessFromIndexSignature": true,
 
     /* Module Resolution Options */
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     //"baseUrl": "./",
     //"paths": {},

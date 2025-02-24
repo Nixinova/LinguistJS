@@ -1,11 +1,11 @@
-const VERSION = require('../package.json').version;
-
-import FS from 'fs';
-import Path from 'path';
+import FS from 'node:fs';
+import Path from 'node:path';
 import { program } from 'commander';
+import linguist from './index.js';
+import { normPath } from './helpers/norm-path.js';
 
-import linguist from './index';
-import { normPath } from './helpers/norm-path';
+const packageJson = JSON.parse(FS.readFileSync(new URL('../package.json', import.meta.url), "utf-8"));
+const VERSION = packageJson.version;
 
 const colouredMsg = ([r, g, b]: number[], msg: string): string => `\u001B[${38};2;${r};${g};${b}m${msg}${'\u001b[0m'}`;
 const hexToRgb = (hex: string): number[] => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
@@ -14,7 +14,7 @@ program
 	.name('linguist')
 	.usage('--analyze [<folders...>] [<options...>]')
 
-	.option('-a|--analyze|--analyse [folders...]', 'Analyse the languages of all files in a folder')
+	.option('-a|--analyze [folders...]', 'Analyse the languages of all files in a folder')
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
@@ -66,7 +66,7 @@ if (args.analyze) (async () => {
 	// Fetch language data
 	const root = args.analyze === true ? '.' : args.analyze;
 	const data = await linguist(root, args);
-	const { files, languages, unknown } = data;
+	const { files, languages, unknown, repository } = data;
 	// Print output
 	if (!args.json) {
 		// Ignore languages with a bytes/% size less than the declared min size
@@ -83,22 +83,22 @@ if (args.analyze) (async () => {
 				'loc': n => n,
 			};
 			const minBytesSize = conversionFactors[minSizeUnit](+minSizeAmt);
-			const other = { bytes: 0, lines: { total: 0, content: 0, code: 0 } };
+			const other = { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 } };
 			// Apply specified minimums: delete language results that do not reach the threshold
 			for (const [lang, data] of Object.entries(languages.results)) {
-				const checkUnit = checkBytes ? data.bytes : data.lines.code;
+				const checkUnit = checkBytes ? data.bytes : data.lines.content;
 				if (checkUnit < minBytesSize) {
 					// Add to 'other' count
+					other.count++;
 					other.bytes += data.bytes;
 					other.lines.total += data.lines.total;
 					other.lines.content += data.lines.content;
-					other.lines.code += data.lines.code;
 					// Remove language result
 					delete languages.results[lang];
 				}
 			}
 			if (other.bytes) {
-				languages.results["Other"] = { ...other, type: null! };
+				languages.results["Other"] = other;
 			}
 		}
 
@@ -121,15 +121,16 @@ if (args.analyze) (async () => {
 			}
 		}
 		// List parsed results
-		for (const [lang, { bytes, lines, color }] of sortedEntries) {
+		for (const [lang, { bytes, lines }] of sortedEntries) {
+			const colour = hexToRgb(repository[lang].color ?? '#ededed');
 			const percent = (bytes: number) => bytes / (totalBytes || 1) * 100;
 			const fmtd = {
 				index: (++count).toString().padStart(2, ' '),
 				lang: lang.padEnd(24, ' '),
 				percent: percent(bytes).toFixed(2).padStart(5, ' '),
 				bytes: bytes.toLocaleString().padStart(10, ' '),
-				loc: lines.code.toLocaleString().padStart(10, ' '),
-				icon: colouredMsg(hexToRgb(color ?? '#ededed'), '\u2588'),
+				loc: lines.content.toLocaleString().padStart(10, ' '),
+				icon: colouredMsg(colour, '\u2588'),
 			};
 			console.log(`  ${fmtd.index}. ${fmtd.icon} ${fmtd.lang} ${fmtd.percent}% ${fmtd.bytes} B ${fmtd.loc} LOC`);
 

@@ -11,7 +11,6 @@ export type AbsFolder = string & {}
 export type FileGlob = string & {}
 
 export interface Options {
-	fileContent?: string | string[]
 	ignoredFiles?: string[]
 	ignoredLanguages?: Language[]
 	categories?: Category[]
@@ -30,15 +29,16 @@ export interface Options {
 	checkModeline?: boolean
 }
 
+type LinesOfCode = {
+	total: Integer
+	content: Integer
+}
+
 export interface Results {
 	files: {
 		count: Integer
 		bytes: Bytes
-		lines: {
-			total: Integer
-			content: Integer
-			code: Integer
-		}
+		lines: LinesOfCode
 		/** Note: Results use slashes as delimiters even on Windows. */
 		results: Record<FilePath, LanguageResult>
 		alternatives: Record<FilePath, LanguageResult[]>
@@ -46,32 +46,23 @@ export interface Results {
 	languages: {
 		count: Integer
 		bytes: Bytes
-		lines: {
-			total: Integer
-			content: Integer
-			code: Integer
-		}
+		lines: LinesOfCode
 		results: Record<Language, {
+			count: Integer
 			bytes: Bytes
-			lines: {
-				total: Integer
-				content: Integer
-				code: Integer
-			}
-			type: Category
-			parent?: Language
-			color?: `#${string}`
+			lines: LinesOfCode
 		}>
 	}
 	unknown: {
 		count: Integer
 		bytes: Bytes
-		lines: {
-			total: Integer
-			content: Integer
-			code: Integer
-		}
+		lines: LinesOfCode
 		extensions: Record<string, Bytes>
 		filenames: Record<string, Bytes>
 	}
+	repository: Record<Language, {
+		type: Category
+		parent?: Language
+		color?: `#${string}`
+	}>
 }

@@ -1,26 +1,37 @@
-import FS from 'fs';
-import Path from 'path';
+import FS from 'node:fs';
+import Path from 'node:path';
 import YAML from 'js-yaml';
 import ignore, { Ignore } from 'ignore';
 import commonPrefix from 'common-path-prefix';
-import binaryData from 'binary-extensions';
 import { isBinaryFile } from 'isbinaryfile';
 
-import walk from './helpers/walk-tree';
-import loadFile, { parseGeneratedDataFile } from './helpers/load-data';
-import readFileChunk from './helpers/read-file';
-import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes';
-import pcre from './helpers/convert-pcre';
-import { normPath } from './helpers/norm-path';
-import * as T from './types';
-import * as S from './schema';
+import walk from './helpers/walk-tree.js';
+import loadFile, { parseGeneratedDataFile } from './helpers/load-data.js';
+import readFileChunk from './helpers/read-file.js';
+import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes.js';
+import pcre from './helpers/convert-pcre.js';
+import { normPath } from './helpers/norm-path.js';
+import * as T from './types.js';
+import * as S from './schema.js';
+
+const binaryData = JSON.parse(
+	FS.readFileSync(new URL('../node_modules/binary-extensions/binary-extensions.json', import.meta.url), "utf-8")
+) as string[];
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
-async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Promise<T.Results> {
-	const useRawContent = opts.fileContent !== undefined;
-	const input = [rawPaths ?? []].flat();
-	const manualFileContent = [opts.fileContent ?? []].flat();
+async function analyse(content?: Record<string, string>, opts?: T.Options): Promise<T.Results>
+async function analyse(rawInput?: string | string[] | Record<string, string>, opts: T.Options = {}): Promise<T.Results> {
+	const inputs = {
+		path: typeof rawInput === 'string' ? rawInput : null,
+		paths: Array.isArray(rawInput) ? rawInput : null,
+		content: typeof rawInput === 'object' && !Array.isArray(rawInput) ? rawInput : null,
+	};
+	const inputPaths = inputs.paths ?? (inputs.path ? [inputs.path] : null);
+	const inputContent = inputs.content;
+	const useRawContent = inputContent !== null;
+
+	const input = useRawContent ? Object.keys(inputContent) : inputPaths ?? [];
 
 	// Normalise input option arguments
 	opts = {
@@ -47,9 +58,10 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	const extensions: Record<T.AbsFile, string> = {};
 	const globOverrides: Record<T.AbsFile, T.LanguageResult> = {};
 	const results: T.Results = {
-		files: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {}, alternatives: {} },
-		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, results: {} },
-		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0, code: 0 }, extensions: {}, filenames: {} },
+		files: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {}, alternatives: {} },
+		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {} },
+		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, extensions: {}, filenames: {} },
+		repository: {},
 	};
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
@@ -229,7 +241,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		// Check first line for readability
 		let firstLine: string | null;
 		if (useRawContent) {
-			firstLine = manualFileContent[files.indexOf(file)]?.split('\n')[0] ?? null;
+			firstLine = inputContent[file]?.split('\n')[0] ?? null;
 		}
 		else if (FS.existsSync(file) && !FS.lstatSync(file).isDirectory()) {
 			firstLine = await readFileChunk(file, true).catch(() => null);
@@ -240,21 +252,22 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		if (firstLine === null) continue;
 
 		// Check first line for explicit classification
+		const modelineRegex = /-\*-|(?:syntax|filetype|ft)\s*=/;
 		const hasShebang = opts.checkShebang && /^#!/.test(firstLine);
-		const hasModeline = opts.checkModeline && /-\*-|(syntax|filetype|ft)\s*=/.test(firstLine);
+		const hasModeline = opts.checkModeline && modelineRegex.test(firstLine);
 		if (!opts.quick && (hasShebang || hasModeline)) {
 			const matches = [];
 			for (const [lang, data] of Object.entries(langData)) {
 				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*]|-\*-)`;
 				// Check for interpreter match
 				if (opts.checkShebang && hasShebang) {
-					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine!.match(`\\b${interpreter}\\b`));
+					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine.match(`\\b${interpreter}\\b`));
 					if (matchesInterpretor)
 						matches.push(lang);
 				}
 				// Check modeline declaration
 				if (opts.checkModeline && hasModeline) {
-					const modelineText = firstLine!.toLowerCase().replace(/^.*-\*-(.+)-\*-.*$/, '$1');
+					const modelineText = firstLine.toLowerCase().split(modelineRegex)[1];
 					const matchesLang = modelineText.match(langMatcher(lang));
 					const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
 					if (matchesLang || matchesAlias)
@@ -348,7 +361,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				}
 
 				// Check file contents and apply heuristic patterns
-				const fileContent = opts.fileContent ? manualFileContent[files.indexOf(file)] : await readFileChunk(file).catch(() => null);
+				const fileContent = useRawContent ? inputContent[file] : await readFileChunk(file).catch(() => null);
 
 				// Skip if file read errors
 				if (fileContent === null) continue;
@@ -393,7 +406,7 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 				delete results.languages.results[lang];
 		}
 		for (const category of hiddenCategories) {
-			for (const [lang, { type }] of Object.entries(results.languages.results)) {
+			for (const [lang, { type }] of Object.entries(results.repository)) {
 				if (type === category) {
 					delete results.languages.results[lang];
 				}
@@ -418,41 +431,39 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	for (const [file, lang] of Object.entries(results.files.results)) {
 		if (lang && !langData[lang]) continue;
 		// Calculate file size
-		const fileSize = manualFileContent[files.indexOf(file)]?.length ?? FS.statSync(file).size;
+		const fileSize = useRawContent ? inputContent[file]?.length : FS.statSync(file).size;
 		// Calculate lines of code
-		const loc = { total: 0, content: 0, code: 0 };
+		const loc = { total: 0, content: 0 };
 		if (opts.calculateLines) {
-			const fileContent = (manualFileContent[files.indexOf(file)] ?? FS.readFileSync(file).toString()) ?? '';
+			const fileContent = useRawContent ? inputContent[file] : FS.readFileSync(file).toString();
 			const allLines = fileContent.split(/\r?\n/gm);
 			loc.total = allLines.length;
 			loc.content = allLines.filter(line => line.trim().length > 0).length;
-			const codeLines = fileContent
-				.replace(/^\s*(\/\/|# |;|--).+/gm, '')
-				.replace(/\/\*.+\*\/|<!--.+-->/sg, '')
-			loc.code = codeLines.split(/\r?\n/gm).filter(line => line.trim().length > 0).length;
 		}
 		// Apply to files totals
 		results.files.bytes += fileSize;
 		results.files.lines.total += loc.total;
 		results.files.lines.content += loc.content;
-		results.files.lines.code += loc.code;
 		// Add results to 'languages' section if language match found, or 'unknown' section otherwise
 		if (lang) {
-			const { type } = langData[lang];
-			// set default if unset
-			results.languages.results[lang] ??= { type, bytes: 0, lines: { total: 0, content: 0, code: 0 }, color: langData[lang].color };
-			// apply results to 'languages' section
-			if (opts.childLanguages) {
-				results.languages.results[lang].parent = langData[lang].group;
+			// update language in repository if not yet present
+			if (!results.repository[lang]) {
+				const { type, color } = langData[lang];
+				results.repository[lang] = { type, color };
+				if (opts.childLanguages) {
+					results.repository[lang].parent = langData[lang].group;
+				}
 			}
+			// set default if unset
+			results.languages.results[lang] ??= { count: 0, bytes: 0, lines: { total: 0, content: 0 } };
+			// apply results to 'languages' section
+			results.languages.results[lang].count++;
 			results.languages.results[lang].bytes += fileSize;
 			results.languages.bytes += fileSize;
 			results.languages.results[lang].lines.total += loc.total;
 			results.languages.results[lang].lines.content += loc.content;
-			results.languages.results[lang].lines.code += loc.code;
 			results.languages.lines.total += loc.total;
 			results.languages.lines.content += loc.content;
-			results.languages.lines.code += loc.code;
 		}
 		else {
 			const ext = Path.extname(file);
@@ -464,13 +475,12 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 			results.unknown.bytes += fileSize;
 			results.unknown.lines.total += loc.total;
 			results.unknown.lines.content += loc.content;
-			results.unknown.lines.code += loc.code;
 		}
 	}
 
 	// Set lines output to NaN when line calculation is disabled
 	if (opts.calculateLines === false) {
-		results.files.lines = { total: NaN, content: NaN, code: NaN }
+		results.files.lines = { total: NaN, content: NaN }
 	}
 
 	// Set counts
@@ -481,4 +491,4 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 	// Return
 	return results;
 }
-export = analyse;
+export default analyse;

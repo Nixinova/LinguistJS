@@ -1,4 +1,4 @@
-const linguist = require('..');
+import linguist from '../dist/index.js';
 
 async function perfTest() {
 	let time = 0;

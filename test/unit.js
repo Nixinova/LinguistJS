@@ -1,4 +1,4 @@
-const linguist = require('..');
+import linguist from '../dist/index.js';
 
 let i = 0;
 let errors = 0;
@@ -8,7 +8,7 @@ function desc(text) {
 }
 
 async function test([filename, fileContent = ''], [type, testVal]) {
-	const actual = await linguist(filename, { fileContent, childLanguages: true });
+	const actual = await linguist({ [filename]: fileContent }, { childLanguages: true });
 	const testContent = {
 		'files': actual.files.results[filename],
 		'size': actual.files.bytes,

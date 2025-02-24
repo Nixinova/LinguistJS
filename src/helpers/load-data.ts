@@ -1,6 +1,5 @@
-import FS from 'fs';
-import Path from 'path';
-import fetch from 'cross-fetch';
+import FS from 'node:fs';
+import Path from 'node:path';
 import Cache from 'node-cache';
 
 const cache = new Cache({});

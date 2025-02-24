@@ -51,9 +51,8 @@ Running LinguistJS on this folder will return the following JSON:
     "count": 5,
     "bytes": 6020,
     "lines": {
-        "total": 100,
-        "content": 90,
-        "code": 80,
+      "total": 100,
+      "content": 90,
     },
     "results": {
       "/src/index.ts": "TypeScript",
@@ -63,57 +62,41 @@ Running LinguistJS on this folder will return the following JSON:
       "/x.pluginspec": "Ruby",
     },
     "alternatives": {
-        "/x.pluginspec": ["XML"],
+      "/x.pluginspec": ["XML"],
     },
   },
   "languages": {
     "count": 3,
     "bytes": 6010,
     "lines": {
-        "total": 90,
-        "content": 80,
-        "code": 70,
+      "total": 90,
+      "content": 80,
     },
     "results": {
-       "JavaScript": {
-            "type": "programming",
-            "bytes": 1000,
-            "lines": { "total": 49, "content": 49, "code": 44 },
-            "color": "#f1e05a"
-        },
-        "Markdown": {
-            "type": "prose",
-            "bytes": 3000,
-            "lines": { "total": 10, "content": 5, "code": 5 },
-            "color": "#083fa1"
-        },
-        "Ruby": {
-            "type": "programming",
-            "bytes": 10,
-            "lines": { "total": 1, "content": 1, "code": 1 },
-            "color": "#701516"
-        },
-        "TypeScript": {
-            "type": "programming",
-            "bytes": 2000,
-            "lines": { "total": 30, "content": 25, "code": 20 },
-            "color": "#2b7489"
-        },
+      "JavaScript": { "bytes": 1000, "lines": { "total": 49, "content": 49 }, },
+      "Markdown": { "bytes": 3000, "lines": { "total": 10, "content": 5 }, },
+      "Ruby": { "bytes": 10, "lines": { "total": 1, "content": 1 }, },
+      "TypeScript": { "bytes": 2000, "lines": { "total": 30, "content": 25 }, },
     },
   },
   "unknown": {
     "count": 1,
     "bytes": 10,
     "lines": {
-        "total": 10,
-        "content": 10,
-        "code": 10,
+      "total": 10,
+      "content": 10,
     },
     "filenames": {
       "no-lang": 10,
     },
     "extensions": {},
   },
+  "repository": {
+    "JavaScript": { "type": "programming", "color": "#f1e05a" },
+    "Markdown": { "type": "prose", "color": "#083fa1" },
+    "Ruby": { "type": "programming", "color": "#701516" },
+    "TypeScript": { "type": "programming", "color": "#2b7489" },
+  }
 }
 ```
 
@@ -134,13 +117,13 @@ const linguist = require('linguist-js');
 // Analyse folder on disc
 const folder = './src';
 const options = { keepVendored: false, quick: false };
-const { files, languages, unknown } = await linguist(folder, options);
+const { files, languages, unknown, repository } = await linguist(folder, options);
 
 // Analyse file content from raw input
 const fileNames = ['file1.ts', 'file2.ts', 'ignoreme.js'];
 const fileContent = ['#!/usr/bin/env node', 'console.log("Example");', '"ignored"'];
 const options = { ignoredFiles: ['ignore*'] };
-const { files, languages, unknown } = await linguist(fileNames, { fileContent, ...options });
+const { files, languages, unknown, repository } = await linguist(fileNames, { fileContent, ...options });
 ```
 
 - `linguist(entry?, opts?)` (default export):
