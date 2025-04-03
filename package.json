@@ -9,7 +9,7 @@
 	},
 	"engines": {
 		"node": ">=12",
-		"npm": "<9"
+		"npm": ">=8"
 	},
 	"scripts": {
 		"download-files": "npx tsx@3 build/download-files",

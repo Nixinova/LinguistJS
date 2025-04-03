@@ -2,6 +2,7 @@
 
 ## Next
 - Added CLI error message when passing invalid category input.
+- Fixed npm version warning ([#42](https://github.com/Nixinova/LinguistJS/issues/42)).
 
 ## 2.9.0
 *2025-02-09*
