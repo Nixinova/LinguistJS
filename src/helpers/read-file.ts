@@ -10,7 +10,7 @@ export default async function readFileChunk(filename: string, onlyFirstLine: boo
 	let content = '';
 	for await (const data of stream) { // may throw
 		content += data.toString();
-		if (onlyFirstLine && content.includes('\n')) {
+		if (onlyFirstLine) {
 			return content.split(/\r?\n/)[0];
 		}
 	}
