@@ -1,7 +1,8 @@
 # Changelog
 
-## Next
-- Fixed files with long first lines causing lag ([#41](https://github.com/Nixinova/LinguistJS/issues/41)).
+## 2.9.2
+*2025-04-26*
+- Fixed files with long first lines causing the script to hang ([#41](https://github.com/Nixinova/LinguistJS/issues/41)).
 
 ## 2.9.1
 *2025-04-04*

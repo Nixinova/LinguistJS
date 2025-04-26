@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "2.9.1",
+	"version": "2.9.2",
 	"description": "Analyse languages used in a folder. Powered by GitHub Linguist, although it doesn't need to be installed.",
 	"main": "dist/index.js",
 	"bin": {
@@ -43,7 +43,7 @@
 		"commander": "^9.5.0 <10",
 		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.2.0 <4",
-		"ignore": "^7.0.3",
+		"ignore": "^7.0.4",
 		"isbinaryfile": "^4.0.10 <5",
 		"js-yaml": "^4.1.0",
 		"node-cache": "^5.1.2"
