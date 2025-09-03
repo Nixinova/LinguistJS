@@ -44,7 +44,7 @@
 		"common-path-prefix": "^3.0.0",
 		"cross-fetch": "^3.2.0 <4",
 		"ignore": "^7.0.4",
-		"isbinaryfile": "^4.0.10 <5",
+		"isbinaryfile": "^5.0.6 <6",
 		"js-yaml": "^4.1.0",
 		"node-cache": "^5.1.2"
 	},
