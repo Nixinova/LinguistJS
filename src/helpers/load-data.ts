@@ -1,8 +1,10 @@
 import FS from 'node:fs';
 import Path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Cache from 'node-cache';
 
 const cache = new Cache({});
+const dirname = Path.dirname(fileURLToPath(import.meta.url));
 
 async function loadWebFile(file: string): Promise<string> {
 	// Return cache if it exists
@@ -17,7 +19,7 @@ async function loadWebFile(file: string): Promise<string> {
 }
 
 async function loadLocalFile(file: string): Promise<string> {
-	const filePath = Path.resolve(__dirname, '../../ext', file);
+	const filePath = Path.resolve(dirname, "../../ext", file);
 	return FS.promises.readFile(filePath).then(buffer => buffer.toString());
 }
 

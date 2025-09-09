@@ -9,11 +9,11 @@
 		"linguist": "bin/index.js"
 	},
 	"engines": {
-		"node": ">=20",
+		"node": ">=24",
 		"npm": ">=10"
 	},
 	"scripts": {
-		"download-files": "npx tsx@3 build/download-files",
+		"download-files": "node build/download-files",
 		"pre-publish": "npm run download-files && npm test && npm run perf",
 		"perf": "tsc && node test/perf",
 		"test": "tsc && node test/folder && node test/unit"
@@ -40,18 +40,18 @@
 	},
 	"homepage": "https://github.com/Nixinova/Linguist#readme",
 	"dependencies": {
-		"binary-extensions": "^3.0.0",
-		"commander": "^13.1.0",
+		"binary-extensions": "^3.1.0",
+		"commander": "^14.0.0",
 		"common-path-prefix": "^3.0.0",
-		"ignore": "^7.0.3",
-		"isbinaryfile": "^5.0.4",
+		"ignore": "^7.0.5",
+		"isbinaryfile": "^5.0.6",
 		"js-yaml": "^4.1.0",
 		"node-cache": "^5.1.2"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "ts5.7",
+		"@types/node": "^24.3.1",
 		"deep-object-diff": "^1.1.9",
-		"typescript": "~5.7.3"
+		"typescript": "^5.9.2"
 	}
 }
