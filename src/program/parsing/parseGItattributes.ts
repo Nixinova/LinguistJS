@@ -1,5 +1,5 @@
-import * as T from '../types.js';
-import { normPath } from './norm-path.js';
+import * as T from '../../types/types.js';
+import { normPath } from '../fs/normalisedPath.js';
 
 export type FlagAttributes = {
 	'vendored': boolean | null,
@@ -18,7 +18,7 @@ export type ParsedGitattributes = Array<{
 /**
  * Parses a gitattributes file.
  */
-export default function parseAttributes(content: string, folderRoot: string = '.'): ParsedGitattributes {
+export default function parseGitattributes(content: string, folderRoot: string = '.'): ParsedGitattributes {
 	const output: ParsedGitattributes = [];
 
 	for (const rawLine of content.split('\n')) {

@@ -1,5 +1,5 @@
 import { OptionValues } from 'commander';
-import { Results } from '../../types.js';
+import { Results } from '../../types/types.js';
 
 export default function treeOutput(args: OptionValues, data: Results) {
 	const treeParts: string[] = args.tree.split('.');

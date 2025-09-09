@@ -1,26 +1,25 @@
+import commonPrefix from 'common-path-prefix';
+import ignore, { Ignore } from 'ignore';
+import { isBinaryFile } from 'isbinaryfile';
+import YAML from 'js-yaml';
 import FS from 'node:fs';
 import Path from 'node:path';
-import YAML from 'js-yaml';
-import ignore, { Ignore } from 'ignore';
-import commonPrefix from 'common-path-prefix';
-import { isBinaryFile } from 'isbinaryfile';
-
-import walk from './helpers/walk-tree.js';
-import loadFile, { parseGeneratedDataFile } from './helpers/load-data.js';
-import readFileChunk from './helpers/read-file.js';
-import parseAttributes, { FlagAttributes } from './helpers/parse-gitattributes.js';
-import pcre from './helpers/convert-pcre.js';
-import { normPath } from './helpers/norm-path.js';
-import * as T from './types.js';
-import * as S from './schema.js';
+import loadFile, { parseGeneratedDataFile } from './program/data/loadData.js';
+import { normPath } from './program/fs/normalisedPath.js';
+import readFileChunk from './program/fs/readFile.js';
+import walkTree from './program/fs/walkTree.js';
+import parseGitattributes, { FlagAttributes } from './program/parsing/parseGitattributes.js';
+import pcre from './program/utils/pcre.js';
+import * as S from './types/schema.js';
+import * as T from './types/types.js';
 
 const binaryData = JSON.parse(
-	FS.readFileSync(new URL('../node_modules/binary-extensions/binary-extensions.json', import.meta.url), "utf-8")
+	FS.readFileSync(new URL('../node_modules/binary-extensions/binary-extensions.json', import.meta.url), 'utf-8')
 ) as string[];
 
-async function analyse(path?: string, opts?: T.Options): Promise<T.Results>
-async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>
-async function analyse(content?: Record<string, string>, opts?: T.Options): Promise<T.Results>
+async function analyse(path?: string, opts?: T.Options): Promise<T.Results>;
+async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>;
+async function analyse(content?: Record<string, string>, opts?: T.Options): Promise<T.Results>;
 async function analyse(rawInput?: string | string[] | Record<string, string>, opts: T.Options = {}): Promise<T.Results> {
 	const inputs = {
 		path: typeof rawInput === 'string' ? rawInput : null,
@@ -31,7 +30,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	const inputContent = inputs.content;
 	const useRawContent = inputContent !== null;
 
-	const input = useRawContent ? Object.keys(inputContent) : inputPaths ?? [];
+	const input = useRawContent ? Object.keys(inputContent) : (inputPaths ?? []);
 
 	// Normalise input option arguments
 	opts = {
@@ -65,10 +64,10 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	};
 
 	// Set a common root path so that vendor paths do not incorrectly match parent folders
-	const resolvedInput = input.map(path => normPath(Path.resolve(path)));
+	const resolvedInput = input.map((path) => normPath(Path.resolve(path)));
 	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const relPath = (file: T.AbsFile): T.RelFile => useRawContent ? file : normPath(Path.relative(commonRoot, file));
-	const unRelPath = (file: T.RelFile): T.AbsFile => useRawContent ? file : normPath(Path.resolve(commonRoot, file));
+	const relPath = (file: T.AbsFile): T.RelFile => (useRawContent ? file : normPath(Path.relative(commonRoot, file)));
+	const unRelPath = (file: T.RelFile): T.AbsFile => (useRawContent ? file : normPath(Path.resolve(commonRoot, file)));
 
 	// Other helper functions
 	const fileMatchesGlobs = (file: T.AbsFile, ...globs: T.FileGlob[]) => ignore().add(globs).ignores(relPath(file));
@@ -80,24 +79,25 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	const ignored = ignore();
 	ignored.add('.git/');
 	ignored.add(opts.ignoredFiles ?? []);
-	const regexIgnores: RegExp[] = opts.keepVendored ? [] : vendorPaths.map(path => RegExp(path, 'i'));
+	const regexIgnores: RegExp[] = opts.keepVendored ? [] : vendorPaths.map((path) => RegExp(path, 'i'));
 
 	// Load file paths and folders
 	let files: T.AbsFile[];
 	if (useRawContent) {
 		// Uses raw file content
 		files = input;
-	}
-	else {
+	} else {
 		// Uses directory on disc
-		const data = walk({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
+		const data = walkTree({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
 		files = data.files;
 	}
 
 	// Fetch and normalise gitattributes data of all subfolders and save to metadata
 	const manualAttributes: Record<T.FileGlob, FlagAttributes> = {}; // Maps file globs to gitattribute boolean flags
 	const getFlaggedGlobs = (attr: keyof FlagAttributes, val: boolean) => {
-		return Object.entries(manualAttributes).filter(([, attrs]) => attrs[attr] === val).map(([glob,]) => glob)
+		return Object.entries(manualAttributes)
+			.filter(([, attrs]) => attrs[attr] === val)
+			.map(([glob]) => glob);
 	};
 	const findAttrsForPath = (filePath: string): FlagAttributes | null => {
 		const resultAttrs: Record<string, string | boolean | null> = {};
@@ -114,14 +114,14 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			return null;
 		}
 		return resultAttrs as FlagAttributes;
-	}
+	};
 	if (!useRawContent && opts.checkAttributes) {
-		const nestedAttrFiles = files.filter(file => file.endsWith('.gitattributes'));
+		const nestedAttrFiles = files.filter((file) => file.endsWith('.gitattributes'));
 		for (const attrFile of nestedAttrFiles) {
 			const relAttrFile = relPath(attrFile);
 			const relAttrFolder = Path.dirname(relAttrFile);
 			const contents = await readFileChunk(attrFile);
-			const parsed = parseAttributes(contents, relAttrFolder);
+			const parsed = parseGitattributes(contents, relAttrFolder);
 			for (const { glob, attrs } of parsed) {
 				manualAttributes[glob] = attrs;
 			}
@@ -133,7 +133,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	for (const file of files) {
 		const relFile = relPath(file);
 
-		const isRegexIgnored = regexIgnores.some(pattern => pattern.test(relFile));
+		const isRegexIgnored = regexIgnores.some((pattern) => pattern.test(relFile));
 		if (!isRegexIgnored) {
 			// Checking overrides is moot if file is not even marked as ignored by default
 			continue;
@@ -147,30 +147,38 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			filesToIgnore.push(file);
 		}
 	}
-	files = files.filter(file => !filesToIgnore.includes(file));
+	files = files.filter((file) => !filesToIgnore.includes(file));
 
 	// Apply vendor file path matches and filter out vendored files
 	if (!opts.keepVendored) {
 		// Get data of files that have been manually marked with metadata
-		const vendorTrueGlobs = [...getFlaggedGlobs('vendored', true), ...getFlaggedGlobs('generated', true), ...getFlaggedGlobs('documentation', true)];
-		const vendorFalseGlobs = [...getFlaggedGlobs('vendored', false), ...getFlaggedGlobs('generated', false), ...getFlaggedGlobs('documentation', false)];
+		const vendorTrueGlobs = [
+			...getFlaggedGlobs('vendored', true),
+			...getFlaggedGlobs('generated', true),
+			...getFlaggedGlobs('documentation', true),
+		];
+		const vendorFalseGlobs = [
+			...getFlaggedGlobs('vendored', false),
+			...getFlaggedGlobs('generated', false),
+			...getFlaggedGlobs('documentation', false),
+		];
 		// Set up glob ignore object to use for expanding globs to match files
 		const vendorTrueIgnore = ignore().add(vendorTrueGlobs);
 		const vendorFalseIgnore = ignore().add(vendorFalseGlobs);
 		// Remove all files marked as vendored by default
-		const excludedFiles = files.filter(file => vendorPaths.some(pathPtn => RegExp(pathPtn, 'i').test(relPath(file))));
-		files = files.filter(file => !excludedFiles.includes(file));
+		const excludedFiles = files.filter((file) => vendorPaths.some((pathPtn) => RegExp(pathPtn, 'i').test(relPath(file))));
+		files = files.filter((file) => !excludedFiles.includes(file));
 		// Re-add removed files that are overridden manually in gitattributes
-		const overriddenExcludedFiles = excludedFiles.filter(file => vendorFalseIgnore.ignores(relPath(file)));
+		const overriddenExcludedFiles = excludedFiles.filter((file) => vendorFalseIgnore.ignores(relPath(file)));
 		files.push(...overriddenExcludedFiles);
 		// Remove files explicitly marked as vendored in gitattributes
-		files = files.filter(file => !vendorTrueIgnore.ignores(relPath(file)));
+		files = files.filter((file) => !vendorTrueIgnore.ignores(relPath(file)));
 	}
 
 	// Filter out binary files
 	if (!opts.keepBinary) {
 		// Filter out files that are binary by default
-		files = files.filter(file => !binaryData.some(ext => file.endsWith('.' + ext)));
+		files = files.filter((file) => !binaryData.some((ext) => file.endsWith('.' + ext)));
 		// Filter out manually specified binary files
 		const binaryIgnored = ignore().add(getFlaggedGlobs('binary', true));
 		files = filterOutIgnored(files, binaryIgnored);
@@ -198,7 +206,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 
 		// If specified language is an alias, associate it with its full name
 		if (!langData[forcedLang]) {
-			const overrideLang = Object.entries(langData).find(entry => entry[1].aliases?.includes(forcedLang!.toLowerCase()));
+			const overrideLang = Object.entries(langData).find((entry) => entry[1].aliases?.includes(forcedLang!.toLowerCase()));
 			if (overrideLang) {
 				forcedLang = overrideLang[0];
 			}
@@ -215,7 +223,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 		}
 		// Set parent to result group if it is present
 		// Is nullish if either `opts.childLanguages` is set or if there is no group
-		const finalResult = !opts.childLanguages && result && langData[result] && langData[result].group || result;
+		const finalResult = (!opts.childLanguages && result && langData[result] && langData[result].group) || result;
 		if (!fileAssociations[file].includes(finalResult)) {
 			fileAssociations[file].push(finalResult);
 		}
@@ -225,8 +233,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	const definiteness: Record<T.AbsFile, true | undefined> = {};
 	const fromShebang: Record<T.AbsFile, true | undefined> = {};
 
-	fileLoop:
-	for (const file of files) {
+	fileLoop: for (const file of files) {
 		// Check manual override
 		for (const globMatch in globOverrides) {
 			if (!fileMatchesGlobs(file, globMatch)) continue;
@@ -242,11 +249,9 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 		let firstLine: string | null;
 		if (useRawContent) {
 			firstLine = inputContent[file]?.split('\n')[0] ?? null;
-		}
-		else if (FS.existsSync(file) && !FS.lstatSync(file).isDirectory()) {
+		} else if (FS.existsSync(file) && !FS.lstatSync(file).isDirectory()) {
 			firstLine = await readFileChunk(file, true).catch(() => null);
-		}
-		else continue;
+		} else continue;
 
 		// Skip if file is unreadable or blank
 		if (firstLine === null) continue;
@@ -261,25 +266,21 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 				const langMatcher = (lang: string) => `\\b${lang.toLowerCase().replace(/\W/g, '\\$&')}(?![\\w#+*]|-\*-)`;
 				// Check for interpreter match
 				if (opts.checkShebang && hasShebang) {
-					const matchesInterpretor = data.interpreters?.some(interpreter => firstLine.match(`\\b${interpreter}\\b`));
-					if (matchesInterpretor)
-						matches.push(lang);
+					const matchesInterpretor = data.interpreters?.some((interpreter) => firstLine.match(`\\b${interpreter}\\b`));
+					if (matchesInterpretor) matches.push(lang);
 				}
 				// Check modeline declaration
 				if (opts.checkModeline && hasModeline) {
 					const modelineText = firstLine.toLowerCase().split(modelineRegex)[1];
 					const matchesLang = modelineText.match(langMatcher(lang));
-					const matchesAlias = data.aliases?.some(lang => modelineText.match(langMatcher(lang)));
-					if (matchesLang || matchesAlias)
-						matches.push(lang);
+					const matchesAlias = data.aliases?.some((lang) => modelineText.match(langMatcher(lang)));
+					if (matchesLang || matchesAlias) matches.push(lang);
 				}
 			}
 			// Add identified language(s)
 			if (matches.length) {
-				for (const match of matches)
-					addResult(file, match);
-				if (matches.length === 1)
-					definiteness[file] = true;
+				for (const match of matches) addResult(file, match);
+				if (matches.length === 1) definiteness[file] = true;
 				fromShebang[file] = true;
 				continue;
 			}
@@ -288,24 +289,24 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 		let skipExts = false;
 		// Check if filename is a match
 		for (const lang in langData) {
-			const matchesName = langData[lang].filenames?.some(name => Path.basename(file.toLowerCase()) === name.toLowerCase());
+			const matchesName = langData[lang].filenames?.some((name) => Path.basename(file.toLowerCase()) === name.toLowerCase());
 			if (matchesName) {
 				addResult(file, lang);
 				skipExts = true;
 			}
 		}
 		// Check if extension is a match
-		const possibleExts: { ext: string, lang: T.Language }[] = [];
-		if (!skipExts) for (const lang in langData) {
-			const extMatches = langData[lang].extensions?.filter(ext => file.toLowerCase().endsWith(ext.toLowerCase()));
-			if (extMatches?.length) {
-				for (const ext of extMatches)
-					possibleExts.push({ ext, lang });
+		const possibleExts: { ext: string; lang: T.Language }[] = [];
+		if (!skipExts)
+			for (const lang in langData) {
+				const extMatches = langData[lang].extensions?.filter((ext) => file.toLowerCase().endsWith(ext.toLowerCase()));
+				if (extMatches?.length) {
+					for (const ext of extMatches) possibleExts.push({ ext, lang });
+				}
 			}
-		}
 		// Apply more specific extension if available
 		const isComplexExt = (ext: string) => /\..+\./.test(ext);
-		const hasComplexExt = possibleExts.some(data => isComplexExt(data.ext));
+		const hasComplexExt = possibleExts.some((data) => isComplexExt(data.ext));
 		for (const { ext, lang } of possibleExts) {
 			if (hasComplexExt && !isComplexExt(ext)) continue;
 			if (!hasComplexExt && isComplexExt(ext)) continue;
@@ -330,80 +331,75 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 		}
 
 		// Parse heuristics if applicable
-		if (opts.checkHeuristics) for (const heuristics of heuristicsData.disambiguations) {
-			// Make sure the extension matches the current file
-			if (!fromShebang[file] && !heuristics.extensions.includes(extensions[file]))
-				continue;
-			// Load heuristic rules
-			for (const heuristic of heuristics.rules) {
-				// Make sure the language is not an array
-				if (Array.isArray(heuristic.language)) {
-					heuristic.language = heuristic.language[0];
-				}
+		if (opts.checkHeuristics)
+			for (const heuristics of heuristicsData.disambiguations) {
+				// Make sure the extension matches the current file
+				if (!fromShebang[file] && !heuristics.extensions.includes(extensions[file])) continue;
+				// Load heuristic rules
+				for (const heuristic of heuristics.rules) {
+					// Make sure the language is not an array
+					if (Array.isArray(heuristic.language)) {
+						heuristic.language = heuristic.language[0];
+					}
 
-				// Make sure the results includes this language
-				const languageGroup = langData[heuristic.language]?.group;
-				const matchesLang = fileAssociations[file].includes(heuristic.language);
-				const matchesParent = languageGroup && fileAssociations[file].includes(languageGroup);
-				if (!matchesLang && !matchesParent)
-					continue;
+					// Make sure the results includes this language
+					const languageGroup = langData[heuristic.language]?.group;
+					const matchesLang = fileAssociations[file].includes(heuristic.language);
+					const matchesParent = languageGroup && fileAssociations[file].includes(languageGroup);
+					if (!matchesLang && !matchesParent) continue;
 
-				// Normalise heuristic data
-				const patterns: string[] = [];
-				const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());
-				if (heuristic.pattern) normalise(heuristic.pattern);
-				if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
-				if (heuristic.and) {
-					for (const data of heuristic.and) {
-						if (data.pattern) normalise(data.pattern);
-						if (data.named_pattern) normalise(heuristicsData.named_patterns[data.named_pattern]);
+					// Normalise heuristic data
+					const patterns: string[] = [];
+					const normalise = (contents: string | string[]) => patterns.push(...[contents].flat());
+					if (heuristic.pattern) normalise(heuristic.pattern);
+					if (heuristic.named_pattern) normalise(heuristicsData.named_patterns[heuristic.named_pattern]);
+					if (heuristic.and) {
+						for (const data of heuristic.and) {
+							if (data.pattern) normalise(data.pattern);
+							if (data.named_pattern) normalise(heuristicsData.named_patterns[data.named_pattern]);
+						}
+					}
+
+					// Check file contents and apply heuristic patterns
+					const fileContent = useRawContent ? inputContent[file] : await readFileChunk(file).catch(() => null);
+
+					// Skip if file read errors
+					if (fileContent === null) continue;
+
+					// Apply heuristics
+					if (!patterns.length || patterns.some((pattern) => pcre(pattern).test(fileContent))) {
+						results.files.results[file] = heuristic.language;
+						break;
 					}
 				}
-
-				// Check file contents and apply heuristic patterns
-				const fileContent = useRawContent ? inputContent[file] : await readFileChunk(file).catch(() => null);
-
-				// Skip if file read errors
-				if (fileContent === null) continue;
-
-				// Apply heuristics
-				if (!patterns.length || patterns.some(pattern => pcre(pattern).test(fileContent))) {
-					results.files.results[file] = heuristic.language;
-					break;
-				}
 			}
-		}
 		// If no heuristics, assign a language
 		if (!results.files.results[file]) {
 			const possibleLangs = fileAssociations[file];
 			// Assign first language as a default option
 			const defaultLang = possibleLangs[0];
-			const alternativeLangs = possibleLangs.slice(1)
+			const alternativeLangs = possibleLangs.slice(1);
 			results.files.results[file] = defaultLang;
 			// List alternative languages if there are any
-			if (alternativeLangs.length > 0)
-				results.files.alternatives[file] = alternativeLangs;
+			if (alternativeLangs.length > 0) results.files.alternatives[file] = alternativeLangs;
 		}
 	}
 
 	// Skip specified categories
 	if (opts.categories?.length) {
 		const categories: T.Category[] = ['data', 'markup', 'programming', 'prose'];
-		const hiddenCategories = categories.filter(cat => !opts.categories!.includes(cat));
+		const hiddenCategories = categories.filter((cat) => !opts.categories!.includes(cat));
 		for (const [file, lang] of Object.entries(results.files.results)) {
 			// Skip if language is not hidden
-			if (!hiddenCategories.some(cat => lang && langData[lang]?.type === cat))
-				continue;
+			if (!hiddenCategories.some((cat) => lang && langData[lang]?.type === cat)) continue;
 			// Skip if language is forced as detectable
 			if (opts.checkDetected) {
 				const detectable = ignore().add(getFlaggedGlobs('detectable', true));
-				if (detectable.ignores(relPath(file)))
-					continue;
+				if (detectable.ignores(relPath(file))) continue;
 			}
 			// Delete result otherwise
 			delete results.files.results[file];
-			if (lang)
-				delete results.languages.results[lang];
+			if (lang) delete results.languages.results[lang];
 		}
 		for (const category of hiddenCategories) {
 			for (const [lang, { type }] of Object.entries(results.repository)) {
@@ -438,7 +434,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			const fileContent = useRawContent ? inputContent[file] : FS.readFileSync(file).toString();
 			const allLines = fileContent.split(/\r?\n/gm);
 			loc.total = allLines.length;
-			loc.content = allLines.filter(line => line.trim().length > 0).length;
+			loc.content = allLines.filter((line) => line.trim().length > 0).length;
 		}
 		// Apply to files totals
 		results.files.bytes += fileSize;
@@ -464,8 +460,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			results.languages.results[lang].lines.content += loc.content;
 			results.languages.lines.total += loc.total;
 			results.languages.lines.content += loc.content;
-		}
-		else {
+		} else {
 			const ext = Path.extname(file);
 			const unknownType = ext ? 'extensions' : 'filenames';
 			const name = ext || Path.basename(file);
@@ -480,7 +475,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 
 	// Set lines output to NaN when line calculation is disabled
 	if (opts.calculateLines === false) {
-		results.files.lines = { total: NaN, content: NaN }
+		results.files.lines = { total: NaN, content: NaN };
 	}
 
 	// Set counts

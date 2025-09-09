@@ -1,8 +1,8 @@
 import { OptionValues } from 'commander';
 import FS from 'node:fs';
 import Path from 'node:path';
-import { normPath } from '../../helpers/norm-path.js';
-import { Results } from '../../types.js';
+import { normPath } from '../../program/fs/normalisedPath.js';
+import { Results } from '../../types/types.js';
 import { colouredMsg, hexToRgb } from '../utils.js';
 
 export default async function defaultOutput(args: OptionValues, data: Results) {
