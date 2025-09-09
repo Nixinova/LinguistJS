@@ -1,16 +1,15 @@
 import commonPrefix from 'common-path-prefix';
 import ignore, { Ignore } from 'ignore';
 import { isBinaryFile } from 'isbinaryfile';
-import YAML from 'js-yaml';
 import FS from 'node:fs';
 import Path from 'node:path';
-import loadFile, { parseGeneratedDataFile } from './program/data/loadData.js';
+import Attributes from './program/classes/attributes.js';
+import retrieveData from './program/data/retrieveData.js';
 import { normPath } from './program/fs/normalisedPath.js';
 import readFileChunk from './program/fs/readFile.js';
 import walkTree from './program/fs/walkTree.js';
-import parseGitattributes, { FlagAttributes } from './program/parsing/parseGitattributes.js';
+import parseGitattributes from './program/parsing/parseGitattributes.js';
 import pcre from './program/utils/pcre.js';
-import * as S from './types/schema.js';
 import * as T from './types/types.js';
 
 const binaryData = JSON.parse(
@@ -45,12 +44,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	};
 
 	// Load data from github-linguist web repo
-	const langData = <S.LanguagesScema>await loadFile('languages.yml', opts.offline).then(YAML.load);
-	const vendorData = <S.VendorSchema>await loadFile('vendor.yml', opts.offline).then(YAML.load);
-	const docData = <S.VendorSchema>await loadFile('documentation.yml', opts.offline).then(YAML.load);
-	const heuristicsData = <S.HeuristicsSchema>await loadFile('heuristics.yml', opts.offline).then(YAML.load);
-	const generatedData = <string[]>await loadFile('generated.rb', opts.offline).then(parseGeneratedDataFile);
-	const vendorPaths = [...vendorData, ...docData, ...generatedData];
+	const { langData, heuristicsData, vendorPaths } = await retrieveData(opts.offline ?? false);
 
 	// Setup main variables
 	const fileAssociations: Record<T.AbsFile, T.LanguageResult[]> = {};
@@ -93,28 +87,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	}
 
 	// Fetch and normalise gitattributes data of all subfolders and save to metadata
-	const manualAttributes: Record<T.FileGlob, FlagAttributes> = {}; // Maps file globs to gitattribute boolean flags
-	const getFlaggedGlobs = (attr: keyof FlagAttributes, val: boolean) => {
-		return Object.entries(manualAttributes)
-			.filter(([, attrs]) => attrs[attr] === val)
-			.map(([glob]) => glob);
-	};
-	const findAttrsForPath = (filePath: string): FlagAttributes | null => {
-		const resultAttrs: Record<string, string | boolean | null> = {};
-		for (const glob in manualAttributes) {
-			if (ignore().add(glob).ignores(relPath(filePath))) {
-				const matchingAttrs = manualAttributes[glob];
-				for (const [attr, val] of Object.entries(matchingAttrs)) {
-					if (val !== null) resultAttrs[attr] = val;
-				}
-			}
-		}
-
-		if (!JSON.stringify(resultAttrs)) {
-			return null;
-		}
-		return resultAttrs as FlagAttributes;
-	};
+	const manualAttributes = new Attributes();
 	if (!useRawContent && opts.checkAttributes) {
 		const nestedAttrFiles = files.filter((file) => file.endsWith('.gitattributes'));
 		for (const attrFile of nestedAttrFiles) {
@@ -123,7 +96,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			const contents = await readFileChunk(attrFile);
 			const parsed = parseGitattributes(contents, relAttrFolder);
 			for (const { glob, attrs } of parsed) {
-				manualAttributes[glob] = attrs;
+				manualAttributes.add(glob, attrs);
 			}
 		}
 	}
@@ -139,7 +112,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			continue;
 		}
 
-		const fileAttrs = findAttrsForPath(file);
+		const fileAttrs = manualAttributes.findAttrsForPath(relPath(file));
 		if (fileAttrs?.generated === false || fileAttrs?.vendored === false) {
 			// File is explicitly marked as *not* to be ignored
 			// do nothing
@@ -153,14 +126,14 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	if (!opts.keepVendored) {
 		// Get data of files that have been manually marked with metadata
 		const vendorTrueGlobs = [
-			...getFlaggedGlobs('vendored', true),
-			...getFlaggedGlobs('generated', true),
-			...getFlaggedGlobs('documentation', true),
+			...manualAttributes.getFlaggedGlobs('vendored', true),
+			...manualAttributes.getFlaggedGlobs('generated', true),
+			...manualAttributes.getFlaggedGlobs('documentation', true),
 		];
 		const vendorFalseGlobs = [
-			...getFlaggedGlobs('vendored', false),
-			...getFlaggedGlobs('generated', false),
-			...getFlaggedGlobs('documentation', false),
+			...manualAttributes.getFlaggedGlobs('vendored', false),
+			...manualAttributes.getFlaggedGlobs('generated', false),
+			...manualAttributes.getFlaggedGlobs('documentation', false),
 		];
 		// Set up glob ignore object to use for expanding globs to match files
 		const vendorTrueIgnore = ignore().add(vendorTrueGlobs);
@@ -180,10 +153,10 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 		// Filter out files that are binary by default
 		files = files.filter((file) => !binaryData.some((ext) => file.endsWith('.' + ext)));
 		// Filter out manually specified binary files
-		const binaryIgnored = ignore().add(getFlaggedGlobs('binary', true));
+		const binaryIgnored = ignore().add(manualAttributes.getFlaggedGlobs('binary', true));
 		files = filterOutIgnored(files, binaryIgnored);
 		// Re-add files manually marked not as binary
-		const binaryUnignored = ignore().add(getFlaggedGlobs('binary', false));
+		const binaryUnignored = ignore().add(manualAttributes.getFlaggedGlobs('binary', false));
 		const unignoredList = filterOutIgnored(files, binaryUnignored);
 		files.push(...unignoredList);
 	}
@@ -394,7 +367,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 			if (!hiddenCategories.some((cat) => lang && langData[lang]?.type === cat)) continue;
 			// Skip if language is forced as detectable
 			if (opts.checkDetected) {
-				const detectable = ignore().add(getFlaggedGlobs('detectable', true));
+				const detectable = ignore().add(manualAttributes.getFlaggedGlobs('detectable', true));
 				if (detectable.ignores(relPath(file))) continue;
 			}
 			// Delete result otherwise

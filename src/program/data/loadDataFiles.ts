@@ -31,6 +31,6 @@ export function parseGeneratedDataFile(fileContent: string): string[] {
 }
 
 /** Load a data file from github-linguist. */
-export default function loadFile(file: string, offline: boolean = false): Promise<string> {
+export function loadFile(file: string, offline: boolean = false): Promise<string> {
 	return offline ? loadLocalFile(file) : loadWebFile(file);
 }
