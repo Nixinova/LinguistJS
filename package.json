@@ -52,6 +52,7 @@
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^24.3.1",
 		"deep-object-diff": "^1.1.9",
+		"prettier": "^3.6.2",
 		"typescript": "^5.9.2"
 	}
 }
