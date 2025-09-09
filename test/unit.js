@@ -4,7 +4,7 @@ let i = 0;
 let errors = 0;
 
 function desc(text) {
-	console.info(`Testing: ${text}`);
+	console.info(`  Testing: ${text}`);
 }
 
 async function test([filename, fileContent = ''], [type, testVal]) {
@@ -17,17 +17,14 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 	}[type];
 	const result = testContent === testVal;
 	i = `${+i + 1}`.padStart(2, '0');
-	if (result) {
-		console.info(`- #${i} passed: '${filename}' is ${testVal}`);
-	}
-	else {
+	if (!result) {
 		errors++;
 		console.error(`! #${i} failed: '${filename}' is ${testContent} instead of ${testVal}`);
 	}
 }
 
 async function unitTest() {
-	console.info('-'.repeat(10) + '\nUnit tests\n' + '-'.repeat(10));
+	console.info('-'.repeat(10) + ' Unit tests ' + '-'.repeat(10));
 	desc('metadata');
 	await test(['file_size', '0123456789'], ['size', 10]);
 	await test(['empty', ''], ['size', 0]);
