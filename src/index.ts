@@ -1,20 +1,13 @@
-import commonPrefix from 'common-path-prefix';
-import ignore, { Ignore } from 'ignore';
+import ignore from 'ignore';
 import { isBinaryFile } from 'isbinaryfile';
 import FS from 'node:fs';
 import Path from 'node:path';
-import Attributes from './program/classes/attributes.js';
 import retrieveData from './program/data/retrieveData.js';
 import { normPath } from './program/fs/normalisedPath.js';
 import readFileChunk from './program/fs/readFile.js';
-import walkTree from './program/fs/walkTree.js';
-import parseGitattributes from './program/parsing/parseGitattributes.js';
+import getFiles from './program/processFiles.js';
 import pcre from './program/utils/pcre.js';
 import * as T from './types/types.js';
-
-const binaryData = JSON.parse(
-	FS.readFileSync(new URL('../node_modules/binary-extensions/binary-extensions.json', import.meta.url), 'utf-8')
-) as string[];
 
 async function analyse(path?: string, opts?: T.Options): Promise<T.Results>;
 async function analyse(paths?: string[], opts?: T.Options): Promise<T.Results>;
@@ -57,109 +50,10 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 		repository: {},
 	};
 
-	// Set a common root path so that vendor paths do not incorrectly match parent folders
-	const resolvedInput = input.map((path) => normPath(Path.resolve(path)));
-	const commonRoot = (input.length > 1 ? commonPrefix(resolvedInput) : resolvedInput[0]).replace(/\/?$/, '');
-	const relPath = (file: T.AbsFile): T.RelFile => (useRawContent ? file : normPath(Path.relative(commonRoot, file)));
-	const unRelPath = (file: T.RelFile): T.AbsFile => (useRawContent ? file : normPath(Path.resolve(commonRoot, file)));
-
-	// Other helper functions
-	const fileMatchesGlobs = (file: T.AbsFile, ...globs: T.FileGlob[]) => ignore().add(globs).ignores(relPath(file));
-	const filterOutIgnored = (files: T.AbsFile[], ignored: Ignore): T.AbsFile[] => ignored.filter(files.map(relPath)).map(unRelPath);
-
 	//*PREPARE FILES AND DATA*//
 
-	// Prepare list of ignored files
-	const ignored = ignore();
-	ignored.add('.git/');
-	ignored.add(opts.ignoredFiles ?? []);
-	const regexIgnores: RegExp[] = opts.keepVendored ? [] : vendorPaths.map((path) => RegExp(path, 'i'));
-
-	// Load file paths and folders
-	let files: T.AbsFile[];
-	if (useRawContent) {
-		// Uses raw file content
-		files = input;
-	} else {
-		// Uses directory on disc
-		const data = walkTree({ init: true, commonRoot, folderRoots: resolvedInput, folders: resolvedInput, ignored });
-		files = data.files;
-	}
-
-	// Fetch and normalise gitattributes data of all subfolders and save to metadata
-	const manualAttributes = new Attributes();
-	if (!useRawContent && opts.checkAttributes) {
-		const nestedAttrFiles = files.filter((file) => file.endsWith('.gitattributes'));
-		for (const attrFile of nestedAttrFiles) {
-			const relAttrFile = relPath(attrFile);
-			const relAttrFolder = Path.dirname(relAttrFile);
-			const contents = await readFileChunk(attrFile);
-			const parsed = parseGitattributes(contents, relAttrFolder);
-			for (const { glob, attrs } of parsed) {
-				manualAttributes.add(glob, attrs);
-			}
-		}
-	}
-
-	// Remove files that are linguist-ignored via regex by default unless explicitly unignored in gitattributes
-	const filesToIgnore: T.AbsFile[] = [];
-	for (const file of files) {
-		const relFile = relPath(file);
-
-		const isRegexIgnored = regexIgnores.some((pattern) => pattern.test(relFile));
-		if (!isRegexIgnored) {
-			// Checking overrides is moot if file is not even marked as ignored by default
-			continue;
-		}
-
-		const fileAttrs = manualAttributes.findAttrsForPath(relPath(file));
-		if (fileAttrs?.generated === false || fileAttrs?.vendored === false) {
-			// File is explicitly marked as *not* to be ignored
-			// do nothing
-		} else {
-			filesToIgnore.push(file);
-		}
-	}
-	files = files.filter((file) => !filesToIgnore.includes(file));
-
-	// Apply vendor file path matches and filter out vendored files
-	if (!opts.keepVendored) {
-		// Get data of files that have been manually marked with metadata
-		const vendorTrueGlobs = [
-			...manualAttributes.getFlaggedGlobs('vendored', true),
-			...manualAttributes.getFlaggedGlobs('generated', true),
-			...manualAttributes.getFlaggedGlobs('documentation', true),
-		];
-		const vendorFalseGlobs = [
-			...manualAttributes.getFlaggedGlobs('vendored', false),
-			...manualAttributes.getFlaggedGlobs('generated', false),
-			...manualAttributes.getFlaggedGlobs('documentation', false),
-		];
-		// Set up glob ignore object to use for expanding globs to match files
-		const vendorTrueIgnore = ignore().add(vendorTrueGlobs);
-		const vendorFalseIgnore = ignore().add(vendorFalseGlobs);
-		// Remove all files marked as vendored by default
-		const excludedFiles = files.filter((file) => vendorPaths.some((pathPtn) => RegExp(pathPtn, 'i').test(relPath(file))));
-		files = files.filter((file) => !excludedFiles.includes(file));
-		// Re-add removed files that are overridden manually in gitattributes
-		const overriddenExcludedFiles = excludedFiles.filter((file) => vendorFalseIgnore.ignores(relPath(file)));
-		files.push(...overriddenExcludedFiles);
-		// Remove files explicitly marked as vendored in gitattributes
-		files = files.filter((file) => !vendorTrueIgnore.ignores(relPath(file)));
-	}
-
-	// Filter out binary files
-	if (!opts.keepBinary) {
-		// Filter out files that are binary by default
-		files = files.filter((file) => !binaryData.some((ext) => file.endsWith('.' + ext)));
-		// Filter out manually specified binary files
-		const binaryIgnored = ignore().add(manualAttributes.getFlaggedGlobs('binary', true));
-		files = filterOutIgnored(files, binaryIgnored);
-		// Re-add files manually marked not as binary
-		const binaryUnignored = ignore().add(manualAttributes.getFlaggedGlobs('binary', false));
-		const unignoredList = filterOutIgnored(files, binaryUnignored);
-		files.push(...unignoredList);
-	}
+	const { files, manualAttributes, relPath } = await getFiles(input, opts, useRawContent, vendorPaths);
+	const fileMatchesGlobs = (file: T.AbsFile, ...globs: T.FileGlob[]) => ignore().add(globs).ignores(relPath(file));
 
 	// Ignore specific languages
 	for (const lang of opts.ignoredLanguages ?? []) {
@@ -172,7 +66,7 @@ async function analyse(rawInput?: string | string[] | Record<string, string>, op
 	}
 
 	// Establish language overrides taken from gitattributes
-	const forcedLangs = Object.entries(manualAttributes).filter(([, attrs]) => attrs.language);
+	const forcedLangs = Object.entries(manualAttributes.attributes).filter(([, attrs]) => attrs.language);
 	for (const [globPath, attrs] of forcedLangs) {
 		let forcedLang = attrs.language;
 		if (!forcedLang) continue;
