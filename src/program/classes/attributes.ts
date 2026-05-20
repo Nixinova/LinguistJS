@@ -31,8 +31,8 @@ export default class Attributes {
 			// Check if glob matches rel path
 			if (ignore().add(glob).ignores(relFilePath)) {
 				for (const [attr, val] of Object.entries(matchingAttrs)) {
-					if (val !== null) {
-						resultAttrs[attr] = val;
+					if (val != null) {
+						resultAttrs[attr] = val as string | boolean;
 					}
 				}
 			}
