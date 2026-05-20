@@ -7,9 +7,9 @@ const VERSION = packageJson.version;
 
 program
 	.name('linguist')
-	.usage('--analyze [<folders...>] [<options...>]')
+	.usage('--analyse [<folders...>] [<options...>]')
 
-	.option('-a|--analyze [folders...]', 'Analyse the languages of all files in a folder')
+	.option('-a|--analyse [folders...]', 'Analyse the languages of all files in a folder')
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
@@ -50,9 +50,9 @@ for (const arg in args) {
 }
 
 // Run Linguist
-if (args.analyze) {
+if (args.analyse) {
 	void runCliAnalysis(args);
 } else {
-	console.log(`Welcome to linguist-js, a JavaScript port of GitHub's language analyzer.`);
+	console.log(`Welcome to linguist-js, a JavaScript port of the github-linguist language analyser.`);
 	console.log(`Type 'linguist --help' for a list of commands.`);
 }

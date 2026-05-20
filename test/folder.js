@@ -11,7 +11,7 @@ async function testFolder() {
 	const expectedJson = FS.readFileSync(curFolder + '/expected.json', { encoding: 'utf8' });
 	const expected = JSON.parse(expectedJson.replace(/~/g, samplesFolder));
 
-	const actual = await linguist(samplesFolder);
+	const actual = await linguist.analyseFolders([samplesFolder]);
 	const diff = updatedDiff(expected, actual);
 	if (JSON.stringify(diff) === '{}') {
 		console.info('Results match expected');

@@ -5,7 +5,7 @@ async function perfTest() {
 	const amount = +process.argv[2] || 75;
 	for (let i = 0; i < amount; i++) {
 		let t1 = +new Date();
-		await linguist('.', { offline: true });
+		await linguist.analyseFolders(['.'], { offline: true });
 		let t2 = +new Date();
 		time += t2 - t1;
 	}

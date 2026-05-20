@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.0 (Upcoming)
+- Changed entry point from `default` with overloads for filesystem and raw content to having separate `analyseFolders` and `analyseRawContent`.
+- Renamed CLI argument `analyze` to `analyse` to match the entry point function names.
+- Changed welcome message.
+
 ## 2.9.2
 *2025-04-26*
 - Fixed files with long first lines causing the script to hang ([#41](https://github.com/Nixinova/LinguistJS/issues/41)).

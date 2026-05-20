@@ -115,72 +115,83 @@ Running LinguistJS on this folder will return the following JSON:
 const linguist = require('linguist-js');
 
 // Analyse folder on disc
-const folder = './src';
+const folders = ['./src'];
 const options = { keepVendored: false, quick: false };
-const { files, languages, unknown, repository } = await linguist(folder, options);
+const { files, languages, unknown, repository } = await linguist.analyseFolders(folder, options);
 
 // Analyse file content from raw input
-const fileNames = ['file1.ts', 'file2.ts', 'ignoreme.js'];
-const fileContent = ['#!/usr/bin/env node', 'console.log("Example");', '"ignored"'];
-const options = { ignoredFiles: ['ignore*'] };
-const { files, languages, unknown, repository } = await linguist(fileNames, { fileContent, ...options });
+const fileContent = {
+	['file1.ts']: '#!/usr/bin/env node',
+	['file2.ts']: 'console.log("Example");',
+	['ignoreme.js']: 'ignored!',
+}
+const options = { ignoredFiles: ['ignoreme.*'] };
+const { files, languages, unknown, repository } = await linguist.analyseRawContent(fileContent, options);
 ```
 
-- `linguist(entry?, opts?)` (default export):
+**Exports:**
+
+- `analyseFolders(folders?, opts?)`:
   Analyse the language of all files found in a folder or folders.
-  - `entry` (optional; string or string array):
-    The folder(s) to analyse (defaults to `./`).
+  - `folders` (optional; string array):
+    A list of folders to analyse (defaults to `['./']`).
   - `opts` (optional; object):
     An object containing analyser options.
-    - `fileContent` (string or string array):
-      Provides the file content associated with the file name(s) given as `entry` to analyse instead of reading from a folder on disk.
-    - `ignoredFiles` (string array):
-      A list of file path globs to explicitly ignore.
-    - `ignoredLanguages` (string array):
-      A list of languages to ignore.
-    - `categories` (string array):
-      A list of programming language categories that should be included in the results.
-      Defaults to `['data', 'markup', 'programming', 'prose']`.
-    - `childLanguages` (boolean):
-      Whether to display sub-languages instead of their parents when possible (defaults to `false`).
-    - `quick` (boolean):
-      Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
-      Alias for `checkAttributes:false, checkIgnored:false, checkDetected:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
-    - `offline` (boolean):
-      Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
-    - `calculateLines` (boolean):
-      Whether to calculate line of code totals (defaults to `true`).
-    - `keepVendored` (boolean):
-      Whether to keep vendored files (dependencies, etc) (defaults to `false`).
-      Does nothing when `fileContent` is set.
-    - `keepBinary` (boolean):
-      Whether binary files should be included in the output (defaults to `false`).
-    - `relativePaths` (boolean):
-      Change the absolute file paths in the output to be relative to the current working directory (defaults to `false`).
-    - `checkAttributes` (boolean):
-      Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
-      Does nothing when `fileContent` is set.
-    - `checkIgnored` (boolean):
-      Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
-      Does nothing when `fileContent` is set.
-    - `checkDetected` (boolean):
-      Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `categories`.
-    - `checkHeuristics` (boolean):
-      Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
-    - `checkShebang` (boolean):
-      Check shebang (`#!`) lines for explicit language classification (defaults to `true` unless `quick` is set).
-    - `checkModeline` (boolean):
-      Check modelines for explicit language classification (defaults to `true` unless `quick` is set).
+- `analyseRawContent(folders?, opts?)`:
+  Analyse the language of all files found in a folder or folders.
+  - `entry` (optional; string or string array):
+    A list of folders to analyse (defaults to `['./']`).
+  - `opts` (optional; object):
+    An object containing analyser options.
+
+**Analyser options:**
+- `ignoredFiles` (string array):
+  A list of file path globs to explicitly ignore.
+- `ignoredLanguages` (string array):
+  A list of languages to ignore.
+- `categories` (string array):
+  A list of programming language categories that should be included in the results.
+  Defaults to `['data', 'markup', 'programming', 'prose']`.
+- `childLanguages` (boolean):
+  Whether to display sub-languages instead of their parents when possible (defaults to `false`).
+- `quick` (boolean):
+  Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
+  Alias for `checkAttributes:false, checkIgnored:false, checkDetected:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
+- `offline` (boolean):
+  Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
+- `calculateLines` (boolean):
+  Whether to calculate line of code totals (defaults to `true`).
+- `keepVendored` (boolean):
+  Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+  Does nothing when `fileContent` is set.
+- `keepBinary` (boolean):
+  Whether binary files should be included in the output (defaults to `false`).
+- `relativePaths` (boolean):
+  Change the absolute file paths in the output to be relative to the current working directory (defaults to `false`).
+- `checkAttributes` (boolean):
+  Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
+  Does nothing when `fileContent` is set.
+- `checkIgnored` (boolean):
+  Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
+  Does nothing when `fileContent` is set.
+- `checkDetected` (boolean):
+  Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `categories`.
+- `checkHeuristics` (boolean):
+  Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
+- `checkShebang` (boolean):
+  Check shebang (`#!`) lines for explicit language classification (defaults to `true` unless `quick` is set).
+- `checkModeline` (boolean):
+  Check modelines for explicit language classification (defaults to `true` unless `quick` is set).
 
 ### Command-line
 
 ```
-linguist --analyze [<folders...>] [<options...>]
+linguist --analyse [<folders...>] [<options...>]
 linguist --help
 linguist --version
 ```
 
-- `--analyze`:
+- `--analyse`:
   Analyse the language of all files found in a folder or folders.
   - `[<folders...>]`:
     The folders to analyse (defaults to `./`).

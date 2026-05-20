@@ -1,5 +1,6 @@
 import { OptionValues } from 'commander';
-import linguist from '../index.js';
+import analyseFs from '../entry/analyseFs.js';
+import normaliseOpts from '../input/normaliseOpts.js';
 import defaultOutput from './output/default.js';
 import treeOutput from './output/tree.js';
 
@@ -13,9 +14,9 @@ export default async function runCliAnalysis(args: OptionValues) {
 		return;
 	}
 
-	// Fetch language data
-	const root = args.analyze === true ? '.' : args.analyze;
-	const data = await linguist(root, args);
+	// Analyse language data
+	const folders = args.analyse === true ? ['.'] : args.analyse;
+	const data = await analyseFs(folders, normaliseOpts(args));
 
 	// Print output
 	if (!args.json) {
