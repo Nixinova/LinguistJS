@@ -1,7 +1,13 @@
 # Changelog
 
-## Next
+## 2.9.2
+*2025-04-26*
+- Fixed files with long first lines causing the script to hang ([#41](https://github.com/Nixinova/LinguistJS/issues/41)).
+
+## 2.9.1
+*2025-04-04*
 - Added CLI error message when passing invalid category input.
+- Fixed npm version warning ([#42](https://github.com/Nixinova/LinguistJS/issues/42)).
 
 ## 2.9.0
 *2025-02-09*
