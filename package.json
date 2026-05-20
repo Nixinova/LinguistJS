@@ -41,18 +41,18 @@
 	"homepage": "https://github.com/Nixinova/Linguist#readme",
 	"dependencies": {
 		"binary-extensions": "^3.1.0",
-		"commander": "^14.0.0",
+		"commander": "^14.0.3",
 		"common-path-prefix": "^3.0.0",
 		"ignore": "^7.0.5",
-		"isbinaryfile": "^5.0.6",
-		"js-yaml": "^4.1.0",
+		"isbinaryfile": "^6.0.0",
+		"js-yaml": "^4.1.1",
 		"node-cache": "^5.1.2"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^24.3.1",
+		"@types/node": "^25.9.1",
 		"deep-object-diff": "^1.1.9",
-		"prettier": "^3.6.2",
-		"typescript": "^5.9.2"
+		"prettier": "^3.8.3",
+		"typescript": "~6.0.3"
 	}
 }

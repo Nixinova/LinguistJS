@@ -20,7 +20,7 @@
     //"sourceMap": true,
     //"outFile": "./",
     "outDir": "./dist/",
-    //"rootDir": "./",
+    "rootDir": "./",
     //"composite": true,
     //"removeComments": true,
     //"noEmit": true,
