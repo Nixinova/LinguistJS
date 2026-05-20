@@ -1,16 +1,18 @@
-const fs = require('fs');
-const linguist = require('..');
-const { updatedDiff } = require('deep-object-diff');
+import { updatedDiff } from 'deep-object-diff';
+import FS from 'node:fs';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import linguist from '../dist/index.js';
 
 async function testFolder() {
-	console.info('-'.repeat(11) + '\nFolder test\n' + '-'.repeat(11));
-	const samplesFolder = __dirname.replace(/\\/g, '/') + '/samples';
-	const expectedJson = fs.readFileSync(__dirname + '/expected.json', { encoding: 'utf8' });
+	console.info('-'.repeat(11) + ' Folder test ' + '-'.repeat(11));
+	const curFolder = dirname(fileURLToPath(import.meta.url));
+	const samplesFolder = curFolder.replace(/\\/g, '/') + '/samples';
+	const expectedJson = FS.readFileSync(curFolder + '/expected.json', { encoding: 'utf8' });
 	const expected = JSON.parse(expectedJson.replace(/~/g, samplesFolder));
 
-	const actual = await linguist(samplesFolder);
+	const actual = await linguist.analyseFolders([samplesFolder]);
 	const diff = updatedDiff(expected, actual);
-	console.dir(actual, { depth: null });
 	if (JSON.stringify(diff) === '{}') {
 		console.info('Results match expected');
 	}

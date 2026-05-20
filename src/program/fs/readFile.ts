@@ -1,4 +1,4 @@
-import FS from 'fs';
+import FS from 'node:fs';
 
 /**
  * Read part of a file on disc.

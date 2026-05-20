@@ -1,14 +1,14 @@
-const linguist = require('..');
+import linguist from '../dist/index.js';
 
 let i = 0;
 let errors = 0;
 
 function desc(text) {
-	console.info(`Testing: ${text}`);
+	console.info(`  Testing: ${text}`);
 }
 
 async function test([filename, fileContent = ''], [type, testVal]) {
-	const actual = await linguist(filename, { fileContent, childLanguages: true });
+	const actual = await linguist.analyseRawContent({ [filename]: fileContent }, { childLanguages: true });
 	const testContent = {
 		'files': actual.files.results[filename],
 		'size': actual.files.bytes,
@@ -17,17 +17,14 @@ async function test([filename, fileContent = ''], [type, testVal]) {
 	}[type];
 	const result = testContent === testVal;
 	i = `${+i + 1}`.padStart(2, '0');
-	if (result) {
-		console.info(`- #${i} passed: '${filename}' is ${testVal}`);
-	}
-	else {
+	if (!result) {
 		errors++;
 		console.error(`! #${i} failed: '${filename}' is ${testContent} instead of ${testVal}`);
 	}
 }
 
 async function unitTest() {
-	console.info('-'.repeat(10) + '\nUnit tests\n' + '-'.repeat(10));
+	console.info('-'.repeat(10) + ' Unit tests ' + '-'.repeat(10));
 	desc('metadata');
 	await test(['file_size', '0123456789'], ['size', 10]);
 	await test(['empty', ''], ['size', 0]);
@@ -62,7 +59,7 @@ async function unitTest() {
 	await test(['ecl.ecl', 'var:=val'], ['files', 'ECL']);
 	await test(['frege.fr', 'import package'], ['files', 'Frege']);
 	await test(['forth.fr', 'new-device 1'], ['files', 'Forth']);
-	await test(['raku','#!/usr/bin/env perl6\n module'], ['files', 'Raku']);
+	await test(['raku', '#!/usr/bin/env perl6\n module'], ['files', 'Raku']);
 	desc('vendored');
 	await test(['gradlew'], ['files', undefined]);
 	await test(['decl.d.ts'], ['files', undefined]);

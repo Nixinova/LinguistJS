@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.0 (Upcoming)
+### 3.0.0-pre
+*2026-05-20*
+- Added `repositories` output object, featuring all languages' metadata.
+- Added `count` property per language result.
+- Changed entry point from a commonJS default export overloads for filesystem and raw content to an ESModule export object containing separate `analyseFolders` and `analyseRawContent` functions.
+- Renamed CLI argument `analyze` to `analyse` to match the entry point function names.
+- Removed `type`, `parent` and `color` keys from individual language results.
+- Removed `analyze` CLI arg alias.
+- Removed `lines.code`.
+- Changed transpilation to target ES2025 and Node 24.0
+- Changed CLI welcome message.
+- Fixed ReDoS vulnerabilities.
+
 ## 2.9.2
 *2025-04-26*
 - Fixed files with long first lines causing the script to hang ([#41](https://github.com/Nixinova/LinguistJS/issues/41)).

@@ -1,32 +1,32 @@
-import FS from 'fs';
-import Path from 'path';
 import { Ignore } from 'ignore';
-import parseGitignore from './parse-gitignore';
-import { normPath, normAbsPath } from './norm-path';
+import FS from 'node:fs';
+import Path from 'node:path';
+import parseGitignore from '../parsing/parseGitignore.js';
+import { normAbsPath, normPath } from './normalisedPath.js';
 
 let allFiles: Set<string>;
 let allFolders: Set<string>;
 
 interface WalkInput {
 	/** Whether this is walking the tree from the root */
-	init: boolean,
+	init: boolean;
 	/** The common root absolute path of all folders being checked */
-	commonRoot: string,
+	commonRoot: string;
 	/** The absolute path that each folder is relative to */
-	folderRoots: string[],
+	folderRoots: string[];
 	/** The absolute path of folders being checked */
-	folders: string[],
+	folders: string[];
 	/** An instantiated Ignore object listing ignored files */
-	ignored: Ignore,
-};
+	ignored: Ignore;
+}
 
 interface WalkOutput {
-	files: string[],
-	folders: string[],
-};
+	files: string[];
+	folders: string[];
+}
 
 /** Generate list of files in a directory. */
-export default function walk(data: WalkInput): WalkOutput {
+export default function walkTree(data: WalkInput): WalkOutput {
 	const { init, commonRoot, folderRoots, folders, ignored } = data;
 
 	// Initialise files and folders lists
@@ -41,7 +41,7 @@ export default function walk(data: WalkInput): WalkOutput {
 		const localRoot = folderRoots[0].replace(commonRoot, '').replace(/^\//, '');
 
 		// Get list of files and folders inside this folder
-		const files = FS.readdirSync(folder).map(file => {
+		const files = FS.readdirSync(folder).map((file) => {
 			// Create path relative to root
 			const base = normAbsPath(folder, file).replace(commonRoot, '.');
 			// Add trailing slash to mark directories
@@ -54,7 +54,7 @@ export default function walk(data: WalkInput): WalkOutput {
 		if (FS.existsSync(gitignoreFilename)) {
 			const gitignoreContents = FS.readFileSync(gitignoreFilename, 'utf-8');
 			const ignoredPaths = parseGitignore(gitignoreContents);
-			const rootRelIgnoredPaths = ignoredPaths.map(ignorePath =>
+			const rootRelIgnoredPaths = ignoredPaths.map((ignorePath) =>
 				// get absolute path of the ignore glob
 				normPath(folder, ignorePath)
 					// convert abs ignore glob to be relative to the root folder
@@ -88,9 +88,8 @@ export default function walk(data: WalkInput): WalkOutput {
 			if (file.endsWith('/')) {
 				// Recurse into subfolders
 				allFolders.add(path);
-				walk({ init: false, commonRoot, folderRoots, folders: [path], ignored });
-			}
-			else {
+				walkTree({ init: false, commonRoot, folderRoots, folders: [path], ignored });
+			} else {
 				// Add file path to list
 				allFiles.add(path);
 			}
@@ -99,12 +98,12 @@ export default function walk(data: WalkInput): WalkOutput {
 	// Recurse into all folders
 	else {
 		for (const i in folders) {
-			walk({ init: false, commonRoot, folderRoots: [folderRoots[i]], folders: [folders[i]], ignored });
+			walkTree({ init: false, commonRoot, folderRoots: [folderRoots[i]], folders: [folders[i]], ignored });
 		}
 	}
 	// Return absolute files and folders lists
 	return {
-		files: [...allFiles].map(file => file.replace(/^\./, commonRoot)),
+		files: [...allFiles].map((file) => file.replace(/^\./, commonRoot)),
 		folders: [...allFolders],
 	};
 }

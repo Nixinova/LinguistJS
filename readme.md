@@ -29,7 +29,7 @@ linguist-js --help
 
 ## Usage
 
-LinguistJS contains one function which analyses a given folder or folders.
+LinguistJS analyses a folder, or a dictionary of already-read file content, and determines what programming languages are used within.
 
 As an example, take the following file structure:
 
@@ -42,8 +42,9 @@ As an example, take the following file structure:
 | no-lang 10B
 | x.pluginspec 10B
 ```
+*(or, an object with keys `"/src", "/src/cli.js", ...` and preloaded file content)*
 
-Running LinguistJS on this folder will return the following JSON:
+Running LinguistJS on this will return the following JSON:
 
 ```json
 {
@@ -51,9 +52,8 @@ Running LinguistJS on this folder will return the following JSON:
     "count": 5,
     "bytes": 6020,
     "lines": {
-        "total": 100,
-        "content": 90,
-        "code": 80,
+      "total": 100,
+      "content": 90,
     },
     "results": {
       "/src/index.ts": "TypeScript",
@@ -63,64 +63,48 @@ Running LinguistJS on this folder will return the following JSON:
       "/x.pluginspec": "Ruby",
     },
     "alternatives": {
-        "/x.pluginspec": ["XML"],
+      "/x.pluginspec": ["XML"],
     },
   },
   "languages": {
     "count": 3,
     "bytes": 6010,
     "lines": {
-        "total": 90,
-        "content": 80,
-        "code": 70,
+      "total": 90,
+      "content": 80,
     },
     "results": {
-       "JavaScript": {
-            "type": "programming",
-            "bytes": 1000,
-            "lines": { "total": 49, "content": 49, "code": 44 },
-            "color": "#f1e05a"
-        },
-        "Markdown": {
-            "type": "prose",
-            "bytes": 3000,
-            "lines": { "total": 10, "content": 5, "code": 5 },
-            "color": "#083fa1"
-        },
-        "Ruby": {
-            "type": "programming",
-            "bytes": 10,
-            "lines": { "total": 1, "content": 1, "code": 1 },
-            "color": "#701516"
-        },
-        "TypeScript": {
-            "type": "programming",
-            "bytes": 2000,
-            "lines": { "total": 30, "content": 25, "code": 20 },
-            "color": "#2b7489"
-        },
+      "JavaScript": { "bytes": 1000, "lines": { "total": 49, "content": 49 }, },
+      "Markdown": { "bytes": 3000, "lines": { "total": 10, "content": 5 }, },
+      "Ruby": { "bytes": 10, "lines": { "total": 1, "content": 1 }, },
+      "TypeScript": { "bytes": 2000, "lines": { "total": 30, "content": 25 }, },
     },
   },
   "unknown": {
     "count": 1,
     "bytes": 10,
     "lines": {
-        "total": 10,
-        "content": 10,
-        "code": 10,
+      "total": 10,
+      "content": 10,
     },
     "filenames": {
       "no-lang": 10,
     },
     "extensions": {},
   },
+  "repository": {
+    "JavaScript": { "type": "programming", "color": "#f1e05a" },
+    "Markdown": { "type": "prose", "color": "#083fa1" },
+    "Ruby": { "type": "programming", "color": "#701516" },
+    "TypeScript": { "type": "programming", "color": "#2b7489" },
+  }
 }
 ```
 
 ### Notes
 
 - File paths in the output use only forward slashes as delimiters, even on Windows.
-- Unless running in offline mode, do not rely on any language classification output from LinguistJS being unchanged between runs.
+- Unless running in offline mode: do not rely on any language classification output from LinguistJS being unchanged between runs.
   Language data is fetched each run from the latest classifications of [`github-linguist`](https://github.com/github/linguist).
   This data is subject to change at any time and may change the results of a run even when using the same version of Linguist.
 
@@ -129,75 +113,86 @@ Running LinguistJS on this folder will return the following JSON:
 ### Node
 
 ```js
-const linguist = require('linguist-js');
+import linguist from 'linguist-js';
 
 // Analyse folder on disc
-const folder = './src';
+const folders = ['./src'];
 const options = { keepVendored: false, quick: false };
-const { files, languages, unknown } = await linguist(folder, options);
+const { files, languages, unknown, repository } = await linguist.analyseFolders(folder, options);
 
 // Analyse file content from raw input
-const fileNames = ['file1.ts', 'file2.ts', 'ignoreme.js'];
-const fileContent = ['#!/usr/bin/env node', 'console.log("Example");', '"ignored"'];
-const options = { ignoredFiles: ['ignore*'] };
-const { files, languages, unknown } = await linguist(fileNames, { fileContent, ...options });
+const fileContent = {
+	['file1.ts']: '#!/usr/bin/env node',
+	['file2.ts']: 'console.log("Example");',
+	['ignoreme.js']: 'ignored!',
+}
+const options = { ignoredFiles: ['ignoreme.*'] };
+const { files, languages, unknown, repository } = await linguist.analyseRawContent(fileContent, options);
 ```
 
-- `linguist(entry?, opts?)` (default export):
+**Exports:**
+
+- `analyseFolders(folders?, opts?)`:
   Analyse the language of all files found in a folder or folders.
-  - `entry` (optional; string or string array):
-    The folder(s) to analyse (defaults to `./`).
+  - `folders` (optional; string array):
+    A list of folders to analyse (defaults to `['./']`).
   - `opts` (optional; object):
     An object containing analyser options.
-    - `fileContent` (string or string array):
-      Provides the file content associated with the file name(s) given as `entry` to analyse instead of reading from a folder on disk.
-    - `ignoredFiles` (string array):
-      A list of file path globs to explicitly ignore.
-    - `ignoredLanguages` (string array):
-      A list of languages to ignore.
-    - `categories` (string array):
-      A list of programming language categories that should be included in the results.
-      Defaults to `['data', 'markup', 'programming', 'prose']`.
-    - `childLanguages` (boolean):
-      Whether to display sub-languages instead of their parents when possible (defaults to `false`).
-    - `quick` (boolean):
-      Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
-      Alias for `checkAttributes:false, checkIgnored:false, checkDetected:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
-    - `offline` (boolean):
-      Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
-    - `calculateLines` (boolean):
-      Whether to calculate line of code totals (defaults to `true`).
-    - `keepVendored` (boolean):
-      Whether to keep vendored files (dependencies, etc) (defaults to `false`).
-      Does nothing when `fileContent` is set.
-    - `keepBinary` (boolean):
-      Whether binary files should be included in the output (defaults to `false`).
-    - `relativePaths` (boolean):
-      Change the absolute file paths in the output to be relative to the current working directory (defaults to `false`).
-    - `checkAttributes` (boolean):
-      Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
-      Does nothing when `fileContent` is set.
-    - `checkIgnored` (boolean):
-      Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
-      Does nothing when `fileContent` is set.
-    - `checkDetected` (boolean):
-      Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `categories`.
-    - `checkHeuristics` (boolean):
-      Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
-    - `checkShebang` (boolean):
-      Check shebang (`#!`) lines for explicit language classification (defaults to `true` unless `quick` is set).
-    - `checkModeline` (boolean):
-      Check modelines for explicit language classification (defaults to `true` unless `quick` is set).
+- `analyseRawContent(folders?, opts?)`:
+  Analyse the language of all files found in a folder or folders.
+  - `entry` (optional; string or string array):
+    A list of folders to analyse (defaults to `['./']`).
+  - `opts` (optional; object):
+    An object containing analyser options.
+
+**Analyser options:**
+- `ignoredFiles` (string array):
+  A list of file path globs to explicitly ignore.
+- `ignoredLanguages` (string array):
+  A list of languages to ignore.
+- `categories` (string array):
+  A list of programming language categories that should be included in the results.
+  Defaults to `['data', 'markup', 'programming', 'prose']`.
+- `childLanguages` (boolean):
+  Whether to display sub-languages instead of their parents when possible (defaults to `false`).
+- `quick` (boolean):
+  Whether to skip complex language analysis such as the checking of heuristics and gitattributes statements (defaults to `false`).
+  Alias for `checkAttributes:false, checkIgnored:false, checkDetected:false, checkHeuristics:false, checkShebang:false, checkModeline:false`.
+- `offline` (boolean):
+  Whether to use pre-packaged metadata files instead of fetching them from GitHub at runtime (defaults to `false`).
+- `calculateLines` (boolean):
+  Whether to calculate line of code totals (defaults to `true`).
+- `keepVendored` (boolean):
+  Whether to keep vendored files (dependencies, etc) (defaults to `false`).
+  Does nothing when `fileContent` is set.
+- `keepBinary` (boolean):
+  Whether binary files should be included in the output (defaults to `false`).
+- `relativePaths` (boolean):
+  Change the absolute file paths in the output to be relative to the current working directory (defaults to `false`).
+- `checkAttributes` (boolean):
+  Force the checking of `.gitattributes` files (defaults to `true` unless `quick` is set).
+  Does nothing when `fileContent` is set.
+- `checkIgnored` (boolean):
+  Force the checking of `.gitignore` files (defaults to `true` unless `quick` is set).
+  Does nothing when `fileContent` is set.
+- `checkDetected` (boolean):
+  Force files marked with `linguist-detectable` to show up in the output, even if the file is not part of the declared `categories`.
+- `checkHeuristics` (boolean):
+  Apply heuristics to ambiguous languages (defaults to `true` unless `quick` is set).
+- `checkShebang` (boolean):
+  Check shebang (`#!`) lines for explicit language classification (defaults to `true` unless `quick` is set).
+- `checkModeline` (boolean):
+  Check modelines for explicit language classification (defaults to `true` unless `quick` is set).
 
 ### Command-line
 
 ```
-linguist --analyze [<folders...>] [<options...>]
+linguist --analyse [<folders...>] [<options...>]
 linguist --help
 linguist --version
 ```
 
-- `--analyze`:
+- `--analyse`:
   Analyse the language of all files found in a folder or folders.
   - `[<folders...>]`:
     The folders to analyse (defaults to `./`).
