@@ -9,7 +9,7 @@
     /* Examples: https://github.com/tsconfig/bases */
 
     /* Basic Options */
-    "target": "ES2023",
+    "target": "ES2025",
     "module": "NodeNext",
     "lib": ["ESNext"],
     //"allowJs": true,

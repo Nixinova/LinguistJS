@@ -29,7 +29,7 @@ linguist-js --help
 
 ## Usage
 
-LinguistJS contains one function which analyses a given folder or folders.
+LinguistJS analyses a folder, or a dictionary of already-read file content, and determines what programming languages are used within.
 
 As an example, take the following file structure:
 
@@ -42,8 +42,9 @@ As an example, take the following file structure:
 | no-lang 10B
 | x.pluginspec 10B
 ```
+*(or, an object with keys `"/src", "/src/cli.js", ...` and preloaded file content)*
 
-Running LinguistJS on this folder will return the following JSON:
+Running LinguistJS on this will return the following JSON:
 
 ```json
 {
@@ -103,7 +104,7 @@ Running LinguistJS on this folder will return the following JSON:
 ### Notes
 
 - File paths in the output use only forward slashes as delimiters, even on Windows.
-- Unless running in offline mode, do not rely on any language classification output from LinguistJS being unchanged between runs.
+- Unless running in offline mode: do not rely on any language classification output from LinguistJS being unchanged between runs.
   Language data is fetched each run from the latest classifications of [`github-linguist`](https://github.com/github/linguist).
   This data is subject to change at any time and may change the results of a run even when using the same version of Linguist.
 
@@ -112,7 +113,7 @@ Running LinguistJS on this folder will return the following JSON:
 ### Node
 
 ```js
-const linguist = require('linguist-js');
+import linguist from 'linguist-js';
 
 // Analyse folder on disc
 const folders = ['./src'];
