@@ -21,7 +21,7 @@ async function loadWebFile(file: string): Promise<string> {
 }
 
 async function loadLocalFile(file: string): Promise<string> {
-	const filePath = Path.resolve(dirname, '../../ext', file);
+	const filePath = Path.resolve(dirname, '../../../ext', file);
 	return FS.promises.readFile(filePath).then((buffer) => buffer.toString());
 }
 

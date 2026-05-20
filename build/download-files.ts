@@ -3,7 +3,7 @@
 import FS from 'fs';
 import YAML from 'js-yaml';
 import Path from 'path';
-import loadFile, { parseGeneratedDataFile } from '../src/program/data/loadData.ts';
+import { loadFile, parseGeneratedDataFile } from '../src/program/data/loadDataFiles.ts';
 
 async function writeFile(filename: string) {
 	const filePath = Path.resolve('ext', filename);
