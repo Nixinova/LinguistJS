@@ -23,7 +23,7 @@ export function aggregateResults(
 	files: T.VirtualFile[],
 	classifications: Record<string, string[]>,
 	heuristicResolutions: Record<string, string | undefined>,
-	langData: Record<string, unknown>,
+	langData: { [language: string]: T.LanguageMetadata },
 	opts: T.Options
 ): T.Results {
 	const results: T.Results = {
@@ -41,7 +41,12 @@ export function aggregateResults(
 		// Narrow down file associations to the best fit
 		const candidates = classifications[file.path] ?? [];
 		// If no heuristics, assign a language
-		const selectedLanguage = heuristicResolutions[file.path] ?? pickBestLanguage(candidates);
+		const bestLanguage = heuristicResolutions[file.path] ?? pickBestLanguage(candidates);
+		const selectedLanguage = bestLanguage
+			? opts.childLanguages
+				? bestLanguage // use the child language
+				: (langData[bestLanguage]?.group ?? bestLanguage) // use the parent language, if it exists
+			: null;
 		const alternativeLanguages = [...new Set(candidates.filter((lang) => lang !== selectedLanguage))];
 		// Assign first language as a default option
 		// List alternative languages if there are any
@@ -72,8 +77,8 @@ export function aggregateResults(
 			continue;
 		}
 
-		const languageMeta = langData[selectedLanguage] as Record<string, unknown> | undefined;
-		const category = languageMeta?.type as T.Category | undefined;
+		const languageMeta = langData[selectedLanguage];
+		const category = languageMeta?.type;
 		const allowed = !hiddenCategories.includes(category ?? 'programming') || file.attributes?.detectable === true;
 		if (!allowed) {
 			continue;
@@ -81,11 +86,11 @@ export function aggregateResults(
 
 		if (!results.repository[selectedLanguage]) {
 			results.repository[selectedLanguage] = {
-				type: (languageMeta?.type as T.Category) ?? 'programming',
-				color: languageMeta?.color as `#${string}` | undefined,
+				type: languageMeta?.type ?? 'programming',
+				color: languageMeta?.color,
 			};
 			if (opts.childLanguages) {
-				results.repository[selectedLanguage].parent = languageMeta?.group as string | undefined;
+				results.repository[selectedLanguage].parent = languageMeta?.group;
 			}
 		}
 

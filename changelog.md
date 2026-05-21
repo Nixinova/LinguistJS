@@ -1,6 +1,9 @@
 # Changelog
 
 ## 3.0.0 (Upcoming)
+
+- Fixed `childLanguages` parameter always being enabled.
+
 ### 3.0.0-pre
 *2026-05-20*
 - Added `repositories` output object, featuring all languages' metadata.

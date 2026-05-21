@@ -7,8 +7,8 @@ function desc(text) {
 	console.info(`  Testing: ${text}`);
 }
 
-async function test([filename, fileContent = ''], [type, testVal]) {
-	const actual = await linguist.analyseRawContent({ [filename]: fileContent }, { childLanguages: true });
+async function test([filename, fileContent = ''], [type, testVal], opts) {
+	const actual = await linguist.analyseRawContent({ [filename]: fileContent }, opts);
 	const testContent = {
 		'files': actual.files.results[filename],
 		'size': actual.files.bytes,
@@ -35,11 +35,13 @@ async function unitTest() {
 	await test(['x.c'], ['files', 'C']);
 	await test(['x.R'], ['files', 'R']);
 	await test(['.m'], ['alternatives_count', 1])
+	await test(['view.tsx'], ['files', 'TypeScript']);
+	await test(['view.tsx'], ['files', 'TSX'], { childLanguages: true });
 	desc('filenames');
 	await test(['Dockerfile'], ['files', 'Dockerfile']);
 	await test(['CMakeLists.txt'], ['files', 'CMake']);
-	await test(['tsconfig.json'], ['files', 'JSON with Comments']);
-	await test(['index.tsx'], ['files', 'TSX'])
+	await test(['tsconfig.json'], ['files', 'JSON']);
+	await test(['tsconfig.json'], ['files', 'JSON with Comments'], { childLanguages: true });
 	await test(['file.antlers.php'], ['files', 'Antlers'])
 	await test(['file.other.php', '<?php?>'], ['files', 'PHP'])
 	desc('shebangs');
@@ -55,7 +57,7 @@ async function unitTest() {
 	desc('heuristics');
 	await test(['c-sharp.cs', 'namespace example {} // empty'], ['files', 'C#']);
 	await test(['smalltalk.cs', '!interface methodsFor: instance'], ['files', 'Smalltalk']);
-	await test(['eclipse.ecl', 'var:-val'], ['files', 'ECLiPSe']);
+	await test(['eclipse.ecl', 'var:-val'], ['files', 'ECLiPSe'], { childLanguages: true });
 	await test(['ecl.ecl', 'var:=val'], ['files', 'ECL']);
 	await test(['frege.fr', 'import package'], ['files', 'Frege']);
 	await test(['forth.fr', 'new-device 1'], ['files', 'Forth']);
