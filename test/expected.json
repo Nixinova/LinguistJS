@@ -1,11 +1,10 @@
 {
 	"files": {
-		"count": 12,
-		"bytes": 199,
-		"lines": { "total": 27, "content": 16 },
+		"count": 11,
+		"bytes": 185,
+		"lines": { "total": 25, "content": 15 },
 		"results": {
 			"~/al.al": "Perl",
-			"~/alternatives.asc": "AGS Script",
 			"~/file.txt": "JavaScript",
 			"~/folder/file.txt": "JavaScript",
 			"~/folder/sub.txt": "Text",
@@ -16,14 +15,11 @@
 			"~/detected.json": "JSON",
 			"~/Pipfile": "TOML",
 			"~/unknown": null
-		},
-		"alternatives": {
-			"~/alternatives.asc": ["AsciiDoc", "Public Key"]
 		}
 	},
 	"languages": {
-		"count": 8,
-		"bytes": 190,
+		"count": 7,
+		"bytes": 176,
 		"results": {
 			"Perl": {
 				"count": 1,
@@ -31,13 +27,6 @@
 				"bytes": 0,
 				"lines": { "total": 1, "content": 0 },
 				"color": "#0298c3"
-			},
-			"AGS Script": {
-				"count": 1,
-				"type": "programming",
-				"bytes": 14,
-				"lines": { "total": 2, "content": 1 },
-				"color": "#B9D9FF"
 			},
 			"JSON": {
 				"count": 2,

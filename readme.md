@@ -62,9 +62,6 @@ Running LinguistJS on this will return the following JSON:
       "/no-lang": null,
       "/x.pluginspec": "Ruby",
     },
-    "alternatives": {
-      "/x.pluginspec": ["XML"],
-    },
   },
   "languages": {
     "count": 3,

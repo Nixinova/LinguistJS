@@ -1,7 +1,7 @@
 # Changelog
 
 ## 3.0.0 (Upcoming)
-
+- Removed `files.alternatives` from the output.
 - Fixed `childLanguages` parameter always being enabled.
 
 ### 3.0.0-pre

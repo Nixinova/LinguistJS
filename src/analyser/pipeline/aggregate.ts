@@ -4,6 +4,7 @@ import * as T from '../../types/types.js';
 const categoryKeys: T.Category[] = ['data', 'markup', 'programming', 'prose'];
 
 function pickBestLanguage(classifications: string[]): string | null {
+	// Assign first language as a default option
 	return classifications[0] ?? null;
 }
 
@@ -27,7 +28,7 @@ export function aggregateResults(
 	opts: T.Options
 ): T.Results {
 	const results: T.Results = {
-		files: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {}, alternatives: {} },
+		files: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {} },
 		languages: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, results: {} },
 		unknown: { count: 0, bytes: 0, lines: { total: 0, content: 0 }, extensions: {}, filenames: {} },
 		repository: {},
@@ -47,9 +48,6 @@ export function aggregateResults(
 				? bestLanguage // use the child language
 				: (langData[bestLanguage]?.group ?? bestLanguage) // use the parent language, if it exists
 			: null;
-		const alternativeLanguages = [...new Set(candidates.filter((lang) => lang !== selectedLanguage))];
-		// Assign first language as a default option
-		// List alternative languages if there are any
 		// Load language bytes size
 		const size = file.size ?? file.content?.length ?? 0;
 		// Calculate lines of code
@@ -95,9 +93,7 @@ export function aggregateResults(
 		}
 
 		results.files.results[outputPath] = selectedLanguage;
-		if (alternativeLanguages.length) {
-			results.files.alternatives[outputPath] = alternativeLanguages;
-		}
+
 		// Apply to files totals
 		results.files.bytes += size;
 		results.files.lines.total += Number.isNaN(loc.total) ? 0 : loc.total;

@@ -64,7 +64,6 @@ export interface Results {
 		lines: LinesOfCode
 		/** Note: Results use slashes as delimiters even on Windows. */
 		results: Record<FilePath, LanguageResult>
-		alternatives: Record<FilePath, LanguageResult[]>
 	}
 	languages: {
 		count: Integer
