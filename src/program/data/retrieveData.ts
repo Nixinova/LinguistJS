@@ -4,17 +4,14 @@ import { loadFile } from './loadDataFiles.js';
 
 type LoadedData = {
 	langData: LanguagesScema;
-	vendorData: VendorSchema;
-	docData: VendorSchema;
 	heuristicsData: HeuristicsSchema;
-	generatedData: string[];
 	vendorPaths: string[];
 };
 
 let data: LoadedData = null!;
 
 async function initRetrieveData(offline: boolean): Promise<void> {
-	// Only load the data on mont
+	// Only load the data on mount
 	if (data) return;
 
 	const langData = (await loadFile('languages.yml', offline).then(YAML.load)) as LanguagesScema;
@@ -26,10 +23,7 @@ async function initRetrieveData(offline: boolean): Promise<void> {
 
 	data = {
 		langData,
-		vendorData,
-		docData,
 		heuristicsData,
-		generatedData,
 		vendorPaths,
 	};
 }
