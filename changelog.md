@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed generated checks not working in offline mode.
+
 ## 3.0.0
 
 ### 3.0.0 (release)

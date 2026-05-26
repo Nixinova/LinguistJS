@@ -1,22 +1,17 @@
-#!/usr/bin/env tsx
-
 import FS from 'fs';
-import YAML from 'js-yaml';
 import Path from 'path';
-import { loadFile, parseGeneratedDataFile } from '../src/program/data/loadDataFiles.ts';
+import { loadFile } from '../src/program/data/loadDataFiles.ts';
 
 async function writeFile(filename: string) {
 	const filePath = Path.resolve('ext', filename);
 	const fileData = await loadFile(filename, false);
-	let fileDataMin = fileData
+	const fileDataMin = fileData
 		// Convert /x flag
 		.replace(/(\s+|^)#.*/g, '') // remove comments
 		.replace(/^\s*$(?:\r?\n|\r)/gm, '') // Remove empty lines
 		.replace(/(pattern: )\|.*\n((\s+).+\n(\3.+\n)+)/g, (_, pref, content) => `${pref}'${content.replace(/^\s+|\s+$|\r?\n/gm, '')}'\n`) // flatten multi-line data
 		.replace('(?x)', '')
-	// Nuke unused `generated.rb` content
-	if (filename === 'generated.rb')
-		fileDataMin = YAML.dump(await parseGeneratedDataFile(fileDataMin));
+	// Write the file
 	FS.promises.writeFile(filePath, fileDataMin)
 		.then(() => console.log(`Successfully wrote ${filename}.`))
 		.catch(() => console.log(`Failed to write ${filename}.`))

@@ -1,3 +1,4 @@
+import YAML from 'js-yaml';
 import Cache from 'node-cache';
 import FS from 'node:fs';
 import Path from 'node:path';
@@ -15,8 +16,16 @@ async function loadWebFile(file: string): Promise<string> {
 	// Load file content, falling back to the local file if the request fails
 	const fileContent = await fetch(dataUrl(file))
 		.then((data) => data.text())
-		.catch(async () => await loadLocalFile(file));
+		.catch(async (x) => void x);
+	if (!fileContent) {
+		return await loadLocalFile(file);
+	}
 	cache.set(file, fileContent);
+	// Clean up lengthy files
+	if (file === 'generated.rb') {
+		return YAML.dump(parseGeneratedDataFile(fileContent));
+	}
+
 	return fileContent;
 }
 

@@ -1,6 +1,6 @@
 import YAML from 'js-yaml';
 import { HeuristicsSchema, LanguagesScema, VendorSchema } from '../../types/schema.js';
-import { loadFile, parseGeneratedDataFile } from './loadDataFiles.js';
+import { loadFile } from './loadDataFiles.js';
 
 type LoadedData = {
 	langData: LanguagesScema;
@@ -21,7 +21,7 @@ async function initRetrieveData(offline: boolean): Promise<void> {
 	const vendorData = (await loadFile('vendor.yml', offline).then(YAML.load)) as VendorSchema;
 	const docData = (await loadFile('documentation.yml', offline).then(YAML.load)) as VendorSchema;
 	const heuristicsData = (await loadFile('heuristics.yml', offline).then(YAML.load)) as HeuristicsSchema;
-	const generatedData = (await loadFile('generated.rb', offline).then(parseGeneratedDataFile)) as string[];
+	const generatedData = (await loadFile('generated.rb', offline).then(YAML.load)) as string[];
 	const vendorPaths = [...vendorData, ...docData, ...generatedData];
 
 	data = {
