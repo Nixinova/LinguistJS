@@ -2,6 +2,7 @@
 
 ## 3.0.0 (Upcoming)
 - Removed `files.alternatives` from the output.
+- Changed candidate resolution to use the same prioritisation as github-linguist does.
 - Fixed `childLanguages` parameter always being enabled.
 
 ### 3.0.0-pre

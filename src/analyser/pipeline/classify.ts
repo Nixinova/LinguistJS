@@ -22,11 +22,12 @@ export function classifyFiles(files: T.VirtualFile[], langData: LanguagesScema, 
 	const classifications: Record<string, string[]> = {};
 	for (const file of files) {
 		// Search each language
+		// Note: order here is important; the first match will be the one chosen
 		const candidates: string[] = [
 			...byAttributes(file, langData),
+			...byModeline(file, langData, opts),
 			...byFilename(file, langData),
 			...byShebang(file, langData, opts),
-			...byModeline(file, langData, opts),
 			...byExtension(file, langData),
 		];
 		classifications[file.path] = dedupeClassifications(candidates);
