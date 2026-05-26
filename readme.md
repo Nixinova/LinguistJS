@@ -38,62 +38,48 @@ As an example, take the following file structure:
 | src
 | | cli.js 1kB
 | | index.ts 2kB
-| readme.md 3kB
+| info.md 3kB
 | no-lang 10B
-| x.pluginspec 10B
 ```
-*(or, an object with keys `"/src", "/src/cli.js", ...` and preloaded file content)*
+
+This may be represented in object form as a mapping of file path to file content.
 
 Running LinguistJS on this will return the following JSON:
 
 ```json
 {
   "files": {
-    "count": 5,
-    "bytes": 6020,
-    "lines": {
-      "total": 100,
-      "content": 90,
-    },
+    "count": 4,
+    "bytes": 6010,
+    "lines": { "total": 150, "content": 75 },
     "results": {
-      "/src/index.ts": "TypeScript",
-      "/src/cli.js": "JavaScript",
-      "/readme.md": "Markdown",
+      "/info.md": "Markdown",
       "/no-lang": null,
-      "/x.pluginspec": "Ruby",
-    },
+      "/src/cli.js": "JavaScript",
+      "/src/index.ts": "TypeScript"
+    }
   },
   "languages": {
     "count": 3,
-    "bytes": 6010,
-    "lines": {
-      "total": 90,
-      "content": 80,
-    },
+    "bytes": 6000,
+    "lines": { "total": 147, "content": 74 },
     "results": {
-      "JavaScript": { "bytes": 1000, "lines": { "total": 49, "content": 49 }, },
-      "Markdown": { "bytes": 3000, "lines": { "total": 10, "content": 5 }, },
-      "Ruby": { "bytes": 10, "lines": { "total": 1, "content": 1 }, },
-      "TypeScript": { "bytes": 2000, "lines": { "total": 30, "content": 25 }, },
-    },
+      "Markdown": { "count": 1, "bytes": 3000, "lines": { "total": 10, "content": 5 } },
+      "JavaScript": { "count": 1, "bytes": 1000, "lines": { "total": 46, "content": 23 } },
+      "TypeScript": { "count": 1, "bytes": 2000, "lines": { "total": 91, "content": 46 } }
+    }
   },
   "unknown": {
     "count": 1,
     "bytes": 10,
-    "lines": {
-      "total": 10,
-      "content": 10,
-    },
-    "filenames": {
-      "no-lang": 10,
-    },
+    "lines": { "total": 3, "content": 1 },
     "extensions": {},
+    "filenames": { "no-lang": 10 }
   },
   "repository": {
-    "JavaScript": { "type": "programming", "color": "#f1e05a" },
     "Markdown": { "type": "prose", "color": "#083fa1" },
-    "Ruby": { "type": "programming", "color": "#701516" },
-    "TypeScript": { "type": "programming", "color": "#2b7489" },
+    "JavaScript": { "type": "programming", "color": "#f1e05a" },
+    "TypeScript": { "type": "programming", "color": "#3178c6" }
   }
 }
 ```
