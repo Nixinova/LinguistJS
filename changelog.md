@@ -1,9 +1,13 @@
 # Changelog
 
-## 3.0.0 (Upcoming)
+## 3.0.0
+
+### 3.0.0 (release)
+*2026-05-26*
 - Removed `files.alternatives` from the output.
 - Changed candidate resolution to use the same prioritisation as github-linguist does.
 - Fixed `childLanguages` parameter always being enabled.
+- Package now requires Node 26.
 
 ### 3.0.0-pre
 *2026-05-20*
