@@ -1,6 +1,6 @@
 {
 	"name": "linguist-js",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"description": "Analyse the programming languages used in a folder or from raw content, using the same rules that GitHub Linguist does.",
 	"main": "dist/index.js",
 	"type": "module",

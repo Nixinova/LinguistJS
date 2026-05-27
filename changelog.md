@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 3.0.1
+*2026-05-27*
 - Fixed generated checks not working in offline mode.
 - Fixed heuristics featuring referenced named groups not being applied.
 
