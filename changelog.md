@@ -2,6 +2,7 @@
 
 ## Next
 - Fixed generated checks not working in offline mode.
+- Fixed heuristics featuring referenced named groups not being applied.
 
 ## 3.0.0
 

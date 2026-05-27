@@ -14,6 +14,7 @@ export default function pcre(regex: string): RegExp {
 	// Remove PCRE-only syntax
 	replace(/([*+]){2}/g, '$1');
 	replace(/\(\?>/g, '(?:');
+	replace(/\\g\<[^>]+\>/g, '.*?'); // referenced named groups not supported
 	// Remove start/end-of-file markers
 	if (/\\[AZ]/.test(finalRegex)) {
 		replace(/\\A/g, '^');

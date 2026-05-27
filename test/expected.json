@@ -1,14 +1,16 @@
 {
 	"files": {
-		"count": 11,
-		"bytes": 185,
-		"lines": { "total": 25, "content": 15 },
+		"count": 13,
+		"bytes": 220,
+		"lines": { "total": 29, "content": 17 },
 		"results": {
+			"~/adblock.txt": "Adblock Filter List",
 			"~/al.al": "Perl",
 			"~/file.txt": "JavaScript",
 			"~/folder/file.txt": "JavaScript",
 			"~/folder/sub.txt": "Text",
 			"~/hashbang": "JavaScript",
+			"~/hosts.txt": "Hosts File",
 			"~/loc.c": "C",
 			"~/modeline.txt": "C++",
 			"~/package-lock.json": "JSON",
@@ -18,15 +20,27 @@
 		}
 	},
 	"languages": {
-		"count": 7,
-		"bytes": 176,
+		"count": 9,
+		"bytes": 211,
 		"results": {
+			"Adblock Filter List": {
+				"count": 1,
+				"bytes": 22,
+				"lines": { "total": 2, "content": 1 },
+				"color": "#800000"
+			},
 			"Perl": {
 				"count": 1,
 				"type": "programming",
 				"bytes": 0,
 				"lines": { "total": 1, "content": 0 },
 				"color": "#0298c3"
+			},
+			"Hosts File": {
+				"count": 1,
+				"bytes": 13,
+				"lines": { "total": 2, "content": 1 },
+				"color": "#308888"
 			},
 			"JSON": {
 				"count": 2,
