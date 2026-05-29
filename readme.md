@@ -116,15 +116,15 @@ const { files, languages, unknown, repository } = await linguist.analyseRawConte
 **Exports:**
 
 - `analyseFolders(folders?, opts?)`:
-  Analyse the language of all files found in a folder or folders.
+  Analyse the language of all files found in a list of folders.
   - `folders` (optional; string array):
     A list of folders to analyse (defaults to `['./']`).
   - `opts` (optional; object):
     An object containing analyser options.
-- `analyseRawContent(folders?, opts?)`:
-  Analyse the language of all files found in a folder or folders.
-  - `entry` (optional; string or string array):
-    A list of folders to analyse (defaults to `['./']`).
+- `analyseRawContent(fileContent, opts?)`:
+  Analyse the language of of preloaded file content.
+  - `fileContent` (string-string map):
+    A mapping of file name to file content to analyse.
   - `opts` (optional; object):
     An object containing analyser options.
 
