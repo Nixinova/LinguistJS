@@ -1,5 +1,9 @@
 # Changelog
 
+## Next
+- Fixed `ignoredFiles` not being applied when in raw content mode.
+- Fixed gitignores not applying to subfolders.
+
 ## 3.0.1
 *2026-05-27*
 - Fixed generated checks not working in offline mode.

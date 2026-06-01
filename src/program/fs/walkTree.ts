@@ -56,7 +56,8 @@ export default function walkTree(data: WalkInput): WalkOutput {
 			const ignoredPaths = parseGitignore(gitignoreContents);
 			const rootRelIgnoredPaths = ignoredPaths.map((ignorePath) =>
 				// get absolute path of the ignore glob
-				normPath(folder, ignorePath)
+				// use '/**/' to ensure matches in subfolders are also ignored
+				normPath(folder, '**', ignorePath)
 					// convert abs ignore glob to be relative to the root folder
 					.replace(commonRoot + '/', '')
 			);

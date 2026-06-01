@@ -75,6 +75,8 @@ async function unitTest() {
 	await test(['samples/head.h'], ['files', undefined]);
 	desc('unknown');
 	await test(['unknown'], ['files', null]);
+	desc('ignored')
+	await test(['hidden.svg', ''], ['files', undefined], { ignoredFiles: '*.svg' })
 
 	if (errors) {
 		console.error(`\n! Exited with ${errors} errors.\n`);
