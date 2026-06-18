@@ -16,7 +16,7 @@
 		"download-files": "node build/download-files.ts",
 		"pre-publish": "npm run download-files && npm test && npm run perf",
 		"perf": "tsc && node test/perf",
-		"test": "tsc && node test/folder && node test/unit"
+		"test": "tsc && node test/folder && node test/unit && node test/published-import.js"
 	},
 	"files": [
 		"bin/",

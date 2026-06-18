@@ -1,3 +1,4 @@
+import binaryExtensions from 'binary-extensions';
 import commonPrefix from 'common-path-prefix';
 import ignore from 'ignore';
 import FS from 'node:fs';
@@ -8,9 +9,7 @@ import walkTree from '../program/fs/walkTree.js';
 import parseGitattributes from '../program/parsing/parseGitattributes.js';
 import * as T from '../types/types.js';
 
-const binaryData = JSON.parse(
-	FS.readFileSync(new URL('../../node_modules/binary-extensions/binary-extensions.json', import.meta.url), 'utf-8')
-) as string[];
+const binaryData = binaryExtensions as string[];
 
 type FileInput = string;
 
