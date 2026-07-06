@@ -1,6 +1,7 @@
 # Changelog
 
-## Next
+## 3.0.2
+*2026-07-06*
 - Fixed binary-extensions import failure ([#45](https://github.com/Nixinova/LinguistJS/issues/45)).
 - Fixed `ignoredFiles` not being applied when in raw content mode.
 - Fixed gitignores not applying to subfolders.
