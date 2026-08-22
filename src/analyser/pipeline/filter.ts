@@ -1,5 +1,12 @@
 import ignore from 'ignore';
+import Path from 'node:path';
+import { normPath } from '../../program/fs/normalisedPath.js';
 import * as T from '../../types/types.js';
+
+function getIgnorePath(filePath: string): string {
+	const normalizedPath = normPath(filePath);
+	return Path.isAbsolute(filePath) ? normPath(Path.relative(Path.parse(filePath).root, filePath)) : normalizedPath;
+}
 
 export function filterFiles(files: T.VirtualFile[], opts: T.Options): T.VirtualFile[] {
 	return files.filter((file) => {
@@ -15,7 +22,7 @@ export function filterFiles(files: T.VirtualFile[], opts: T.Options): T.VirtualF
 			return false;
 		}
 		// Skip manually ignored files
-		if (opts.ignoredFiles?.length && ignore().add(opts.ignoredFiles).ignores((file.path))) {
+		if (opts.ignoredFiles?.length && ignore().add(opts.ignoredFiles).ignores(getIgnorePath(file.path))) {
 			return false;
 		}
 		return true;

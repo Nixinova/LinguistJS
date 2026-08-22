@@ -77,6 +77,9 @@ async function unitTest() {
 	await test(['unknown'], ['files', null]);
 	desc('ignored')
 	await test(['hidden.svg', ''], ['files', undefined], { ignoredFiles: '*.svg' })
+	await test(['file', '',], ['files', undefined], { ignoredFiles: 'file' });
+	await test(['./file', '',], ['files', undefined], { ignoredFiles: 'file' });
+	await test(['/tmp/file', ''], ['files', undefined], { ignoredFiles: 'file' });
 
 	if (errors) {
 		console.error(`\n! Exited with ${errors} errors.\n`);

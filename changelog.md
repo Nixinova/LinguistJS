@@ -1,5 +1,8 @@
 # Changelog
 
+## Next
+- Fixed crash ocurring when testing ignores on absolute paths ([#48](https://github.com/Nixinova/LinguistJS/issues/48)).
+
 ## 3.0.2
 *2026-07-06*
 - Fixed binary-extensions import failure ([#45](https://github.com/Nixinova/LinguistJS/issues/45)).
