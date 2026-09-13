@@ -1,7 +1,7 @@
 {
 	"files": {
 		"count": 13,
-		"bytes": 220,
+		"bytes": 228,
 		"lines": { "total": 29, "content": 17 },
 		"results": {
 			"~/adblock.txt": "Adblock Filter List",
@@ -21,11 +21,11 @@
 	},
 	"languages": {
 		"count": 9,
-		"bytes": 211,
+		"bytes": 219,
 		"results": {
 			"Adblock Filter List": {
 				"count": 1,
-				"bytes": 22,
+				"bytes": 30,
 				"lines": { "total": 2, "content": 1 },
 				"color": "#800000"
 			},
