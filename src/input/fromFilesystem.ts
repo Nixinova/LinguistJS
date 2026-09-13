@@ -92,7 +92,9 @@ export default async function fromFilesystem(input: FileInput[], opts: T.Options
 	const fileSet = new Set(files);
 	const virtualFiles: T.VirtualFile[] = [];
 	for (const file of fileSet) {
-		if (!FS.existsSync(file) || FS.lstatSync(file).isDirectory()) continue;
+		if (!FS.existsSync(file)) continue;
+		const lstat = FS.lstatSync(file);
+		if (lstat.isDirectory() || lstat.isSymbolicLink()) continue;
 		const content = FS.readFileSync(file, 'utf-8');
 		const firstLine = content.split(/\r?\n/)[0] ?? '';
 		const relative = relPath(file);
