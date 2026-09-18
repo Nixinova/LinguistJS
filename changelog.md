@@ -1,9 +1,11 @@
 # Changelog
 
-## Next
+## 3.0.4
+*2026-09-18*
 - Fixed crash occuring when a symbolic link pointing to a directory is present ([#49](https://github.com/Nixinova/LinguistJS/issues/49)).
 
 ## 3.0.3
+*2026-08-22*
 - Fixed crash ocurring when testing ignores on absolute paths ([#48](https://github.com/Nixinova/LinguistJS/issues/48)).
 
 ## 3.0.2
