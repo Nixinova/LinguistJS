@@ -1,12 +1,14 @@
-import { OptionValues } from 'commander';
 import analyseFs from '../entry/analyseFs.js';
 import normaliseOpts from '../input/normaliseOpts.js';
+import { OptionValues } from './args.js';
 import defaultOutput from './output/default.js';
 import treeOutput from './output/tree.js';
 
 const validCategories = ['data', 'programming', 'prose', 'markup'];
 
 export default async function runCliAnalysis(args: OptionValues) {
+	if (!args.analyse) return;
+
 	// Check arguments
 	if (args.categories?.some((category: string) => !validCategories.includes(category))) {
 		console.log(`Error: '${args.categories.join(', ')}' contains an invalid category.`);
@@ -15,7 +17,7 @@ export default async function runCliAnalysis(args: OptionValues) {
 	}
 
 	// Analyse language data
-	const folders = args.analyse === true ? ['.'] : args.analyse;
+	const folders = args.analyse.length === 0 ? ['.'] : args.analyse;
 	const data = await analyseFs(folders, normaliseOpts(args));
 
 	// Print output

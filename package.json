@@ -41,7 +41,6 @@
 	"homepage": "https://github.com/Nixinova/Linguist#readme",
 	"dependencies": {
 		"binary-extensions": "^3.2.0",
-		"commander": "^14.0.3",
 		"common-path-prefix": "^3.0.0",
 		"ignore": "^7.0.9",
 		"isbinaryfile": "^6.0.0",

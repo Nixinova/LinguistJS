@@ -1,15 +1,16 @@
-import { program } from 'commander';
 import FS from 'node:fs';
+import { ArgsHelpBuilder, cliArgs as args } from './cli/args.js';
 import runCliAnalysis from './cli/runCliAnalysis.js';
 
 const packageJson = JSON.parse(FS.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 const VERSION = packageJson.version;
 
-program
+const getHelpMessage = () => new ArgsHelpBuilder()
 	.name('linguist')
 	.usage('--analyse [<folders...>] [<options...>]')
 
 	.option('-a|--analyse [folders...]', 'Analyse the languages of all files in a folder')
+	.break()
 	.option('-i|--ignoredFiles <files...>', `A list of file path globs to ignore`)
 	.option('-l|--ignoredLanguages <languages...>', `A list of languages to ignore`)
 	.option('-c|--categories <categories...>', 'Language categories to include in output')
@@ -30,27 +31,16 @@ program
 	.option('-H|--checkHeuristics [bool]', 'Apply heuristics to ambiguous languages', true)
 	.option('-S|--checkShebang [bool]', 'Check shebang lines for explicit classification', true)
 	.option('-M|--checkModeline [bool]', 'Check modelines for explicit classification', true)
-
-	.helpOption(`-h|--help`, 'Display this help message')
-	.version(VERSION, '-v|--version', 'Display the installed version of linguist-js');
-
-program.parse(process.argv);
-const args = program.opts();
-
-// Normalise arguments
-for (const arg in args) {
-	const normalise = (val: any): any => {
-		if (typeof val !== 'string') return val;
-		val = val.replace(/^=/, '');
-		if (val.match(/true$|false$/)) val = val === 'true';
-		return val;
-	};
-	if (Array.isArray(args[arg])) args[arg] = args[arg].map(normalise);
-	else args[arg] = normalise(args[arg]);
-}
+	.option('-h|--help', 'Display this help message')
+	.option('-v|--version', 'Display the installed version of linguist-js')
+	.toString();
 
 // Run Linguist
-if (args.analyse) {
+if (args.help) {
+	console.log(getHelpMessage());
+} else if (args.version) {
+	console.log(`linguist-js ${VERSION}`);
+} else if (args.analyse) {
 	void runCliAnalysis(args);
 } else {
 	console.log(`Welcome to linguist-js, a JavaScript port of the github-linguist language analyser.`);

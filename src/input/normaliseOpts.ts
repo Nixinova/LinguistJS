@@ -1,8 +1,11 @@
+import { OptionValues } from '../cli/args.js';
 import * as T from '../types/types.js';
 
-export default function normaliseOpts(opts: T.Options): T.Options {
-	// Normalise input option arguments
+/** Map cli arg values to the analyser's options model */
+export default function normaliseOpts(opts: OptionValues): T.Options {
 	return {
+		...opts,
+		// Normalise input option arguments
 		calculateLines: opts.calculateLines ?? true, // default to true if unset
 		checkIgnored: !opts.quick,
 		checkDetected: !opts.quick,
@@ -10,6 +13,7 @@ export default function normaliseOpts(opts: T.Options): T.Options {
 		checkHeuristics: !opts.quick,
 		checkShebang: !opts.quick,
 		checkModeline: !opts.quick,
-		...opts,
+		// Map/cast other options that need to be mapped
+		categories: opts.categories as T.Category[] | undefined,
 	};
 }
